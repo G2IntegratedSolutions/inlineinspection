@@ -218,7 +218,9 @@ class CalculateILIPressures(object):
             inFeatures=parameters[0].valueAsText
             legthField=parameters[1].valueAsText
 
-            inlineinspection.AddWarning("Input ILI Feature class {}".format(inFeatures))
+            pipeMAOPField=parameters[6].valueAsText
+
+            inlineinspection.AddMessage("Input ILI Feature class {}".format(inFeatures))
 
             #calculate the first pressure field 1
             fieldName = "AreaOfMetalLoss"
@@ -286,19 +288,19 @@ class CalculateILIPressures(object):
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
 
             fieldName = "CalculatedPressure"
-            expression =  "(!PipeBurstPressure!*!PipeMAOP!)/(!PipeSmys!)"
+            expression =  "(!PipeBurstPressure!*!"+pipeMAOPField+"!)/(!PipeSmys!)"
             code_block = ""
             field_type = 'LONG'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
 
             fieldName = "ReferencePressure"
-            expression = "!PipeMAOP!"
+            expression = "!"+pipeMAOPField+"!"
             code_block = ""
             field_type = 'LONG'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
 
             fieldName = "Safety_Factor"
-            expression = "(!PipeBurstPressure!/!PipeMAOP!)"
+            expression = "(!PipeBurstPressure!/!"+pipeMAOPField+"!)"
             code_block =""
             field_type = 'DOUBLE'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
@@ -310,7 +312,7 @@ class CalculateILIPressures(object):
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
 
             fieldName = "EstimatedRepairFactor"
-            expression = "!PipeMAOP!/!CalculatedPressure!"
+            expression = "!"+pipeMAOPField+"!/!CalculatedPressure!"
             code_block =""
             field_type = 'DOUBLE'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
