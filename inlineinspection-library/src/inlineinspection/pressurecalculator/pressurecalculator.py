@@ -217,44 +217,48 @@ class CalculateILIPressures(object):
             #inFeatures = arcpy.GetParameterAsText(0)
             inFeatures=parameters[0].valueAsText
             legthField=parameters[1].valueAsText
+            maxDepthMeasure=parameters[2].valueAsText
 
+            maxDiameter=parameters[3].valueAsText
+            measuredWallthickness[4].valueAsText
+
+            pipeSmys=parameters[5].valueAsText
             pipeMAOPField=parameters[6].valueAsText
 
             inlineinspection.AddMessage("Input ILI Feature class {}".format(inFeatures))
 
             #calculate the first pressure field 1
             fieldName = "AreaOfMetalLoss"
-            expression = "(2/3)*(!MaxDepthMeasured!)*(!"+legthField+"!)"
+            expression = "(2/3)*(!"+maxDepthMeasure+"!)*(!"+legthField+"!)"
             code_block = ""
             field_type = 'DOUBLE'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
 
            
-
             # # calculate the first pressure field 2
             fieldName = "Mod_AreaOfMetalLoss"
-            expression = "(.85)*(!MaxDepthMeasured!)*(!Length!)"
+            expression = "(.85)*(!"+maxDepthMeasure+"!)*(!"+legthField+"!)"
             code_block =""
             field_type = 'DOUBLE'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
 
             # # calculate the first pressure field 3
             fieldName = "FlowStress"
-            expression = "(1.1)*(!PipeSmys!)"
+            expression = "(1.1)*(!"+pipeSmys+"!)"
             code_block = ""
             field_type = 'LONG'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
             #
             # # calculate the first pressure field 2
             fieldName = "Mod_FlowStress"
-            expression = "(!PipeSmys!+10000)"
+            expression = "(!"+pipeSmys+"!+10000)"
             code_block = ""
             field_type = 'LONG'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
 
 
             fieldName = "FoliasFactor"
-            expression = "folias(!Length!, !MaxDiameter!,!MeasuredWallThickness!)"
+            expression = "folias(!"+legthField+"!, !"+maxDiameter+"!,!"+measuredWallthickness+"!)"
             code_block = """def folias(length, diameter, thickness):
                                 if length <(20*diameter*thickness)**(.5):
                                     return math.sqrt((1 + 0.8 * (length**2/(diameter*thickness))))
@@ -264,7 +268,7 @@ class CalculateILIPressures(object):
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
 
             fieldName = "Mod_FoliasFactor"
-            expression = "modfolias(!Length!, !MaxDiameter!,!MeasuredWallThickness!)"
+            expression = "modfolias(!"+legthField+"!, !"+maxDiameter+"!,!"+measuredWallthickness+"!)"
             code_block = """def modfolias(length, diameter, thickness):
                                 if length**2/(diameter*thickness)<=50:
                                     return math.sqrt((1+(0.6275*(length**2/(diameter*thickness)))-(0.003375*(((length**2)/(diameter*thickness))**2))))
@@ -275,20 +279,20 @@ class CalculateILIPressures(object):
 
 
             fieldName = "PipeBurstPressure"
-            expression = "(!FlowStress!)*((1-(!AreaOfMetalLoss!/(!MeasuredWallThickness!*!Length!)))/(1-(!AreaOfMetalLoss!/(!MeasuredWallThickness!*!Length!*!FoliasFactor!))))*((2*!MeasuredWallThickness!)/!MaxDiameter!)"
+            expression = "(!FlowStress!)*((1-(!AreaOfMetalLoss!/(!"+measuredWallthickness+"!*!"+legthField+"!)))/(1-(!AreaOfMetalLoss!/(!"+measuredWallthickness+"!*!"+legthField+"!*!FoliasFactor!))))*((2*!"+measuredWallthickness+"!)/!"+maxDiameter+"!)"
             code_block = ""
             field_type = 'LONG'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
 
 
             fieldName = "Mod_PipeBurstPressure"
-            expression = "(!Mod_FlowStress!)*((1-(!Mod_AreaOfMetalLoss!/(!MeasuredWallThickness!*!Length!)))/(1-(!Mod_AreaOfMetalLoss!/(!MeasuredWallThickness!*!Length!*(!Mod_FoliasFactor!)))))*((2*!MeasuredWallThickness!)/!MaxDiameter!)"
+            expression = "(!Mod_FlowStress!)*((1-(!Mod_AreaOfMetalLoss!/(!"+measuredWallthickness+"!*!"+legthField+"!)))/(1-(!Mod_AreaOfMetalLoss!/(!"+measuredWallthickness+"!*!"+legthField+"!*(!Mod_FoliasFactor!)))))*((2*!"+measuredWallthickness+"!)/!"+maxDiameter+"!)"
             code_block = ""
             field_type = 'LONG'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
 
             fieldName = "CalculatedPressure"
-            expression =  "(!PipeBurstPressure!*!"+pipeMAOPField+"!)/(!PipeSmys!)"
+            expression =  "(!PipeBurstPressure!*!"+pipeMAOPField+"!)/(!"+pipeSmys+"!)"
             code_block = ""
             field_type = 'LONG'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
@@ -318,7 +322,7 @@ class CalculateILIPressures(object):
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
 
             fieldName = "RupturePressureRatio"
-            expression = "!PipeBurstPressure!/!PipeSmys!"
+            expression = "!PipeBurstPressure!/!"+pipeSmys+"!"
             code_block =""
             field_type = 'DOUBLE'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
