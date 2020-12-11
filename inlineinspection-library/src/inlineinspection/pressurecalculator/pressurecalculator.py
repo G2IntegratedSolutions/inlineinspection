@@ -132,10 +132,48 @@ class PressureCalculator(object):
             datatype="Field", parameterType="Required", direction="Input")
         in_pc_modPipeBurstPressure_field.parameterDependencies = [in_ili_features.name]
         in_pc_modPipeBurstPressure_field.value = config.ILI_PC_ADDING_FIELDS[7]
+
+        in_pc_calculatePressure_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
+            displayName="Calculate Pressure", name="in_pc_calculatePressure_field",
+            datatype="Field", parameterType="Required", direction="Input")
+        in_pc_calculatePressure_field.parameterDependencies = [in_ili_features.name]
+        in_pc_calculatePressure_field.value = config.ILI_PC_ADDING_FIELDS[8]
+
+        in_pc_referencePressure_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
+            displayName="Reference Pressure Pressure", name="in_pc_referencePressure_field",
+            datatype="Field", parameterType="Required", direction="Input")
+        in_pc_referencePressure_field.parameterDependencies = [in_ili_features.name]
+        in_pc_referencePressure_field.value = config.ILI_PC_ADDING_FIELDS[9]
+
+        in_pc_safetyFactor_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
+            displayName="Safety Factor", name="in_pc_safetyFactor_field",
+            datatype="Field", parameterType="Required", direction="Input")
+        in_pc_safetyFactor_field.parameterDependencies = [in_ili_features.name]
+        in_pc_safetyFactor_field.value = config.ILI_PC_ADDING_FIELDS[10]
+
+        in_pc_pressureReferencedRatio_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
+            displayName="Pressure ReferencedRatio", name="in_pc_pressureReferencedRatio_field",
+            datatype="Field", parameterType="Required", direction="Input")
+        in_pc_pressureReferencedRatio_field.parameterDependencies = [in_ili_features.name]
+        in_pc_pressureReferencedRatio_field.value = config.ILI_PC_ADDING_FIELDS[11]
+
+        in_pc_estimatedRepairFactor_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
+            displayName="Estimated Repair Factor", name="in_pc_estimatedRepairFactor_field",
+            datatype="Field", parameterType="Required", direction="Input")
+        in_pc_estimatedRepairFactor_field.parameterDependencies = [in_ili_features.name]
+        in_pc_estimatedRepairFactor_field.value = config.ILI_PC_ADDING_FIELDS[12]
+
+        in_pc_rupturePressureRatio_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
+            displayName="Rupture Pressure Ratio", name="in_pc_rupturePressureRatio_field",
+            datatype="Field", parameterType="Required", direction="Input")
+        in_pc_rupturePressureRatio_field.parameterDependencies = [in_ili_features.name]
+        in_pc_rupturePressureRatio_field.value = config.ILI_PC_ADDING_FIELDS[13]
+
                
         parameters = [in_ili_features,in_pc_length_field,in_pc_MaxDepthMeasured_field,in_pc_MaxDiameter_field,in_pc_MeasuredWallThickness_field,
                       in_pc_PipeSmys_field,in_pc_PipeMAOP_field,in_pc_AreaOfMetalLoss_field, in_pc_modAreaOfMetalLoss_field,in_pc_flowStress_field, 
-                      in_pc_modflowStress_field,in_pc_foliasFactor_field,in_pc_modFoliasFactor_field, in_pc_pipeBurstPressure_field, in_pc_modPipeBurstPressure_field]
+                      in_pc_modflowStress_field,in_pc_foliasFactor_field,in_pc_modFoliasFactor_field, in_pc_pipeBurstPressure_field, in_pc_modPipeBurstPressure_field,
+                      in_pc_calculatePressure_field, in_pc_referencePressure_field, in_pc_safetyFactor_field, in_pc_pressureReferencedRatio_field, in_pc_estimatedRepairFactor_field, in_pc_rupturePressureRatio_field]
 
         return parameters
 
@@ -278,6 +316,14 @@ class CalculateILIPressures(object):
             modFoliasFactor=parameters[11].valueAsText
             pipeBurstPressure=parameters[12].valueAsText
             modPipeBurstPressure=parameters[13].valueAsText
+            calculatedPressure=parameters[14].valueAsText
+            referencePressure=parameters[15].valueAsText
+            safetyFactor=parameters[16].valueAsText
+            pressureReferencedRatio=parameters[17].valueAsText
+            estimatedRepairFactor=parameters[18].valueAsText
+            rupturePressureRatio=parameters[19].valueAsText
+
+
 
             inlineinspection.AddMessage("Input ILI Feature class {}".format(inFeatures))
 
@@ -343,37 +389,37 @@ class CalculateILIPressures(object):
             field_type = 'LONG'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
 
-            fieldName = "CalculatedPressure"
+            fieldName = calculatedPressure
             expression =  "(!"+pipeBurstPressure+"!*!"+pipeMAOPField+"!)/(!"+pipeSmys+"!)"
             code_block = ""
             field_type = 'LONG'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
 
-            fieldName = "ReferencePressure"
+            fieldName = referencePressure
             expression = "!"+pipeMAOPField+"!"
             code_block = ""
             field_type = 'LONG'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
 
-            fieldName = "Safety_Factor"
+            fieldName = safetyFactor
             expression = "(!"+pipeBurstPressure+"!/!"+pipeMAOPField+"!)"
             code_block =""
             field_type = 'DOUBLE'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
 
-            fieldName = "PressureReferencedRatio"
-            expression = "(!CalculatedPressure!/!ReferencePressure!)"
+            fieldName = pressureReferencedRatio
+            expression = "(!"+calculatedPressure+"!/!"+referencePressure+"!)"
             code_block =""
             field_type = 'DOUBLE'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
 
-            fieldName = "EstimatedRepairFactor"
-            expression = "!"+pipeMAOPField+"!/!CalculatedPressure!"
+            fieldName = estimatedRepairFactor
+            expression = "(!"+pipeMAOPField+"!/!"+calculatedPressure+"!)"
             code_block =""
             field_type = 'DOUBLE'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
 
-            fieldName = "RupturePressureRatio"
+            fieldName = rupturePressureRatio
             expression = "!"+pipeBurstPressure+"!/!"+pipeSmys+"!"
             code_block =""
             field_type = 'DOUBLE'
