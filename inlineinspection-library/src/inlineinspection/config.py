@@ -3,8 +3,6 @@ A collection of default settings that are used throughout the liquids hca system
 These can be overridden by using a
 config file.
 """
-
-# Alen was here!
 #   ------ Hydro trace related config values
 
 ILI_PC_TOOL_CATAGORY =  'ILI Tools'
@@ -15,8 +13,9 @@ ILI_TEMP_FOLDER = "ILI_TEMP"
 ILI_TEMP_GDB = 'TempOutput_ILI.gdb'
 
 ILI_PC_PARAMETER_CATGRY = "Pressure Calculator Parameters"
-ILI_PC_REQ_FIELDS = ['LENGTH' ,'MAXDEPTHMEASURED' ,'MAXDIAMETER' ,'MEASUREDWALLTHICKNESS' ,'PIPESMYS' ,'PIPEMAOP']
+ILI_PC_REQ_FIELDS = ['LENGTH' ,'MAXDEPTHMEASURED' ,'MAXDIAMETER' ,'MEASUREDWALLTHICKNESS' ,'PIPESMYS' ,'B31GMAOP']
 
+ILI_PC_PARAMETER_CATGRY_2 = "Pressure Calculator Parameters 2"
 ILI_PC_ADDING_FIELDS = ['AreaOfMetalLoss' ,'Mod_AreaOfMetalLoss' ,'FlowStress' ,'Mod_FlowStress' ,'FoliasFactor' ,'Mod_FoliasFactor'
                         ,'PipeBurstPressure' ,'Mod_PipeBurstPressure' ,'CalculatedPressure' ,'ReferencePressure' ,'Safety_Factor' ,'PressureReferencedRatio','RupturePressureRatio'
                         ]
