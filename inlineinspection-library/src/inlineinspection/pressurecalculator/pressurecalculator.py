@@ -84,23 +84,23 @@ class PressureCalculator(object):
         in_pc_PipeMAOP_field.value = config.ILI_PC_REQ_FIELDS[5]
         
         #Catigory 2 parameters 'AreaOfMetalLoss', 'modAreaOfMetalLoss', 'flowStress']
-
+        #testing
         in_pc_AreaOfMetalLoss_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
             displayName="Area of Metal Loss", name="in_pc_AreaOfMetalLoss_field",
-            datatype="Field", parameterType="Required", direction="Input")
-        in_pc_AreaOfMetalLoss_field.parameterDependencies = [in_ili_features.name]
+            datatype="Field", parameterType="optional", direction="Input")
+        #in_pc_AreaOfMetalLoss_field.parameterDependencies = [in_ili_features.name]
         in_pc_AreaOfMetalLoss_field.value = config.ILI_PC_ADDING_FIELDS[0]
 
         in_pc_modAreaOfMetalLoss_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
             displayName="Modified Area of Metal Loss", name="in_pc_modAreaOfMetalLoss_field",
-            datatype="Field", parameterType="Required", direction="Input")
-        in_pc_modAreaOfMetalLoss_field.parameterDependencies = [in_ili_features.name]
+            datatype="Field", parameterType="optional", direction="Input")
+        #in_pc_modAreaOfMetalLoss_field.parameterDependencies = [in_ili_features.name]
         in_pc_modAreaOfMetalLoss_field.value = config.ILI_PC_ADDING_FIELDS[1]
 
         in_pc_flowStress_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
             displayName="Flow Stress", name="in_pc_flowStress_field",
-            datatype="Field", parameterType="Required", direction="Input")
-        in_pc_flowStress_field.parameterDependencies = [in_ili_features.name]
+            datatype="Field", parameterType="optional", direction="Input")
+        #in_pc_flowStress_field.parameterDependencies = [in_ili_features.name]
         in_pc_flowStress_field.value = config.ILI_PC_ADDING_FIELDS[2]
 
         in_pc_modflowStress_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
