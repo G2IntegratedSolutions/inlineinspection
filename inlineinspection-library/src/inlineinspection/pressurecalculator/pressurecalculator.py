@@ -87,9 +87,9 @@ class PressureCalculator(object):
         #testing
         in_pc_AreaOfMetalLoss_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
             displayName="Area of Metal Loss", name="in_pc_AreaOfMetalLoss_field",
-            datatype="Field", parameterType="optional", direction="Input")
+            datatype="GPString", parameterType="optional", direction="Input")
         #in_pc_AreaOfMetalLoss_field.parameterDependencies = [in_ili_features.name]
-        in_pc_AreaOfMetalLoss_field.value = config.ILI_PC_ADDING_FIELDS[0]
+        #in_pc_AreaOfMetalLoss_field.value = config.ILI_PC_ADDING_FIELDS[0]
 
         in_pc_modAreaOfMetalLoss_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
             displayName="Modified Area of Metal Loss", name="in_pc_modAreaOfMetalLoss_field",
@@ -199,6 +199,26 @@ class PressureCalculator(object):
                parameters[5].value = config.ILI_PC_REQ_FIELDS[4]
             if not parameters[6].value:
                parameters[6].value = config.ILI_PC_REQ_FIELDS[5]
+
+            # Assigning add field  #config.ILI_PC_ADDING_FIELDS[0]
+            flds = []
+            fc=parameters[0].value
+            flds += [f.name for f in arcpy.ListFields (fc)]
+            if not parameters[7].value:   
+               #parameters[7].filter.list = flds
+               comparevalue='TestAreaOfMetalLoss' 
+               if(not comparevalue in flds):
+                   #datatype="Field"  
+                   flds_1 = []
+                   flds_1 =flds
+                   flds_1.append(comparevalue)
+                   parameters[7].filter.list = flds_1
+                   #parameters[7].filter.list.append(compoarevalue)
+               else:
+                    parameters[7].filter.list = flds
+
+               parameters[7].value = comparevalue
+
         else:
             for i in range(1, 7):
                 parameters[i].value = None
