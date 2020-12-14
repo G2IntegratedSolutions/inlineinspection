@@ -84,7 +84,7 @@ class PressureCalculator(object):
         in_pc_PipeMAOP_field.value = config.ILI_PC_REQ_FIELDS[5]
         
         #Catigory 2 parameters 'AreaOfMetalLoss', 'modAreaOfMetalLoss', 'flowStress']
-        #testing
+        
         in_pc_AreaOfMetalLoss_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
             displayName="Area of Metal Loss", name="in_pc_AreaOfMetalLoss_field",
             datatype="Field", parameterType="optional", direction="Input")
