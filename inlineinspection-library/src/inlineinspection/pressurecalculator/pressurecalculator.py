@@ -60,7 +60,7 @@ class PressureCalculator(object):
         in_pc_MaxDepthMeasured_field.value = config.ILI_PC_REQ_FIELDS[1]
 
         in_pc_MaxDiameter_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY,
-            displayName="Anomaly Length Field", name="in_pc_MaxDiameter_field",
+            displayName="Diameter", name="in_pc_MaxDiameter_field",
             datatype="Field", parameterType="Required", direction="Input")
         in_pc_MaxDiameter_field.parameterDependencies = [in_ili_features.name]
         in_pc_MaxDiameter_field.value = config.ILI_PC_REQ_FIELDS[2]
@@ -83,7 +83,7 @@ class PressureCalculator(object):
         in_pc_PipeMAOP_field.parameterDependencies = [in_ili_features.name]
         in_pc_PipeMAOP_field.value = config.ILI_PC_REQ_FIELDS[5]
         
-        #Catigory 2 parameters 'AreaOfMetalLoss', 'modAreaOfMetalLoss', 'flowStress']
+        #Catigory 2 parameters 'AreaOfMetalLoss', 'modAreaOfMetalLoss', 'flowStress', etc.]
         
         in_pc_AreaOfMetalLoss_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
             displayName="Area of Metal Loss", name="in_pc_AreaOfMetalLoss_field",
@@ -93,81 +93,81 @@ class PressureCalculator(object):
 
         in_pc_modAreaOfMetalLoss_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
             displayName="Modified Area of Metal Loss", name="in_pc_modAreaOfMetalLoss_field",
-            datatype="Field", parameterType="optional", direction="Input")
+            datatype="GPString", parameterType="optional", direction="Input")
         #in_pc_modAreaOfMetalLoss_field.parameterDependencies = [in_ili_features.name]
-        in_pc_modAreaOfMetalLoss_field.value = config.ILI_PC_ADDING_FIELDS[1]
+        #in_pc_modAreaOfMetalLoss_field.value = config.ILI_PC_ADDING_FIELDS[1]
 
         in_pc_flowStress_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
             displayName="Flow Stress", name="in_pc_flowStress_field",
-            datatype="Field", parameterType="optional", direction="Input")
+            datatype="GPString", parameterType="optional", direction="Input")
         #in_pc_flowStress_field.parameterDependencies = [in_ili_features.name]
-        in_pc_flowStress_field.value = config.ILI_PC_ADDING_FIELDS[2]
+        #in_pc_flowStress_field.value = config.ILI_PC_ADDING_FIELDS[2]
 
         in_pc_modflowStress_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
             displayName="Modified Flow Stress", name="in_pc_modflowStress_field",
-            datatype="Field", parameterType="Required", direction="Input")
-        in_pc_modflowStress_field.parameterDependencies = [in_ili_features.name]
-        in_pc_modflowStress_field.value = config.ILI_PC_ADDING_FIELDS[3]
+            datatype="GPString", parameterType="Required", direction="Input")
+        #in_pc_modflowStress_field.parameterDependencies = [in_ili_features.name]
+        #in_pc_modflowStress_field.value = config.ILI_PC_ADDING_FIELDS[3]
 
         in_pc_foliasFactor_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
             displayName="Folias Factor", name="in_pc_foliasFactor_field",
-            datatype="Field", parameterType="Required", direction="Input")
-        in_pc_foliasFactor_field.parameterDependencies = [in_ili_features.name]
-        in_pc_foliasFactor_field.value = config.ILI_PC_ADDING_FIELDS[4]
+            datatype="GPString", parameterType="Required", direction="Input")
+        #in_pc_foliasFactor_field.parameterDependencies = [in_ili_features.name]
+        #in_pc_foliasFactor_field.value = config.ILI_PC_ADDING_FIELDS[4]
 
         in_pc_modFoliasFactor_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
             displayName="Modified Folias Factor", name="in_pc_modFoliasFactor_field",
-            datatype="Field", parameterType="Required", direction="Input")
-        in_pc_modFoliasFactor_field.parameterDependencies = [in_ili_features.name]
-        in_pc_modFoliasFactor_field.value = config.ILI_PC_ADDING_FIELDS[5]
+            datatype="GPString", parameterType="Required", direction="Input")
+        #in_pc_modFoliasFactor_field.parameterDependencies = [in_ili_features.name]
+        #in_pc_modFoliasFactor_field.value = config.ILI_PC_ADDING_FIELDS[5]
 
         in_pc_pipeBurstPressure_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
             displayName="Pipe Burst Pressure", name="in_pc_pipeBurstPressurer_field",
-            datatype="Field", parameterType="Required", direction="Input")
-        in_pc_pipeBurstPressure_field.parameterDependencies = [in_ili_features.name]
-        in_pc_pipeBurstPressure_field.value = config.ILI_PC_ADDING_FIELDS[6]
+            datatype="GPString", parameterType="Required", direction="Input")
+        #in_pc_pipeBurstPressure_field.parameterDependencies = [in_ili_features.name]
+        #in_pc_pipeBurstPressure_field.value = config.ILI_PC_ADDING_FIELDS[6]
 
         in_pc_modPipeBurstPressure_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
             displayName="Modified Pipe Burst Pressure", name="in_pc_modPipeBurstPressure_field",
-            datatype="Field", parameterType="Required", direction="Input")
-        in_pc_modPipeBurstPressure_field.parameterDependencies = [in_ili_features.name]
-        in_pc_modPipeBurstPressure_field.value = config.ILI_PC_ADDING_FIELDS[7]
+            datatype="GPString", parameterType="Required", direction="Input")
+        #in_pc_modPipeBurstPressure_field.parameterDependencies = [in_ili_features.name]
+        #in_pc_modPipeBurstPressure_field.value = config.ILI_PC_ADDING_FIELDS[7]
 
         in_pc_calculatePressure_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
             displayName="Calculate Pressure", name="in_pc_calculatePressure_field",
-            datatype="Field", parameterType="Required", direction="Input")
-        in_pc_calculatePressure_field.parameterDependencies = [in_ili_features.name]
-        in_pc_calculatePressure_field.value = config.ILI_PC_ADDING_FIELDS[8]
+            datatype="GPString", parameterType="Required", direction="Input")
+        #in_pc_calculatePressure_field.parameterDependencies = [in_ili_features.name]
+        #in_pc_calculatePressure_field.value = config.ILI_PC_ADDING_FIELDS[8]
 
         in_pc_referencePressure_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
             displayName="Reference Pressure Pressure", name="in_pc_referencePressure_field",
-            datatype="Field", parameterType="Required", direction="Input")
-        in_pc_referencePressure_field.parameterDependencies = [in_ili_features.name]
-        in_pc_referencePressure_field.value = config.ILI_PC_ADDING_FIELDS[9]
+            datatype="GPString", parameterType="Required", direction="Input")
+        #in_pc_referencePressure_field.parameterDependencies = [in_ili_features.name]
+        #in_pc_referencePressure_field.value = config.ILI_PC_ADDING_FIELDS[9]
 
         in_pc_safetyFactor_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
             displayName="Safety Factor", name="in_pc_safetyFactor_field",
-            datatype="Field", parameterType="Required", direction="Input")
-        in_pc_safetyFactor_field.parameterDependencies = [in_ili_features.name]
-        in_pc_safetyFactor_field.value = config.ILI_PC_ADDING_FIELDS[10]
+            datatype="GPString", parameterType="Required", direction="Input")
+        #in_pc_safetyFactor_field.parameterDependencies = [in_ili_features.name]
+        #in_pc_safetyFactor_field.value = config.ILI_PC_ADDING_FIELDS[10]
 
         in_pc_pressureReferencedRatio_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
             displayName="Pressure ReferencedRatio", name="in_pc_pressureReferencedRatio_field",
-            datatype="Field", parameterType="Required", direction="Input")
-        in_pc_pressureReferencedRatio_field.parameterDependencies = [in_ili_features.name]
-        in_pc_pressureReferencedRatio_field.value = config.ILI_PC_ADDING_FIELDS[11]
+            datatype="GPString", parameterType="Required", direction="Input")
+        #in_pc_pressureReferencedRatio_field.parameterDependencies = [in_ili_features.name]
+        #in_pc_pressureReferencedRatio_field.value = config.ILI_PC_ADDING_FIELDS[11]
 
         in_pc_estimatedRepairFactor_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
             displayName="Estimated Repair Factor", name="in_pc_estimatedRepairFactor_field",
-            datatype="Field", parameterType="Required", direction="Input")
-        in_pc_estimatedRepairFactor_field.parameterDependencies = [in_ili_features.name]
-        in_pc_estimatedRepairFactor_field.value = config.ILI_PC_ADDING_FIELDS[12]
+            datatype="GPString", parameterType="Required", direction="Input")
+        #in_pc_estimatedRepairFactor_field.parameterDependencies = [in_ili_features.name]
+        #in_pc_estimatedRepairFactor_field.value = config.ILI_PC_ADDING_FIELDS[12]
 
         in_pc_rupturePressureRatio_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
             displayName="Rupture Pressure Ratio", name="in_pc_rupturePressureRatio_field",
-            datatype="Field", parameterType="Required", direction="Input")
-        in_pc_rupturePressureRatio_field.parameterDependencies = [in_ili_features.name]
-        in_pc_rupturePressureRatio_field.value = config.ILI_PC_ADDING_FIELDS[13]
+            datatype="GPString", parameterType="Required", direction="Input")
+        #in_pc_rupturePressureRatio_field.parameterDependencies = [in_ili_features.name]
+        #in_pc_rupturePressureRatio_field.value = config.ILI_PC_ADDING_FIELDS[13]
 
                
         parameters = [in_ili_features,in_pc_length_field,in_pc_MaxDepthMeasured_field,in_pc_MaxDiameter_field,in_pc_MeasuredWallThickness_field,
@@ -205,22 +205,63 @@ class PressureCalculator(object):
             fc=parameters[0].value
             flds += [f.name for f in arcpy.ListFields (fc)]
             if not parameters[7].value:   
+               comparevalue= config.ILI_PC_ADDING_FIELDS[0]
+               self.populate_add_field(flds,parameters,7,comparevalue)
                #parameters[7].filter.list = flds
-               comparevalue='TestAreaOfMetalLoss' 
-               if(not comparevalue in flds):
-                   #datatype="Field"  
-                   flds_1 = []
-                   flds_1 =flds
-                   flds_1.append(comparevalue)
-                   parameters[7].filter.list = flds_1
-                   #parameters[7].filter.list.append(compoarevalue)
-               else:
-                    parameters[7].filter.list = flds
 
-               parameters[7].value = comparevalue
+            if not parameters[8].value:   
+               comparevalue= config.ILI_PC_ADDING_FIELDS[1]
+               self.populate_add_field(flds,parameters,8,comparevalue)
 
+            if not parameters[9].value:   
+               comparevalue= config.ILI_PC_ADDING_FIELDS[2]
+               self.populate_add_field(flds,parameters,9,comparevalue)   
+
+            if not parameters[10].value:   
+               comparevalue= config.ILI_PC_ADDING_FIELDS[3]
+               self.populate_add_field(flds,parameters,10,comparevalue) 
+
+            if not parameters[11].value:   
+               comparevalue= config.ILI_PC_ADDING_FIELDS[4]
+               self.populate_add_field(flds,parameters,11,comparevalue) 
+
+            if not parameters[12].value:   
+               comparevalue= config.ILI_PC_ADDING_FIELDS[5]
+               self.populate_add_field(flds,parameters,12,comparevalue) 
+
+            if not parameters[13].value:   
+               comparevalue= config.ILI_PC_ADDING_FIELDS[6]
+               self.populate_add_field(flds,parameters,13,comparevalue) 
+
+            if not parameters[14].value:   
+               comparevalue= config.ILI_PC_ADDING_FIELDS[7]
+               self.populate_add_field(flds,parameters,14,comparevalue) 
+
+            if not parameters[15].value:   
+               comparevalue= config.ILI_PC_ADDING_FIELDS[8]
+               self.populate_add_field(flds,parameters,15,comparevalue)
+
+            if not parameters[16].value:   
+               comparevalue= config.ILI_PC_ADDING_FIELDS[9]
+               self.populate_add_field(flds,parameters,16,comparevalue) 
+
+            if not parameters[17].value:   
+               comparevalue= config.ILI_PC_ADDING_FIELDS[10]
+               self.populate_add_field(flds,parameters,17,comparevalue) 
+
+            if not parameters[18].value:   
+               comparevalue= config.ILI_PC_ADDING_FIELDS[11]
+               self.populate_add_field(flds,parameters,18,comparevalue) 
+
+            if not parameters[19].value:   
+               comparevalue= config.ILI_PC_ADDING_FIELDS[12]
+               self.populate_add_field(flds,parameters,19,comparevalue) 
+
+            if not parameters[20].value:   
+               comparevalue= config.ILI_PC_ADDING_FIELDS[13]
+               self.populate_add_field(flds,parameters,20,comparevalue) 
         else:
-            for i in range(1, 7):
+            for i in range(1, 20):
                 parameters[i].value = None
 
         return
@@ -292,6 +333,20 @@ class PressureCalculator(object):
 
         return missing_flds
 
+    def populate_add_field(self,flds,parameters,idx,addfield):
+        inlineinspection.AddMessage("Processing field {} ".format(addfield))
+        if(not addfield in flds):
+                   #datatype="Field"  
+                   flds_1 = []
+                   flds_1 =flds
+                   flds_1.append(addfield)
+                   parameters[idx].filter.list = flds_1
+
+        else:
+                    parameters[idx].filter.list = flds
+
+        parameters[idx].value = addfield
+
 
 class CalculateILIPressures(object):
 
@@ -343,8 +398,6 @@ class CalculateILIPressures(object):
             estimatedRepairFactor=parameters[18].valueAsText
             rupturePressureRatio=parameters[19].valueAsText
 
-
-
             inlineinspection.AddMessage("Input ILI Feature class {}".format(inFeatures))
 
             #calculate the first pressure field 1
@@ -366,15 +419,15 @@ class CalculateILIPressures(object):
             code_block = ""
             field_type = 'LONG'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
-            #
-            # # calculate the first pressure field 2
+            
+            # # calculate the first pressure field 4
             fieldName = modFlowStress
             expression = "(!"+pipeSmys+"!+10000)"
             code_block = ""
             field_type = 'LONG'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
 
-
+            # # calculate the first pressure field 5
             fieldName = foliasFactor
             expression = "folias(!"+legthField+"!, !"+maxDiameter+"!,!"+measuredWallthickness+"!)"
             code_block = """def folias(length, diameter, thickness):
