@@ -195,9 +195,8 @@ class PressureCalculator(object):
         # Populate dependent fields from the input feature class      
         if(parameters[0].value):
             if parameters[0].value == config.ILI_PIPE_PARAMETER_TYPE[1]:
-               parameters[6].datatype= "GPString"
+               parameters[6].datatype = "GPString"
                parameters[6].value == config.ILI_MANUAL_PIPE_INFORMATION_VALUE[0]
-               
 
         if(parameters[1].value):
             if not parameters[2].value:
