@@ -82,7 +82,7 @@ class PressureCalculator(object):
         in_pc_PipeSmys_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY,
             displayName="Pipe Smys Field", name="in_pc_PipeSmys_field",
             datatype="Field", parameterType="Required", direction="Input")
-        in_pc_PipeSmys_field.parameterDependencies = [in_ili_features.name]
+        #in_pc_PipeSmys_field.parameterDependencies = [in_ili_features.name]
         in_pc_PipeSmys_field.value = config.ILI_PC_REQ_FIELDS[4]
 
         in_pc_PipeMAOP_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY,
@@ -192,8 +192,12 @@ class PressureCalculator(object):
 
     def updateParameters(self, parameters):
 
-        # Populate dependent fields from the input feature class           
-        
+        # Populate dependent fields from the input feature class      
+        if(parameters[0].value):
+            if parameters[0].value == config.ILI_PIPE_PARAMETER_TYPE[1]:
+               parameters[6].datatype = "GPString"
+               parameters[6].value == config.ILI_MANUAL_PIPE_INFORMATION_VALUE[0]
+
         if(parameters[1].value):
             if not parameters[2].value:
                parameters[2].value = config.ILI_PC_REQ_FIELDS[0]
@@ -296,7 +300,7 @@ class PressureCalculator(object):
         try:
             # INPUT PARAMETERS for the process           
             #in_workspace = parameters[0].valueAsText
-            ili_inputpoint_fc = parameters[0].valueAsText
+            ili_inputpoint_fc = parameters[1].valueAsText
                        
             if(arcpy.Exists(ili_inputpoint_fc)):                  
                 ilicount = int(arcpy.GetCount_management(ili_inputpoint_fc).getOutput(0))  
@@ -383,27 +387,27 @@ class CalculateILIPressures(object):
         try:
             # Set the workspace (to avoid having to type in the full path to the data every time)
             #inFeatures = arcpy.GetParameterAsText(0)
-            inFeatures=parameters[0].valueAsText
-            legthField=parameters[1].valueAsText
-            maxDepthMeasure=parameters[2].valueAsText
-            maxDiameter=parameters[3].valueAsText
-            measuredWallthickness=parameters[4].valueAsText
-            pipeSmys=parameters[5].valueAsText
-            pipeMAOPField=parameters[6].valueAsText
-            areaOfMetalLoss=parameters[7].valueAsText
-            modAreaOfMetalLoss=parameters[8].valueAsText
-            flowStress=parameters[9].valueAsText
-            modFlowStress=parameters[10].valueAsText
+            inFeatures=parameters[1].valueAsText
+            legthField=parameters[2].valueAsText
+            maxDepthMeasure=parameters[3].valueAsText
+            maxDiameter=parameters[4].valueAsText
+            measuredWallthickness=parameters[5].valueAsText
+            pipeSmys=parameters[6].valueAsText
+            pipeMAOPField=parameters[7].valueAsText
+            areaOfMetalLoss=parameters[8].valueAsText
+            modAreaOfMetalLoss=parameters[9].valueAsText
+            flowStress=parameters[10].valueAsText
+            modFlowStress=parameters[11].valueAsText
             foliasFactor=parameters[11].valueAsText
-            modFoliasFactor=parameters[11].valueAsText
-            pipeBurstPressure=parameters[12].valueAsText
-            modPipeBurstPressure=parameters[13].valueAsText
-            calculatedPressure=parameters[14].valueAsText
-            referencePressure=parameters[15].valueAsText
-            safetyFactor=parameters[16].valueAsText
-            pressureReferencedRatio=parameters[17].valueAsText
-            estimatedRepairFactor=parameters[18].valueAsText
-            rupturePressureRatio=parameters[19].valueAsText
+            modFoliasFactor=parameters[12].valueAsText
+            pipeBurstPressure=parameters[13].valueAsText
+            modPipeBurstPressure=parameters[14].valueAsText
+            calculatedPressure=parameters[15].valueAsText
+            referencePressure=parameters[16].valueAsText
+            safetyFactor=parameters[17].valueAsText
+            pressureReferencedRatio=parameters[18].valueAsText
+            estimatedRepairFactor=parameters[19].valueAsText
+            rupturePressureRatio=parameters[20].valueAsText
 
             inlineinspection.AddMessage("Input ILI Feature class {}".format(inFeatures))
 
