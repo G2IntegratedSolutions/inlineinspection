@@ -19,6 +19,7 @@ ILI_PC_PARAMETER_CATGRY_2 = "Output Data Columns"
 ILI_PC_ADDING_FIELDS = ['AreaOfMetalLoss' ,'Mod_AreaOfMetalLoss' ,'FlowStress' ,'Mod_FlowStress' ,'FoliasFactor' ,'Mod_FoliasFactor'
                         ,'PipeBurstPressure' ,'Mod_PipeBurstPressure' ,'CalculatedPressure' ,'ReferencePressure' ,'Safety_Factor' ,'PressureReferencedRatio', 'EstimatedRepairFactor', 'RupturePressureRatio'
                         ]
+ILI_PIPE_PARAMETER_TYPE = ['Pipe information from ILI Data', 'Manual Pipe Information', 'Pipe Information from Pipe line feature class']
 
 
 # Event (pipe fill status) table fields

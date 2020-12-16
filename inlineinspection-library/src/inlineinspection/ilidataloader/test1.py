@@ -4,3 +4,10 @@
 # tEST bY Alen 2
 
 # 
+ # Input Pipe Features
+        in_ili_pipe_features = arcpy.Parameter(displayName="Input Pipe Features",
+            name="in_ili_pipe_features",
+            datatype="GPFeatureLayer",
+            parameterType="optional",
+            direction="Input")
+        in_ili_pipe_features.filter.list = ["Point"]

@@ -37,7 +37,15 @@ class PressureCalculator(object):
                 parameters[0]->   in_workspace,
                 parameters[1]->   in_nhd_intersections_features              
                 """
-      
+        # Input Pipe Features
+        in_pipe_parameter_type = arcpy.Parameter(displayName="Input Pipe Parameter Source",
+            name="in_pipe_parameter_type",
+            datatype="GPString",
+            parameterType="optional",
+            direction="Input")
+        in_pipe_parameter_type.filter.list = config.ILI_PIPE_PARAMETER_TYPE
+        in_pipe_parameter_type.value = config.ILI_PIPE_PARAMETER_TYPE[0]
+
         # Input ILI point featuere         
         in_ili_features = arcpy.Parameter(displayName="Input Inline Inspection Point Features",
             name="in_ili_features",
@@ -46,13 +54,13 @@ class PressureCalculator(object):
             direction="Input")
         in_ili_features.filter.list = ["Point"]
 
+         #Catigory 1 parameters 'Length', 'MaxDepthMeasured' ,'MaxDiameter' ,'MeasuredWallThickness' ,'PipeSmys' ,'PipeMAOP', 'AreaOfMetalLoss']
         in_pc_length_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY,
             displayName="Anomaly Length Field", name="in_pc_length_field",
             datatype="Field", parameterType="Required", direction="Input")
         in_pc_length_field.parameterDependencies = [in_ili_features.name]
         in_pc_length_field.value = config.ILI_PC_REQ_FIELDS[0]
 
-        #Catigory 1 parameters 'MaxDepthMeasured' ,'MaxDiameter' ,'MeasuredWallThickness' ,'PipeSmys' ,'PipeMAOP', 'AreaOfMetalLoss']
         in_pc_MaxDepthMeasured_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY,
             displayName="Max Depth Measured Field", name="in_pc_MaxDepthMeasured_field",
             datatype="Field", parameterType="Required", direction="Input")
@@ -170,7 +178,7 @@ class PressureCalculator(object):
         #in_pc_rupturePressureRatio_field.value = config.ILI_PC_ADDING_FIELDS[13]
 
                
-        parameters = [in_ili_features,in_pc_length_field,in_pc_MaxDepthMeasured_field,in_pc_MaxDiameter_field,in_pc_MeasuredWallThickness_field,
+        parameters = [in_pipe_parameter_type, in_ili_features,in_pc_length_field,in_pc_MaxDepthMeasured_field,in_pc_MaxDiameter_field,in_pc_MeasuredWallThickness_field,
                       in_pc_PipeSmys_field,in_pc_PipeMAOP_field,in_pc_AreaOfMetalLoss_field, in_pc_modAreaOfMetalLoss_field,in_pc_flowStress_field, 
                       in_pc_modflowStress_field,in_pc_foliasFactor_field,in_pc_modFoliasFactor_field, in_pc_pipeBurstPressure_field, in_pc_modPipeBurstPressure_field,
                       in_pc_calculatePressure_field, in_pc_referencePressure_field, in_pc_safetyFactor_field, in_pc_pressureReferencedRatio_field, in_pc_estimatedRepairFactor_field, in_pc_rupturePressureRatio_field]
@@ -186,82 +194,81 @@ class PressureCalculator(object):
 
         # Populate dependent fields from the input feature class           
         
-        if(parameters[0].value):
-            if not parameters[1].value:
-               parameters[1].value = config.ILI_PC_REQ_FIELDS[0]
+        if(parameters[1].value):
             if not parameters[2].value:
-               parameters[2].value = config.ILI_PC_REQ_FIELDS[1]
+               parameters[2].value = config.ILI_PC_REQ_FIELDS[0]
             if not parameters[3].value:
-               parameters[3].value = config.ILI_PC_REQ_FIELDS[2]
+               parameters[3].value = config.ILI_PC_REQ_FIELDS[1]
             if not parameters[4].value:
-               parameters[4].value = config.ILI_PC_REQ_FIELDS[3]
+               parameters[4].value = config.ILI_PC_REQ_FIELDS[2]
             if not parameters[5].value:
-               parameters[5].value = config.ILI_PC_REQ_FIELDS[4]
+               parameters[5].value = config.ILI_PC_REQ_FIELDS[3]
             if not parameters[6].value:
-               parameters[6].value = config.ILI_PC_REQ_FIELDS[5]
+               parameters[6].value = config.ILI_PC_REQ_FIELDS[4]
+            if not parameters[7].value:
+               parameters[7].value = config.ILI_PC_REQ_FIELDS[5]
 
             # Assigning add field  #config.ILI_PC_ADDING_FIELDS[0]
             flds = []
-            fc=parameters[0].value
+            fc=parameters[1].value
             flds += [f.name for f in arcpy.ListFields (fc)]
-            if not parameters[7].value:   
-               comparevalue= config.ILI_PC_ADDING_FIELDS[0]
-               self.populate_add_field(flds,parameters,7,comparevalue)
-               #parameters[7].filter.list = flds
-
             if not parameters[8].value:   
-               comparevalue= config.ILI_PC_ADDING_FIELDS[1]
+               comparevalue= config.ILI_PC_ADDING_FIELDS[0]
                self.populate_add_field(flds,parameters,8,comparevalue)
 
             if not parameters[9].value:   
-               comparevalue= config.ILI_PC_ADDING_FIELDS[2]
-               self.populate_add_field(flds,parameters,9,comparevalue)   
+               comparevalue= config.ILI_PC_ADDING_FIELDS[1]
+               self.populate_add_field(flds,parameters,9,comparevalue)
 
             if not parameters[10].value:   
-               comparevalue= config.ILI_PC_ADDING_FIELDS[3]
-               self.populate_add_field(flds,parameters,10,comparevalue) 
+               comparevalue= config.ILI_PC_ADDING_FIELDS[2]
+               self.populate_add_field(flds,parameters,10,comparevalue)   
 
             if not parameters[11].value:   
-               comparevalue= config.ILI_PC_ADDING_FIELDS[4]
+               comparevalue= config.ILI_PC_ADDING_FIELDS[3]
                self.populate_add_field(flds,parameters,11,comparevalue) 
 
             if not parameters[12].value:   
-               comparevalue= config.ILI_PC_ADDING_FIELDS[5]
+               comparevalue= config.ILI_PC_ADDING_FIELDS[4]
                self.populate_add_field(flds,parameters,12,comparevalue) 
 
             if not parameters[13].value:   
-               comparevalue= config.ILI_PC_ADDING_FIELDS[6]
+               comparevalue= config.ILI_PC_ADDING_FIELDS[5]
                self.populate_add_field(flds,parameters,13,comparevalue) 
 
             if not parameters[14].value:   
-               comparevalue= config.ILI_PC_ADDING_FIELDS[7]
+               comparevalue= config.ILI_PC_ADDING_FIELDS[6]
                self.populate_add_field(flds,parameters,14,comparevalue) 
 
             if not parameters[15].value:   
-               comparevalue= config.ILI_PC_ADDING_FIELDS[8]
-               self.populate_add_field(flds,parameters,15,comparevalue)
+               comparevalue= config.ILI_PC_ADDING_FIELDS[7]
+               self.populate_add_field(flds,parameters,15,comparevalue) 
 
             if not parameters[16].value:   
-               comparevalue= config.ILI_PC_ADDING_FIELDS[9]
-               self.populate_add_field(flds,parameters,16,comparevalue) 
+               comparevalue= config.ILI_PC_ADDING_FIELDS[8]
+               self.populate_add_field(flds,parameters,16,comparevalue)
 
             if not parameters[17].value:   
-               comparevalue= config.ILI_PC_ADDING_FIELDS[10]
+               comparevalue= config.ILI_PC_ADDING_FIELDS[9]
                self.populate_add_field(flds,parameters,17,comparevalue) 
 
             if not parameters[18].value:   
-               comparevalue= config.ILI_PC_ADDING_FIELDS[11]
+               comparevalue= config.ILI_PC_ADDING_FIELDS[10]
                self.populate_add_field(flds,parameters,18,comparevalue) 
 
             if not parameters[19].value:   
-               comparevalue= config.ILI_PC_ADDING_FIELDS[12]
+               comparevalue= config.ILI_PC_ADDING_FIELDS[11]
                self.populate_add_field(flds,parameters,19,comparevalue) 
 
             if not parameters[20].value:   
-               comparevalue= config.ILI_PC_ADDING_FIELDS[13]
+               comparevalue= config.ILI_PC_ADDING_FIELDS[12]
                self.populate_add_field(flds,parameters,20,comparevalue) 
+
+            if not parameters[21].value:   
+               comparevalue= config.ILI_PC_ADDING_FIELDS[13]
+               self.populate_add_field(flds,parameters,21,comparevalue) 
         else:
-            for i in range(1, 20):
+            for i in range(1, 21):
                 parameters[i].value = None
 
         return
@@ -299,9 +306,9 @@ class PressureCalculator(object):
                     calculateilipressures = CalculateILIPressures()
                     ili_result_flag = calculateilipressures.run(parameters)                 
                 else:
-                    inlineinspection.AddWarning("There is no records to perform Pressure Caliculation.")
+                    inlineinspection.AddWarning("There is no records to perform Pressure Calculation.")
             else:
-                    inlineinspection.AddWarning("There is no feature class for Pressure Caliculation.")
+                    inlineinspection.AddWarning("There is no feature class for Pressure Calculation.")
             inlineinspection.AddMessage("Finished ILI Pressure Calculator process.")
             return
 
