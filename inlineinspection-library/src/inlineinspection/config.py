@@ -21,7 +21,7 @@ ILI_PC_ADDING_FIELDS = ['AreaOfMetalLoss' ,'Mod_AreaOfMetalLoss' ,'FlowStress' ,
                         ]
 ILI_PIPE_PARAMETER_TYPE = ['Pipe information from ILI Data', 'Manual Pipe Information', 'Pipe Information from Pipe line feature class']
 
-ILI_MANUAL_PIPE_INFORMATION_VALUE = ['0']
+ILI_MANUAL_PIPE_INFORMATION_VALUE = [42000,720]
 
 # Event (pipe fill status) table fields
 EVENT_TABLE_FIELD_DESCRIPTION = [["POINT_ID", "Text", "Point ID", 27],
