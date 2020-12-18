@@ -21,6 +21,8 @@ ILI_PC_ADDING_FIELDS = ['AreaOfMetalLoss' ,'Mod_AreaOfMetalLoss' ,'FlowStress' ,
                         ]
 ILI_PIPE_PARAMETER_TYPE = ['Pipe information from ILI Data', 'Manual Pipe Information', 'Pipe Information from Pipe line feature class']
 
+ILI_PC_PARAMETER_CATGRY_3 = "Required Manual Input Pipe Columns"
+
 ILI_MANUAL_PIPE_INFORMATION_VALUE = [42000,720]
 
 # Event (pipe fill status) table fields
