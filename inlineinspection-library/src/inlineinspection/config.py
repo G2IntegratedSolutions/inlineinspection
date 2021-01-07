@@ -12,16 +12,16 @@ ILI_SUPPORT_DB_TYPES=[".gdb\\", ".sde\\"]
 ILI_TEMP_FOLDER = "ILI_TEMP"
 ILI_TEMP_GDB = 'TempOutput_ILI.gdb'
 
-ILI_PC_PARAMETER_CATGRY = "Required Input Data Columns"
+ILI_PC_PARAMETER_CATGRY = "ILI Input Data Parameters"
 ILI_PC_REQ_FIELDS = ['LENGTH' ,'MAXDEPTHMEASURED' ,'MAXDIAMETER' ,'MEASUREDWALLTHICKNESS' ,'PIPESMYS' ,'B31GMAOP']
 
-ILI_PC_PARAMETER_CATGRY_2 = "Output Data Columns"
+ILI_PC_PARAMETER_CATGRY_2 = "Output Data Parameters"
 ILI_PC_ADDING_FIELDS = ['AreaOfMetalLoss' ,'Mod_AreaOfMetalLoss' ,'FlowStress' ,'Mod_FlowStress' ,'FoliasFactor' ,'Mod_FoliasFactor'
                         ,'PipeBurstPressure' ,'Mod_PipeBurstPressure' ,'CalculatedPressure' ,'ReferencePressure' ,'Safety_Factor' ,'PressureReferencedRatio', 'EstimatedRepairFactor', 'RupturePressureRatio'
                         ]
-ILI_PIPE_PARAMETER_TYPE = ['Pipe information from ILI Data', 'Manual Pipe Information', 'Pipe Information from Pipe line feature class']
+ILI_PIPE_PARAMETER_TYPE = ['Pipe information from ILI Data', 'Manual Pipe Information', 'Pipe Information from Pipe Segment feature class']
 
-ILI_PC_PARAMETER_CATGRY_3 = "Required Manual Input Pipe Columns"
+ILI_PC_PARAMETER_CATGRY_3 = "Required Manual Input Pipe Values"
 
 ILI_MANUAL_PIPE_INFORMATION_VALUE = [42000,720]
 
