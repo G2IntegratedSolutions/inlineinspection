@@ -413,7 +413,7 @@ class PressureCalculator(object):
                parameters[29].enabled = True
 
                
-        if(parameters[1].value):
+        if(parameters[0].value):
             if not parameters[2].value:
                parameters[2].value = config.ILI_PC_REQ_FIELDS[0]
             if not parameters[3].value:
@@ -426,6 +426,19 @@ class PressureCalculator(object):
                parameters[6].value = config.ILI_PC_REQ_FIELDS[4]
             if not parameters[7].value:
                parameters[7].value = config.ILI_PC_REQ_FIELDS[5]
+
+        if(parameters[10].value):
+            if not parameters[12].value:
+               parameters[12].value = config.ILI_PIPE_REQ_FIELDS[0]
+            if not parameters[13].value:
+               parameters[13].value = config.ILI_PIPE_REQ_FIELDS[1]
+            if not parameters[14].value:
+               parameters[14].value = config.ILI_PIPE_REQ_FIELDS[2]
+
+        if(parameters[11].value):
+            if not parameters[15].value:
+               parameters[15].value = config.ILI_MAOP_REQ_FIELDS[0]
+
 
             # Assigning add field  #config.ILI_PC_ADDING_FIELDS[0]
         if(parameters[0].value):
