@@ -12,18 +12,21 @@ ILI_SUPPORT_DB_TYPES=[".gdb\\", ".sde\\"]
 ILI_TEMP_FOLDER = "ILI_TEMP"
 ILI_TEMP_GDB = 'TempOutput_ILI.gdb'
 
-ILI_PC_PARAMETER_CATGRY = "ILI Input Data Parameters"
+ILI_PC_PARAMETER_CATGRY = "Input ILI Data Fields"
 ILI_PC_REQ_FIELDS = ['LENGTH' ,'MAXDEPTHMEASURED' ,'MAXDIAMETER' ,'MEASUREDWALLTHICKNESS' ,'PIPESMYS' ,'B31GMAOP']
 
-ILI_PC_PARAMETER_CATGRY_2 = "Output Data Parameters"
+ILI_PC_PARAMETER_CATGRY_2 = "Output Calculated ILI Fields"
 ILI_PC_ADDING_FIELDS = ['AreaOfMetalLoss' ,'Mod_AreaOfMetalLoss' ,'FlowStress' ,'Mod_FlowStress' ,'FoliasFactor' ,'Mod_FoliasFactor'
                         ,'PipeBurstPressure' ,'Mod_PipeBurstPressure' ,'CalculatedPressure' ,'ReferencePressure' ,'Safety_Factor' ,'PressureReferencedRatio', 'EstimatedRepairFactor', 'RupturePressureRatio'
                         ]
-ILI_PIPE_PARAMETER_TYPE = ['Pipe information from ILI Data', 'Manual Pipe Information', 'Pipe Information from Pipe Segment feature class']
+ILI_PIPE_PARAMETER_TYPE = ['Pipe Information From ILI Data', 'Manual Pipe Information', 'Pipe Information from Pipe Segment Features Class']
 
-ILI_PC_PARAMETER_CATGRY_3 = "Required Manual Input Pipe Values"
+ILI_PC_PARAMETER_CATGRY_3 = "Input Required Manual Data Values"
 
-ILI_MANUAL_PIPE_INFORMATION_VALUE = [42000,720]
+#ILI_MANUAL_PIPE_INFORMATION_VALUE = [42000,720]
+
+ILI_STATIONSERIED_REQ_FIELDS = ['EventID', 'BeginMeasure', 'EndMeasure']
+
 
 # Event (pipe fill status) table fields
 EVENT_TABLE_FIELD_DESCRIPTION = [["POINT_ID", "Text", "Point ID", 27],
