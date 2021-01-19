@@ -43,3 +43,8 @@ EVENT_TABLE_FIELD_DESCRIPTION = [["POINT_ID", "Text", "Point ID", 27],
                                 ["FILL_STAT", "Text", "Fill Status", 20],
                                 ["DRAIN_VOL", "DOUBLE", "Drain Volume", None]
                                 ]
+
+OUTPUT_DIAMETER_FIELDNAME ="NOMINALDIAMETER_SJ"
+OUTPUT_THICKNESS_FIELDNAME ="NOMINALWALLTHICKNESS_SJ"
+OUTPUT_SYMS_FIELDNAME = "SMYS_SJ" 
+OUTPUT_MAOP_FIELDNAME ="MAOP_SJ"

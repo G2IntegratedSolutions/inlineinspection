@@ -221,8 +221,27 @@ class my_class(object):
             inlineinspection.AddError("Issue in intermediate output folder creation, Please check and try again.\n{}".format(arcpy.GetMessages(2)))
             return False
 
+    def pointinpolytest(self):
+                
+        polyarray = [[0, 0], [5, 0], [5, 5], [0, 5]]
+
+        px= 2
+        py = 2
+        
+        array = arcpy.Array([arcpy.Point(*coords) for coords in polyarray])
+           
+        wb_geometry=arcpy.Polygon(array)       
+        pTestPoint =arcpy.Point(px,py)        
+        #containflag = wb_geometry.contains(pTestPoint)
+        containflag = pTestPoint.within(wb_geometry)
+        if (containflag):
+            print("Point in side")
+        else:
+            print("Point Out side")
+
 
 if __name__ == "__main__":
+    
     arcpy.AddMessage("****** Process started :{} ********".format(dt.datetime.now()))
     
     #sa_inputpoint_fc = r'C:\G2\Liquid_HCA\New_HCAData\NHDIntersection_02182020\NHD_Intersection.gdb\NHD_Intersections_0217_dm'
@@ -234,16 +253,50 @@ if __name__ == "__main__":
     #output_gdb = config.HT_OUT_GDBNAME
     #output_workspace=os.path.join(output_dir,output_gdb)
 
-    fc=r"C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Transmission\PipeSegment"
-    fc1=r"C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Transmission\ILIData"
-    fc2=r"C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Transmission\MAOPRating"
+    pipesegment_layer=r"C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Transmission\PipeSegment"
+    ili_layer=r"C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Transmission\ILIData"
+    maop_layer=r"C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Transmission\MAOPRating"
     fc0=r"C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Transmission\StationSeries"
-    cls = my_class(fc0)
-    #cls.run()
-    cls.build_segmentor_table()
-    arcpy.AddMessage("****** Process Completed  : {} ******".format(dt.datetime.now()))
+    #cls = my_class(fc0)
+    ##cls.run()
+    ##cls.build_segmentor_table()
+    #cls.pointinpolytest()
+    #arcpy.AddMessage("****** Process Completed  : {} ******".format(dt.datetime.now()))
 
+    #diameter_field=parameters[12].valueAsText
+    #thickness_field = parameters[13].valueAsText
+    #syms_field = parameters[14].valueAsText
+    #maop_field = parameters[15].valueAsText
 
+    try:
+
+        spatialjoin1=r"C:\G2\UnitedBrine\Anomaly Comparison\scratch\ILI_TEMP\ILI_TEMP_GDB.gdb\ILIData_SJ1"
+        #arcpy.analysis.SpatialJoin(ili_layer, pipesegment_layer, spatialjoin1, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+ili_layer+',EventID,-1,-1;SMYS_SJ "SMYS_SJ" true true false 50 Text 0 0,First,#,'+pipesegment_layer+',SMYSGCL,0,50; NominalDiameter_SJ  "NominalDiameter_SJ" true true false 8 Double 0 0,First,#,'+pipesegment_layer+',NominalDiameterGCL,-1,-1;NominalWallThicknessGCL "NominalWallThicknessGCL" true true false 8 Double 0 0,First,#,'+pipesegment_layer+',NominalWallThicknessGCL,-1,-1', "INTERSECT", None, '')
+    
+        #arcpy.SpatialJoin_analysis(r"C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Transmission\ILIData", 
+        #                           r"C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Transmission\PipeSegment", 
+        #                           r"C:\G2\UnitedBrine\Test\TestOutputdatabase.gdb\ILIData_SpatialJoin1", 
+        #                           "JOIN_ONE_TO_ONE", "KEEP_ALL",
+        #                          r'EventID "EventID" true true false 38 Guid 0 0,First,#,C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Transmission\ILIData,EventID,-1,-1;NominalWallThicknessCl "NominalWallThicknessCl" true true false 50 Text 0 0,First,#,C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Transmission\PipeSegment,NominalWallThicknessCl,0,50;SMYSCL "SMYSCL" true true false 4 Long 0 0,First,#,C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Transmission\PipeSegment,SMYSCL,-1,-1', "INTERSECT", None, '')
+    
+        arcpy.SpatialJoin_analysis(ili_layer, pipesegment_layer, spatialjoin1)
+        arcpy.AddMessage("Spatial Join is performed on Pipe Segment")
+        spatialjoin1=r"C:\G2\UnitedBrine\Anomaly Comparison\scratch\ILI_TEMP\ILI_TEMP_GDB.gdb\ILIData_SJ2"
+        arcpy.SpatialJoin_analysis(spatialjoin1, maop_layer, spatialjoin2, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+spatialjoin1+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Text 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_SYMS_FIELDNAME+',0,50;'+config.OUTPUT_DIAMETER_FIELDNAME+' "'+config.OUTPUT_DIAMETER_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_DIAMETER_FIELDNAME+',-1,-1;'+config.OUTPUT_THICKNESS_FIELDNAME+' "'+config.OUTPUT_THICKNESS_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_THICKNESS_FIELDNAME+',-1,-1;'+config.OUTPUT_MAOP_FIELDNAME+' "'+config.OUTPUT_MAOP_FIELDNAME+'" true true false 4 Long 0 0,First,#,'+maop_layer+','+maop_field+',-1,-1', "INTERSECT", None, '')
+
+        #inlineinspection.AddMessage("Spatial Join is performed on MAOP")
+
+        ##Remove existing join
+        #arcpy.management.RemoveJoin(ili_layer)
+        #arcpy.AddMessage("Existing Join is removed from ILI Data")
+        ##Add join with ILI Layer
+        #arcpy.management.AddJoin(ili_layer, "EventID", spatialjoin2, "EventID", "KEEP_ALL")
+        #arcpy.AddMessage("Join is performed on ILI Data")
+    except Exception as e:
+            tb = sys.exc_info()[2]
+            arcpy.AddError("An error occurred on line %i" % tb.tb_lineno)
+            arcpy.AddError(str(e))
+            
 
 
 

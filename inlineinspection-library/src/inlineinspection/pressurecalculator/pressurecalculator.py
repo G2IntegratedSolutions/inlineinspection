@@ -23,6 +23,7 @@ import json
 import arcpy.cim
 from arcpy import env
 
+
 class PressureCalculator(object):
 
     def __init__(self):
@@ -32,7 +33,6 @@ class PressureCalculator(object):
         self.canRunInBackground = False
         self.category = config.ILI_PC_TOOL_CATAGORY  
                
-
     def getParameterInfo(self):
 
         """
@@ -171,13 +171,13 @@ class PressureCalculator(object):
         # Parameter [22]
         in_pc_PipeSmys_fieldvalue = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_3,
             displayName="Pipe SMYS Value", name="in_pc_PipeSmys_fieldvalue",
-            datatype="GPString", parameterType="optional", direction="Input")       
+            datatype="GPDouble", parameterType="optional", direction="Input")       
         
 
         # Parameter [23]
         in_pc_PipeMAOP_fieldvalue = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_3,
             displayName="Pipe MAOP Value", name="in_pc_PipeMAOP_fieldvalue",
-            datatype="GPString", parameterType="optional", direction="Input")        
+            datatype="GPDouble", parameterType="optional", direction="Input")        
         
 
         ## Parameter [24]
@@ -478,10 +478,10 @@ class PressureCalculator(object):
                         parameters[4].setErrorMessage("You must supply a value for the parameter Diameter")
                     if not parameters[5].value:
                         parameters[5].setErrorMessage("You must supply a value for the parameter Wall Thickness")
-                    #if not parameters[8].value:
-                    #    parameters[8].setErrorMessage("You must supply a value for the parameter Pipe SMYS")
-                    #if not parameters[9].value:
-                    #   parameters[9].setErrorMessage("You must supply a value for the parameter Pipe MAOP")
+                    if not parameters[8].value:
+                        parameters[8].setErrorMessage("You must supply a value for the parameter Pipe SMYS")
+                    if not parameters[9].value:
+                       parameters[9].setErrorMessage("You must supply a value for the parameter Pipe MAOP")
 
      
             elif parameters[1].value == config.ILI_PIPE_PARAMETER_TYPE[2]:
@@ -533,11 +533,13 @@ class PressureCalculator(object):
                 if (ilicount > 0):  
                     if(parameters[1].value==config.ILI_PIPE_PARAMETER_TYPE[2]):
                        #self.build_segmentor_table(parameters)
-                       inlineinspection.AddMessage("Option 3 is proceeding ")
+                       self.build_spatialjoin_table(parameters)
+                       #inlineinspection.AddMessage("Option 3 is proceeding ")
                     else:
                         ht_result_flag = False
                         calculateilipressures = CalculateILIPressures()
-                        ili_result_flag = calculateilipressures.run(parameters)                 
+                        #ili_result_flag = calculateilipressures.run(parameters)     
+                        calculateilipressures.fieldscaliculation(parameters)
                 else:
                     inlineinspection.AddWarning("There is no records to perform Pressure Calculation.")
             else:
@@ -822,12 +824,82 @@ class PressureCalculator(object):
             inlineinspection.AddError("Issue in intermediate output folder creation, Please check and try again.\n{}".format(arcpy.GetMessages(2)))
             return False
 
+    def build_spatialjoin_table(self,parameters):
+
+        try:
+            ili_layer =parameters[1].valueAsText
+            pipesegment_layer=parameters[10].valueAsText       
+            maop_layer = parameters[11].valueAsText
+        
+            diameter_field=parameters[12].valueAsText
+            thickness_field = parameters[13].valueAsText
+            syms_field = parameters[14].valueAsText
+            maop_field = parameters[15].valueAsText
+            
+            
+            #Create temp gdb to process and store intermediate data           
+            #self.output_dir=r"C:\G2\UnitedBrine\Test\TestOutputdatabase.gdb"
+            self.ILI_TEMP_FOLDER = "ILI_TEMP"
+            self.ILI_TEMP_GDB = "ILI_TEMP_GDB.gdb"
+            tempoutput_workspace = arcpy.env.scratchFolder if arcpy.Exists(arcpy.env.scratchFolder) and arcpy.env.scratchFolder is not None else self.output_dir
+            tempoutput_dir = os.path.join(tempoutput_workspace, self.ILI_TEMP_FOLDER )
+            tempoutput_gdb = self.ILI_TEMP_GDB 
+            self.tempoutputgdb_path = os.path.join(tempoutput_dir, tempoutput_gdb)
+                   
+            # Create temp gbd for intermediate process
+            self.createtempgdb(tempoutput_dir, tempoutput_gdb)
+
+            inlineinspection.AddMessage("Temp gdb is created and the path is {}".format(self.tempoutputgdb_path))
+
+            spatialjoin1 = FuncParam(self.tempoutputgdb_path  + "\\ILIData_SJ1")
+            if arcpy.Exists(spatialjoin1.valueAsText):
+                arcpy.Delete_management(spatialjoin1.valueAsText)
+
+            spatialjoin2 = FuncParam(self.tempoutputgdb_path  + "\\ILIData_SJ2")
+            if arcpy.Exists(spatialjoin2.valueAsText):
+                arcpy.Delete_management(spatialjoin2.valueAsText)
+
+            #arcpy.analysis.SpatialJoin(ili_layer, pipesegment_layer, spatialjoin1, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+ili_layer+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Text 0 0,First,#,'+pipesegment_layer+','+syms_field+',0,50;'+config.OUTPUT_DIAMETER_FIELDNAME+' "'+config.OUTPUT_DIAMETER_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+pipesegment_layer+','+diameter_field+',-1,-1;'+config.OUTPUT_THICKNESS_FIELDNAME+' "'+config.OUTPUT_THICKNESS_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+pipesegment_layer+','+thickness_field+',-1,-1', "INTERSECT", None, '')
+            
+            arcpy.SpatialJoin_analysis(ili_layer, pipesegment_layer, spatialjoin1, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+ili_layer+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Text 0 0,First,#,'+pipesegment_layer+','+syms_field+',0,50;'+config.OUTPUT_DIAMETER_FIELDNAME+' "'+config.OUTPUT_DIAMETER_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+pipesegment_layer+','+diameter_field+',-1,-1;'+config.OUTPUT_THICKNESS_FIELDNAME+' "'+config.OUTPUT_THICKNESS_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+pipesegment_layer+','+thickness_field+',-1,-1', "INTERSECT", None, '')
+            
+
+            inlineinspection.AddMessage("Spatial Join is performed on Pipe Segment")
+            #arcpy.analysis.SpatialJoin(spatialjoin1, maop_layer, spatialjoin2, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+spatialjoin1+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Text 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_SYMS_FIELDNAME+',0,50;'+config.OUTPUT_DIAMETER_FIELDNAME+' "'+config.OUTPUT_DIAMETER_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_DIAMETER_FIELDNAME+',-1,-1;'+config.OUTPUT_THICKNESS_FIELDNAME+' "'+config.OUTPUT_THICKNESS_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_THICKNESS_FIELDNAME+',-1,-1;'+config.OUTPUT_MAOP_FIELDNAME+' "'+config.OUTPUT_MAOP_FIELDNAME+'" true true false 4 Long 0 0,First,#,'+maop_layer+','+maop_field+',-1,-1', "INTERSECT", None, '')
+
+            arcpy.SpatialJoin_analysis(spatialjoin1, maop_layer, spatialjoin2, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+spatialjoin1+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Text 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_SYMS_FIELDNAME+',0,50;'+config.OUTPUT_DIAMETER_FIELDNAME+' "'+config.OUTPUT_DIAMETER_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_DIAMETER_FIELDNAME+',-1,-1;'+config.OUTPUT_THICKNESS_FIELDNAME+' "'+config.OUTPUT_THICKNESS_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_THICKNESS_FIELDNAME+',-1,-1;'+config.OUTPUT_MAOP_FIELDNAME+' "'+config.OUTPUT_MAOP_FIELDNAME+'" true true false 4 Long 0 0,First,#,'+maop_layer+','+maop_field+',-1,-1', "INTERSECT", None, '')
+
+            inlineinspection.AddMessage("Spatial Join is performed on MAOP")
+
+            #Remove existing join
+            arcpy.management.RemoveJoin(ili_layer)
+            inlineinspection.AddMessage("Existing Join is removed from ILI Data")
+            #Add join with ILI Layer
+            #arcpy.management.AddJoin(ili_layer, "EventID", spatialjoin2, "EventID", "KEEP_ALL")
+            arcpy.AddJoin_management(ili_layer, "EventID", spatialjoin2, "EventID", "KEEP_ALL")
+            
+            inlineinspection.AddMessage("Join is performed on ILI Data")
+
+            calulatepressure= CalculateILIPressures()
+            calulatepressure.run(parameters)
+            inlineinspection.AddMessage("Caliculation is performed")
+
+            arcpy.management.RemoveJoin(ili_layer)
+            inlineinspection.AddMessage("Existing Join is removed from ILI Data")
+
+        except Exception as e:
+            tb = sys.exc_info()[2]
+            inlineinspection.AddError("An error occurred on line %i" % tb.tb_lineno)
+            inlineinspection.AddError(str(e))
+            inlineinspection.AddError("Issue in build spatial join creation, Please check and try again.\n{}".format(arcpy.GetMessages(2)))
+            return False
+
 
 class CalculateILIPressures(object):
 
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
-        #self.label = "ILI Pressure Calculator Tool"
+        #self.label = "ILI Pressure Calculator Tool"        
         
 
     def updatedomainvalues(self, inFeatures, fieldName, expression, code_block, field_type):
@@ -852,7 +924,7 @@ class CalculateILIPressures(object):
             # Set the workspace (to avoid having to type in the full path to the data every time)
             #inFeatures = arcpy.GetParameterAsText(0)
             inFeatures=parameters[0].valueAsText
-            legthField=parameters[2].valueAsText
+            lengthField=parameters[2].valueAsText
             maxDepthMeasure=parameters[3].valueAsText
             maxDiameter=parameters[4].valueAsText
             measuredWallthickness=parameters[5].valueAsText
@@ -879,11 +951,17 @@ class CalculateILIPressures(object):
 
             elif(parameters[1].value==config.ILI_PIPE_PARAMETER_TYPE[2]):
 
-                maxDiameter=parameters[12].valueAsText
-                measuredWallthickness=parameters[13].valueAsText                
-                pipeSmys=parameters[14].valueAsText
-                pipeSmysValOrField ="!"+pipeSmys+"!" 
-                pipeMAOPField=parameters[15].valueAsText
+                #maxDiameter=parameters[12].valueAsText
+                #measuredWallthickness=parameters[13].valueAsText                
+                #pipeSmys=parameters[14].valueAsText
+                #pipeMAOPField=parameters[15].valueAsText
+
+                maxDiameter=config.OUTPUT_DIAMETER_FIELDNAME
+                measuredWallthickness=config.OUTPUT_THICKNESS_FIELDNAME          
+                pipeSmys=config.OUTPUT_SYMS_FIELDNAME
+                pipeMAOPField=config.OUTPUT_MAOP_FIELDNAME
+
+                pipeSmysValOrField ="!"+pipeSmys+"!"                 
                 pipeMaopValOrField ="!"+pipeMAOPField+"!"
                 
             else:
@@ -896,13 +974,13 @@ class CalculateILIPressures(object):
 
             #calculate the first pressure field 1
             fieldName = areaOfMetalLoss
-            expression = "(2/3)*(!"+maxDepthMeasure+"!)*(!"+legthField+"!)"
+            expression = "(2/3)*(!"+maxDepthMeasure+"!)*(!"+lengthField+"!)"
             code_block = ""
             field_type = 'DOUBLE'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)  
             # calculate the first pressure field 2
             fieldName = modAreaOfMetalLoss
-            expression = "(.85)*(!"+maxDepthMeasure+"!)*(!"+legthField+"!)"
+            expression = "(.85)*(!"+maxDepthMeasure+"!)*(!"+lengthField+"!)"
             code_block =""
             field_type = 'DOUBLE'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
@@ -923,7 +1001,7 @@ class CalculateILIPressures(object):
 
             # # calculate the first pressure field 5
             fieldName = foliasFactor
-            expression = "folias(!"+legthField+"!, !"+maxDiameter+"!,!"+measuredWallthickness+"!)"
+            expression = "folias(!"+lengthField+"!, !"+maxDiameter+"!,!"+measuredWallthickness+"!)"
             code_block = """def folias(length, diameter, thickness):
                                 if length <(20*diameter*thickness)**(.5):
                                     return math.sqrt((1 + 0.8 * (length**2/(diameter*thickness))))
@@ -933,7 +1011,7 @@ class CalculateILIPressures(object):
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
 
             fieldName = modFoliasFactor
-            expression = "modfolias(!"+legthField+"!, !"+maxDiameter+"!,!"+measuredWallthickness+"!)"
+            expression = "modfolias(!"+lengthField+"!, !"+maxDiameter+"!,!"+measuredWallthickness+"!)"
             code_block = """def modfolias(length, diameter, thickness):
                                 if length**2/(diameter*thickness)<=50:
                                     return math.sqrt((1+(0.6275*(length**2/(diameter*thickness)))-(0.003375*(((length**2)/(diameter*thickness))**2))))
@@ -944,14 +1022,14 @@ class CalculateILIPressures(object):
 
 
             fieldName = pipeBurstPressure
-            expression = "(!"+flowStress+"!)*((1-(!"+areaOfMetalLoss+"!/(!"+measuredWallthickness+"!*!"+legthField+"!)))/(1-(!"+areaOfMetalLoss+"!/(!"+measuredWallthickness+"!*!"+legthField+"!*!"+foliasFactor+"!))))*((2*!"+measuredWallthickness+"!)/!"+maxDiameter+"!)"
+            expression = "(!"+flowStress+"!)*((1-(!"+areaOfMetalLoss+"!/(!"+measuredWallthickness+"!*!"+lengthField+"!)))/(1-(!"+areaOfMetalLoss+"!/(!"+measuredWallthickness+"!*!"+lengthField+"!*!"+foliasFactor+"!))))*((2*!"+measuredWallthickness+"!)/!"+maxDiameter+"!)"
             code_block = ""
             field_type = 'LONG'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
 
 
             fieldName = modPipeBurstPressure
-            expression = "(!"+modFlowStress+"!)*((1-(!"+modAreaOfMetalLoss+"!/(!"+measuredWallthickness+"!*!"+legthField+"!)))/(1-(!"+modAreaOfMetalLoss+"!/(!"+measuredWallthickness+"!*!"+legthField+"!*(!"+modFlowStress+"!)))))*((2*!"+measuredWallthickness+"!)/!"+maxDiameter+"!)"
+            expression = "(!"+modFlowStress+"!)*((1-(!"+modAreaOfMetalLoss+"!/(!"+measuredWallthickness+"!*!"+lengthField+"!)))/(1-(!"+modAreaOfMetalLoss+"!/(!"+measuredWallthickness+"!*!"+lengthField+"!*(!"+modFlowStress+"!)))))*((2*!"+measuredWallthickness+"!)/!"+maxDiameter+"!)"
             code_block = ""
             field_type = 'LONG'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
@@ -991,10 +1069,234 @@ class CalculateILIPressures(object):
             code_block =""
             field_type = 'DOUBLE'
             self.updatedomainvalues(inFeatures, fieldName, expression, code_block, field_type)
-
-           
+                       
         except Exception as e:
             # If an error occurred, print line number and error message
             tb = sys.exc_info()[2]
             arcpy.AddError("An error occurred on line %i" % tb.tb_lineno)
             arcpy.AddError(str(e))
+    
+    '''Add The output fields if not exist'''
+    def addMissingField(self,fc,outFields):
+        if(fc):
+            flds = []            
+            flds += [f.name for f in arcpy.ListFields (fc)]
+            for outField in outFields:
+                if not outField in flds: 
+                    # Execute AddField twice for two new fields
+                    arcpy.AddField_management(fc, outField, "LONG", 9,
+                                              field_alias=outField, field_is_nullable="NULLABLE")
+                    inlineinspection.AddMessage("{} field added".format(outField))
+                   
+
+    def fieldscaliculation(self,parameters):
+        try:
+            fields=[]            
+            #inFeatures = arcpy.GetParameterAsText(0)
+            inFeatures=parameters[0].valueAsText
+            lengthField=parameters[2].valueAsText
+            maxDepthMeasure=parameters[3].valueAsText
+            maxDiameter=parameters[4].valueAsText
+            measuredWallthickness=parameters[5].valueAsText
+            pipeSmys=parameters[6].valueAsText
+            pipeMAOPField=parameters[7].valueAsText
+            fAreaOfMetalLoss=parameters[16].valueAsText
+            fModAreaOfMetalLoss=parameters[17].valueAsText
+            fFlowStress=parameters[18].valueAsText
+            fModFlowStress=parameters[19].valueAsText
+            fFoliasFactor=parameters[20].valueAsText
+            fModFoliasFactor=parameters[21].valueAsText
+            fPipeBurstPressure=parameters[22].valueAsText
+            fModPipeBurstPressure=parameters[23].valueAsText
+            fCalculatedPressure=parameters[24].valueAsText
+            fReferencePressure=parameters[25].valueAsText
+            fSafetyFactor=parameters[26].valueAsText
+            fPressureReferencedRatio=parameters[27].valueAsText
+            fEstimatedRepairFactor=parameters[28].valueAsText
+            fRupturePressureRatio=parameters[29].valueAsText
+            eventidField ="EVENTID"
+
+            outputfields=[fAreaOfMetalLoss,fModAreaOfMetalLoss,fFlowStress,fModFlowStress,fFoliasFactor,fModFoliasFactor,fPipeBurstPressure,
+             fModPipeBurstPressure,fCalculatedPressure,fReferencePressure,fSafetyFactor,fPressureReferencedRatio,fEstimatedRepairFactor,
+             fRupturePressureRatio]           
+
+            #outputfields=[areaOfMetalLoss,lengthField]  
+
+            if(parameters[1].value==config.ILI_PIPE_PARAMETER_TYPE[1]):
+                pipeSmysValOrField =parameters[8].valueAsText
+                pipeMaopValOrField =parameters[9].valueAsText
+                #*** Need to modify this filed as properly
+                pipeSmys=lengthField
+                pipeMAOPField=lengthField
+
+            elif(parameters[1].value==config.ILI_PIPE_PARAMETER_TYPE[2]):
+                #maxDiameter=parameters[12].valueAsText
+                #measuredWallthickness=parameters[13].valueAsText                
+                #pipeSmys=parameters[14].valueAsText
+                #pipeMAOPField=parameters[15].valueAsText         
+                
+                maxDiameter=config.OUTPUT_DIAMETER_FIELDNAME
+                measuredWallthickness=config.OUTPUT_THICKNESS_FIELDNAME          
+                pipeSmys=config.OUTPUT_SYMS_FIELDNAME
+                pipeMAOPField=config.OUTPUT_MAOP_FIELDNAME
+                
+            else:
+                pipeSmys=parameters[6].valueAsText                
+                pipeMAOPField=parameters[7].valueAsText
+               
+
+            infields=[lengthField,maxDepthMeasure,maxDiameter,measuredWallthickness,pipeSmys,pipeMAOPField,eventidField]
+            fields=infields+outputfields
+            inlineinspection.AddMessage("Input ILI Feature class {}".format(inFeatures))
+            #*** Check output fields are existing or not if not add fields     
+            self.addMissingField(inFeatures,outputfields)
+            # Create update cursor for feature class 
+            with arcpy.da.UpdateCursor(inFeatures, fields) as cursor:
+                # Update the fields based on the values               
+                for row in cursor:                   
+                    reventid=row[6]
+                    rlength = row[0]
+                    rmaxDepthMeasure = row[1]
+                    rmaxDiameter =row[2]
+                    rmeasuredWallthickness =row[3]
+                    if(parameters[1].value==config.ILI_PIPE_PARAMETER_TYPE[1]):
+                        rpipeSmys = float(pipeSmysValOrField)
+                        rpipeMAOP = float(pipeMaopValOrField)
+                    else:
+                        rpipeSmys = row[4]
+                        rpipeMAOP =row[5]
+
+                    areaOfMetalLoss = None
+                    modAreaOfMetalLoss = None
+                    flowStress = None
+                    modFlowStress =None
+                    foliasFactor = None
+                    modFoliasFactor = None
+                    pipeBurstPressure = None
+                    modPipeBurstPressure = None
+                    calculatedPressure = None
+                    referencePressure = None
+                    safetyFactor = None
+                    pressureReferencedRatio = None
+                    estimatedRepairFactor = None
+                    rupturePressureRatio = None
+
+                    #calculate Area Of Metal Loss
+                    if(rlength and rmaxDepthMeasure):                        
+                        areaOfMetalLoss = (2/3)*(rmaxDepthMeasure)*(rlength)
+                        row[7]=areaOfMetalLoss
+                    else:
+                        inlineinspection.AddWarning("{} Area of Metal Loss is not caliculated as required fileds are null".format(reventid))
+                                       
+                    # calculate Mod Area Of Metal Loss              
+                    if(rlength and rmaxDepthMeasure):                        
+                        modAreaOfMetalLoss = (.85)*(rmaxDepthMeasure)*(rlength)
+                        row[8]=modAreaOfMetalLoss
+                    else:
+                        inlineinspection.AddWarning("{} Mod Area of Metal Loss is not caliculated as required fileds are null".format(reventid))
+                                                        
+                    # calculate Flow Stress
+                    if(rpipeSmys):                        
+                        flowStress = (1.1)*rpipeSmys
+                        row[9]=flowStress
+                    else:
+                        inlineinspection.AddWarning("{} Flow Stress is not caliculated as required fileds are null".format(reventid))
+                    
+                    # calculate mod Flow Stress
+                    if(rpipeSmys):                        
+                        modFlowStress = (rpipeSmys+10000)
+                        row[10]=modFlowStress
+                    else:
+                        inlineinspection.AddWarning("{} Mod Flow Stress is not caliculated as required fileds are null".format(reventid))
+                    
+                    # calculate foliasFactor
+                    if(rlength and rmaxDiameter and rmeasuredWallthickness):                        
+                        foliasFactor=0
+                        if rlength <(20*rmaxDiameter*rmeasuredWallthickness)**(.5):
+                            foliasFactor= math.sqrt((1 + 0.8 * (rlength**2/(rmaxDiameter*rmeasuredWallthickness))))                      
+                        
+                        row[11]=foliasFactor
+                    else:
+                        inlineinspection.AddWarning("{} Folias Factor is not caliculated as required fileds are null".format(reventid))
+                    
+                    # calculate mod Folias Factor
+                    if(rlength and rmaxDiameter and rmeasuredWallthickness):                        
+                        modFoliasFactor=0
+                        if rlength**2/(rmaxDiameter*rmeasuredWallthickness)<=50:
+                            modFoliasFactor = math.sqrt((1+(0.6275*(rlength**2/(rmaxDiameter*rmeasuredWallthickness)))-(0.003375*(((rlength**2)/(rmaxDiameter*rmeasuredWallthickness))**2))))
+                        elif rlength**2/(rmaxDiameter*rmeasuredWallthickness)>50:
+                            modFoliasFactor = ((.032)*((rlength**2)/(rmaxDiameter*rmeasuredWallthickness)))+3.3                   
+                        
+                        row[12]=modFoliasFactor
+                    else:
+                        inlineinspection.AddWarning("{} Mod Folias Factor is not caliculated as required fileds are null".format(reventid))
+                    
+                    # calculate pipe Burst Pressure
+                    if(flowStress and areaOfMetalLoss and foliasFactor and rlength and rmaxDiameter and rmeasuredWallthickness):                        
+                        pipeBurstPressure = flowStress*((1-(areaOfMetalLoss/(rmeasuredWallthickness*rlength)))/(1-(areaOfMetalLoss/(rmeasuredWallthickness*rlength*foliasFactor))))*((2*rmeasuredWallthickness)/rmaxDiameter)
+                        
+                        row[13]=pipeBurstPressure
+                    else:
+                        inlineinspection.AddWarning("{} Pipe Burst Pressure is not caliculated as required fileds are null".format(reventid))
+
+                    # calculate Mod Pipe Burst Pressure
+                    if(modFlowStress and modAreaOfMetalLoss and modFoliasFactor and rlength and rmaxDiameter and rmeasuredWallthickness):                        
+                        modPipeBurstPressure = (modFlowStress)*((1-(modAreaOfMetalLoss/(rmeasuredWallthickness*rlength)))/(1-(modAreaOfMetalLoss/(rmeasuredWallthickness*rlength*(modFoliasFactor)))))*((2*rmeasuredWallthickness)/rmaxDiameter)
+                        #*** Check the formula
+                        row[14]=modPipeBurstPressure
+                    else:
+                        inlineinspection.AddWarning("{} Mod Pipe Burst Pressure is not caliculated as required fileds are null".format(reventid))
+                    
+                    # calculated Pressure
+                    if(pipeBurstPressure and rpipeMAOP and rpipeSmys):                        
+                        calculatedPressure = (pipeBurstPressure*(rpipeMAOP)/(rpipeSmys))
+                        row[15]=calculatedPressure
+                    else:
+                        inlineinspection.AddWarning("{} calculated Pressure is not caliculated as required fileds are null".format(reventid))
+                    
+                    # calculated Reference Pressure
+                    if(rpipeMAOP):
+                        referencePressure = rpipeMAOP
+                        row[16]=referencePressure
+                    else:
+                        inlineinspection.AddWarning("{} Reference Pressure is not caliculated as required fileds are null".format(reventid))
+
+                    # calculated Safety Factor
+                    if(rpipeMAOP and pipeBurstPressure):
+                        safetyFactor = (pipeBurstPressure/rpipeMAOP)
+                        row[17]=safetyFactor
+                    else:
+                        inlineinspection.AddWarning("{} Safety Factor is not caliculated as required fileds are null".format(reventid))
+
+                    # calculated Pressure Referenced Ratio
+                    if(calculatedPressure and referencePressure):
+                        pressureReferencedRatio = (calculatedPressure/referencePressure)
+                        row[18]=pressureReferencedRatio
+                    else:
+                        inlineinspection.AddWarning("{} Pressure Referenced Ratio is not caliculated as required fileds are null".format(reventid))
+
+                    # calculated Estimated Repair Factor
+                    if(rpipeMAOP and calculatedPressure):
+                        estimatedRepairFactor = (rpipeMAOP/calculatedPressure)
+                        row[19]=estimatedRepairFactor
+                    else:
+                        inlineinspection.AddWarning("{} Estimated Repair Factor is not caliculated as required fileds are null".format(reventid))
+
+                    # calculated Rupture Pressure Ratio
+                    if(rpipeSmys and pipeBurstPressure):
+                        rupturePressureRatio = (pipeBurstPressure/rpipeSmys)
+                        row[20]=rupturePressureRatio
+                    else:
+                        inlineinspection.AddWarning("{} Rupture Pressure Ratio is not caliculated as required fileds are null".format(reventid))
+
+                    
+                    cursor.updateRow(row) 
+                    
+                       
+        except Exception as e:
+            # If an error occurred, print line number and error message
+            tb = sys.exc_info()[2]
+            arcpy.AddError("An error occurred on line %i" % tb.tb_lineno)
+            arcpy.AddError(str(e))
+
+   
