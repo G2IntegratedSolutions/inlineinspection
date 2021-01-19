@@ -63,3 +63,9 @@
             #if not parameters[21].value:   
             #   comparevalue= config.ILI_PC_ADDING_FIELDS[13]
             #   self.populate_add_field(flds,parameters,21,comparevalue) 
+
+            with arcpy.da.UpdateCursor(in_ili_features,['ProcessFlag']) as length_cursor:
+                for x in lenth_cursor:
+                print x[0]
+                x[0] = 'We just updates this'
+                length_cursor.upateRow(x)

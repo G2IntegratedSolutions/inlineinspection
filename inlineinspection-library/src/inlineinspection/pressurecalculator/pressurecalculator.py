@@ -379,8 +379,6 @@ class PressureCalculator(object):
                parameters[27].enabled = True
                parameters[28].enabled = True
                parameters[29].enabled = True
-
-
                              
             else:                               
                #Pipe information from ILI Data
@@ -439,7 +437,6 @@ class PressureCalculator(object):
             if not parameters[15].value:
                parameters[15].value = config.ILI_MAOP_REQ_FIELDS[0]
 
-
             # Assigning add field  #config.ILI_PC_ADDING_FIELDS[0]
         if(parameters[0].value):
             flds = []
@@ -451,7 +448,6 @@ class PressureCalculator(object):
                    j=i-16
                    comparevalue= config.ILI_PC_ADDING_FIELDS[j]
                    self.populate_add_field(flds,parameters,i,comparevalue)
-
            
         else:
             for i in range(2, 30):
