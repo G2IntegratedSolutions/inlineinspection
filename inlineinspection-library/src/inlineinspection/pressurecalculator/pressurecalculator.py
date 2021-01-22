@@ -42,10 +42,10 @@ class PressureCalculator(object):
         # Input ILI point featuere - Parameter [0]       
         in_ili_features = arcpy.Parameter(displayName="Input ILI Features",
             name="in_ili_features",
-            datatype="GPFeatureLayer",
+            datatype=["GPFeatureLayer","GPTableView"],
             parameterType="Required",
             direction="Input")
-        in_ili_features.filter.list = ["Point"]
+        #in_ili_features.filter.list = ["Point"]
 
          # Input Pipe Features - Parameter [1]
         in_pipe_parameter_type = arcpy.Parameter(displayName="Input Pipe Parameter Source",
@@ -585,220 +585,220 @@ class PressureCalculator(object):
 
         parameters[idx].value = addfield
 
-   #def build_json_for_segmentor(self, ili_layer, maop_layer,parameters):
-    #   try:
+    def build_json_for_segmentor(self, ili_layer, maop_layer,parameters):
+        try:
 
-            # Build json string
-            #self.structure_segment ="PipeSegment"
-            #self.projDatabase = r"C:\G2\UnitedBrine\Anomaly Comparison\Freeport\PODS_ili.gdb"
-            #self.projDataSet="Transmission"
-            #name_1 = self.structure_segment
-            #path_1 = os.path.join(self.projDatabase,self.projDataSet, self.structure_segment)
-            #routeIdentifierField_1 = "RouteEventID"
-            #fromMeasureField_1 = "BeginMeasure"
-            #toMeasureField_1 = "EndMeasure"
-            #fromMeasureField_2="Measure"
-            #toMeasureField_2="Measure"
-            #key_1 = "EventID"
+    #        # Build json string
+    #        #self.structure_segment ="PipeSegment"
+    #        #self.projDatabase = r"C:\G2\UnitedBrine\Anomaly Comparison\Freeport\PODS_ili.gdb"
+    #        #self.projDataSet="Transmission"
+    #        #name_1 = self.structure_segment
+    #        #path_1 = os.path.join(self.projDatabase,self.projDataSet, self.structure_segment)
+    #        #routeIdentifierField_1 = "RouteEventID"
+    #        #fromMeasureField_1 = "BeginMeasure"
+    #        #toMeasureField_1 = "EndMeasure"
+    #        #fromMeasureField_2="Measure"
+    #        #toMeasureField_2="Measure"
+    #        #key_1 = "EventID"
 
-     #      self.structure_segment = os.path.basename(parameters[11].valueAsText)
-     #      self.projDatabase = r"C:\G2\UnitedBrine\Anomaly Comparison\Freeport\PODS_ili.gdb"
-     #      self.projDataSet="Transmission"
-     #      name_1 = self.structure_segment
-     #     path_1 = parameters[11].valueAsText
-     #      routeIdentifierField_1 = parameters[13].valueAsText
-     #      fromMeasureField_1 = parameters[14].valueAsText
-     #      toMeasureField_1 = parameters[15].valueAsText
-     #      fromMeasureField_2="Measure"
-     #      toMeasureField_2="Measure"
-     #      key_1 = parameters[13].valueAsText
+            self.structure_segment = os.path.basename(parameters[11].valueAsText)
+            self.projDatabase = r"C:\G2\UnitedBrine\Anomaly Comparison\Freeport\PODS_ili.gdb"
+            self.projDataSet="Transmission"
+            name_1 = self.structure_segment
+            path_1 = parameters[11].valueAsText
+            routeIdentifierField_1 = parameters[13].valueAsText
+            fromMeasureField_1 = parameters[14].valueAsText
+            toMeasureField_1 = parameters[15].valueAsText
+            fromMeasureField_2="Measure"
+            toMeasureField_2="Measure"
+            key_1 = parameters[13].valueAsText
 
 
             # Build JSON for segmentor!!
-      #     segmentor_json = list()
-      # segmentor_json_1 = dict()
-      #    segmentor_json_1["name"] = name_1
-      #     segmentor_json_1["path"] = path_1
-      #     segmentor_json_1["routeIdentifierField"] = routeIdentifierField_1
-      #     segmentor_json_1["fromMeasureField"] = fromMeasureField_1
-      #     segmentor_json_1["toMeasureField"] = toMeasureField_1
-      #     segmentor_json_1["primaryKeyField"] = key_1
+            segmentor_json = list()
+            segmentor_json_1 = dict()
+            segmentor_json_1["name"] = name_1
+            segmentor_json_1["path"] = path_1
+            segmentor_json_1["routeIdentifierField"] = routeIdentifierField_1
+            segmentor_json_1["fromMeasureField"] = fromMeasureField_1
+            segmentor_json_1["toMeasureField"] = toMeasureField_1
+            segmentor_json_1["primaryKeyField"] = key_1
             # segmentor_json = [segmentor_json_1]
-      #     segmentor_json.append(segmentor_json_1)
+            segmentor_json.append(segmentor_json_1)
 
-      #     if ili_layer:
-      #         name_2 = ili_layer
-      #         path_2 = parameters[1].valueAsText
-      #         segmentor_json_2 = dict()
-      #         segmentor_json_2["name"] = name_2
-      #         segmentor_json_2["path"] = path_2
-      #         segmentor_json_2["routeIdentifierField"] = routeIdentifierField_1
-      #        segmentor_json_2["fromMeasureField"] = fromMeasureField_2
-      #         segmentor_json_2["toMeasureField"] = toMeasureField_2
-      #         segmentor_json_2["primaryKeyField"] = key_1
-      #         segmentor_json.append(segmentor_json_2)
+            if ili_layer:
+                name_2 = ili_layer
+                path_2 = parameters[1].valueAsText
+                segmentor_json_2 = dict()
+                segmentor_json_2["name"] = name_2
+                segmentor_json_2["path"] = path_2
+                segmentor_json_2["routeIdentifierField"] = routeIdentifierField_1
+                segmentor_json_2["fromMeasureField"] = fromMeasureField_2
+                segmentor_json_2["toMeasureField"] = toMeasureField_2
+                segmentor_json_2["primaryKeyField"] = key_1
+                segmentor_json.append(segmentor_json_2)
 
-      #     if maop_layer:
-      #       name_3 = maop_layer
-      #        path_3 =  parameters[12].valueAsText
-      #         segmentor_json_3 = dict()
-      #         segmentor_json_3["name"] = name_3
-      #         segmentor_json_3["path"] = path_3
-      #         segmentor_json_3["routeIdentifierField"] = routeIdentifierField_1
-      #         segmentor_json_3["fromMeasureField"] = fromMeasureField_1
-      #         segmentor_json_3["toMeasureField"] = toMeasureField_1
-      #         segmentor_json_3["primaryKeyField"] = key_1
-      #         segmentor_json.append(segmentor_json_3)
+            if maop_layer:
+                name_3 = maop_layer
+                path_3 =  parameters[12].valueAsText
+                segmentor_json_3 = dict()
+                segmentor_json_3["name"] = name_3
+                segmentor_json_3["path"] = path_3
+                segmentor_json_3["routeIdentifierField"] = routeIdentifierField_1
+                segmentor_json_3["fromMeasureField"] = fromMeasureField_1
+                segmentor_json_3["toMeasureField"] = toMeasureField_1
+                segmentor_json_3["primaryKeyField"] = key_1
+                segmentor_json.append(segmentor_json_3)
 
-      #     segmentor_json_string = json.dumps(segmentor_json)
-      #     return segmentor_json_string
-      # except Exception as e:
-      #     tb = sys.exc_info()[2]
-      #     inlineinspection.AddError("An error occurred on line %i" % tb.tb_lineno)
-      #     inlineinspection.AddError(str(e))
-      #     inlineinspection.AddError("Issue in json file creation .\n{}".format(arcpy.GetMessages(2)))
-      #    return False
-    def build_segmentor_table(self,parameters):
-        try:
-
-            #Create intermediate folder and gdb to store the segmentor related tables 
-            self.output_dir=r"C:\G2\UnitedBrine\Test\TestOutputdatabase.gdb"
-            self.ILI_TEMP_FOLDER = "ILI_TEMP"
-            self.ILI_TEMP_GDB = "ILI_TEMP_GDB.gdb"
-            tempoutput_workspace = arcpy.env.scratchFolder if arcpy.Exists(arcpy.env.scratchFolder) and arcpy.env.scratchFolder is not None else self.output_dir
-            tempoutput_dir = os.path.join(tempoutput_workspace, self.ILI_TEMP_FOLDER )
-            tempoutput_gdb = self.ILI_TEMP_GDB 
-            self.tempoutputgdb_path = os.path.join(tempoutput_dir, tempoutput_gdb)
-            inlineinspection.AddMessage("Temp gdb path {}".format(self.tempoutputgdb_path))
-        
-            # Create temp gbd for intermediate process
-            self.createtempgdb(tempoutput_dir, tempoutput_gdb)
-
-            #self.input_centerline =r"C:\G2\UnitedBrine\Anomaly Comparison\Freeport\PODS_ili.gdb\Transmission\StationSeries"
-               
-            #ili_layer ="ILIData"
-            #maop_layer = "MAOPRating"
-            #CENTERLINE_UNIQUE_ID ="EventID"
-            #CENTERLINE_BEGIN_MEASURE ="BeginMeasure"
-            #CENTERLINE_END_MEASURE ="EndMeasure"
-
-
-            ili_layer =os.path.basename(parameters[1].valueAsText)
-            pipesegment_layer=os.path.basename(parameters[11].valueAsText)
-            self.input_centerline =parameters[10].valueAsText
-            maop_layer = os.path.basename(parameters[12].valueAsText)
-            CENTERLINE_UNIQUE_ID =parameters[13].valueAsText
-            CENTERLINE_BEGIN_MEASURE =parameters[14].valueAsText
-            CENTERLINE_END_MEASURE = parameters[15].valueAsText
-            diameter_field = parameters[16].valueAsText
-            thickness_field = parameters[17].valueAsText
-            syms_field = parameters[18].valueAsText
-            length_field = parameters[2].valueAsText
-            MaxDepthMeasured_field = parameters[3].valueAsText
-            MaxDiameter_field = parameters[4].valueAsText
-            MeasuredWallThickness_field = parameters[5].valueAsText
-            maop_field = parameters[19].valueAsText
-
-            ili_segmentor = Segmentor()
-            route_layer = FuncParam(self.input_centerline)  #FuncParam(os.path.join(self.projDatabase.path, HCAOperation.CENTERLINE_TABLE))
-            route_id = FuncParam(CENTERLINE_UNIQUE_ID)
-            begin_meas = FuncParam(CENTERLINE_BEGIN_MEASURE)
-            end_meas = FuncParam(CENTERLINE_END_MEASURE)
-                
-            json_str = self.build_json_for_segmentor(ili_layer,maop_layer,parameters)
-            inlineinspection.AddMessage("JSON build for segmentor is done")
-
-            segmentor_json = FuncParam(json_str)
-
-            segmentor_out = FuncParam(self.tempoutputgdb_path + "\\ILISegmentCount_Segmentor")
-            if arcpy.Exists(segmentor_out.valueAsText):
-                arcpy.Delete_management(segmentor_out.valueAsText)
-            segmentor_error = FuncParam(self.tempoutputgdb_path + "\\ILISegmentCount_Segmentor_E")
-            if arcpy.Exists(segmentor_error.valueAsText):
-                arcpy.Delete_management(segmentor_error.valueAsText)
-            seg_parameters = [route_layer, route_id, begin_meas, end_meas, segmentor_json, segmentor_out, segmentor_error]
-            ili_segmentor.execute(seg_parameters, None)
-            inlineinspection.AddMessage("JSON build for segmentor is done")
-
-            # Attributor
-
-            # Delete record from route
-            where_clause = "layer_Name='route'"  #----
-            with arcpy.da.UpdateCursor(segmentor_out.valueAsText, '*', where_clause) as cursor:
-                for row in cursor:
-                    cursor.deleteRow()
-
-            # Run attributor
-            hca_attributor = Attributer()
-            attributor_in = segmentor_out
-
-            # Build json string
-            attr_list=[{"name":pipesegment_layer,"columns":[{"inputColumnName":"RouteEventID","outputColumnName":"RouteEventID"},
-                                                        {"inputColumnName":"EventID","outputColumnName":"SegEventID"},
-                                                                   {"inputColumnName": diameter_field,"outputColumnName":diameter_field},
-                                                                   {"inputColumnName": thickness_field,"outputColumnName":thickness_field},
-                                                                   {"inputColumnName": syms_field,"outputColumnName":syms_field}
-                                                                   ]},
-                       {"name":ili_layer,"columns":[{"inputColumnName":"RouteEventID","outputColumnName":"RouteEventID"},
-                                                        {"inputColumnName":"EventID","outputColumnName":"ILIEventID"},
-                                                                   {"inputColumnName":length_field,"outputColumnName":length_field},
-                                                                   {"inputColumnName":MaxDepthMeasured_field,"outputColumnName":MaxDepthMeasured_field}
-                                                                   ]},
-                        {"name":maop_layer,"columns":[{"inputColumnName":"RouteEventID","outputColumnName":"RouteEventID"},
-                                                        {"inputColumnName":"EventID","outputColumnName":"MAOPEventID"},
-                                                                   {"inputColumnName":maop_field,"outputColumnName":maop_field}
-                                                                 
-                                                                   ]}
-                        ]        
-
-            json_str = json.dumps(attr_list)
-            attributor_json = FuncParam(json_str)
-        
-            attributor_out = FuncParam(self.tempoutputgdb_path + "\\ILISegmentCount_Attributor")
-            if arcpy.Exists(attributor_out.valueAsText):
-                arcpy.Delete_management(attributor_out.valueAsText)
-            attributor_error = FuncParam(self.tempoutputgdb_path + "\\ILISegmentCount_Attributor_E")
-            if arcpy.Exists(attributor_error.valueAsText):
-                arcpy.Delete_management(attributor_error.valueAsText)
-            parameters = [attributor_in, attributor_json, attributor_out, attributor_error]
-            hca_attributor.execute(parameters, None)
-            inlineinspection.AddMessage("Attributor execution done")
-                
-            # run statistitator
-            hca_statistitator = Statistitater()
-            statistitator_in = attributor_out
-            group_by = FuncParam("SEGMENT_ID")
-            stat_list = [{"name":"RouteEventID","calculation":"calculation.First(default=None,input='row.RouteEventID',orderby='SEGMENT_ID',data=data,newData=newData)","dataType":{"type":"String","length":50}},
-                       {"name":"FROM_MEASURE","calculation":"calculation.First(default=None,input='row.FROM_MEASURE',orderby='SEGMENT_ID',data=data,newData=newData)","dataType":{"type":"Double","precision":10}},
-                       {"name":"TO_MEASURE","calculation":"calculation.First(default=None,input='row.TO_MEASURE',orderby='SEGMENT_ID',data=data,newData=newData)","dataType":{"type":"Double","precision":10}},
-                       {"name":"NominalDiameterGCL","calculation":"calculation.First(default=None,input='row."+diameter_field+"',orderby='SEGMENT_ID',data=data,newData=newData)","dataType":{"type":"Double"}},
-                       {"name":"NominalWallThicknessGCL","calculation":"calculation.First(default=None,input='row."+thickness_field+"',orderby='SEGMENT_ID',data=data,newData=newData)","dataType":{"type":"Double"}},
-                       {"name":"SMYSGCL","calculation":"calculation.First(default=None,input='row."+syms_field+"',orderby='SEGMENT_ID',data=data,newData=newData)","dataType":{"type":"Double"}},
-                       {"name":"Length","calculation":"calculation.First(default=None,input='row."+length_field+"',orderby='SEGMENT_ID',data=data,newData=newData)","dataType":{"type":"Double"}},
-                       {"name":"MaxDepthMeasured","calculation":"calculation.First(default=None,input='row."+MaxDepthMeasured_field+"',orderby='SEGMENT_ID',data=data,newData=newData)","dataType":{"type":"Double"}},
-                       {"name":"MAOPRating","calculation":"calculation.First(default=None,input='row."+maop_field+"',orderby='SEGMENT_ID',data=data,newData=newData)","dataType":{"type":"Double"}},
-                       {"name":"ILIEventID","calculation":"calculation.First(default=None,input='row.ILIEventID',orderby='SEGMENT_ID',data=data,newData=newData)","dataType":{"type":"Guid"}}                   
-                   
-                       ]
-        
-            json_str = json.dumps(stat_list)
-            statistitator_json = FuncParam(json_str)
-            statistitator_out = FuncParam(self.tempoutputgdb_path + "\\ILISegmentCount_Statistitater2")
-            if arcpy.Exists(statistitator_out.valueAsText):
-                arcpy.Delete_management(statistitator_out.valueAsText)
-            statistitator_error = FuncParam(self.tempoutputgdb_path  + "\\ILISegmentCount_Statistitater_E")
-            if arcpy.Exists(statistitator_error.valueAsText):
-                arcpy.Delete_management(statistitator_error.valueAsText)
-            parameters = [statistitator_in, group_by, statistitator_json, statistitator_out, statistitator_error]
-            hca_statistitator.execute(parameters, None)
-            inlineinspection.AddMessage("Statistitator process is done")
-
+            segmentor_json_string = json.dumps(segmentor_json)
+            return segmentor_json_string
         except Exception as e:
             tb = sys.exc_info()[2]
             inlineinspection.AddError("An error occurred on line %i" % tb.tb_lineno)
             inlineinspection.AddError(str(e))
-            inlineinspection.AddError("Issue in dynamic segmention process .\n{}".format(arcpy.GetMessages(2)))
+            inlineinspection.AddError("Issue in json file creation .\n{}".format(arcpy.GetMessages(2)))
             return False
+    def build_segmentor_table(self,parameters):
+        try:
+
+    #        #Create intermediate folder and gdb to store the segmentor related tables 
+    #        self.output_dir=r"C:\G2\UnitedBrine\Test\TestOutputdatabase.gdb"
+    #        self.ILI_TEMP_FOLDER = "ILI_TEMP"
+    #        self.ILI_TEMP_GDB = "ILI_TEMP_GDB.gdb"
+    #        tempoutput_workspace = arcpy.env.scratchFolder if arcpy.Exists(arcpy.env.scratchFolder) and arcpy.env.scratchFolder is not None else self.output_dir
+    #        tempoutput_dir = os.path.join(tempoutput_workspace, self.ILI_TEMP_FOLDER )
+    #        tempoutput_gdb = self.ILI_TEMP_GDB 
+    #        self.tempoutputgdb_path = os.path.join(tempoutput_dir, tempoutput_gdb)
+    #        inlineinspection.AddMessage("Temp gdb path {}".format(self.tempoutputgdb_path))
+        
+    #        # Create temp gbd for intermediate process
+    #        self.createtempgdb(tempoutput_dir, tempoutput_gdb)
+
+    #        #self.input_centerline =r"C:\G2\UnitedBrine\Anomaly Comparison\Freeport\PODS_ili.gdb\Transmission\StationSeries"
+               
+    #        #ili_layer ="ILIData"
+    #        #maop_layer = "MAOPRating"
+    #        #CENTERLINE_UNIQUE_ID ="EventID"
+    #        #CENTERLINE_BEGIN_MEASURE ="BeginMeasure"
+    #        #CENTERLINE_END_MEASURE ="EndMeasure"
+
+
+    #        ili_layer =os.path.basename(parameters[0].valueAsText)
+    #        pipesegment_layer=os.path.basename(parameters[11].valueAsText)
+    #        self.input_centerline =parameters[10].valueAsText
+    #        maop_layer = os.path.basename(parameters[12].valueAsText)
+    #        CENTERLINE_UNIQUE_ID =parameters[13].valueAsText
+    #        CENTERLINE_BEGIN_MEASURE =parameters[14].valueAsText
+    #        CENTERLINE_END_MEASURE = parameters[15].valueAsText
+    #        diameter_field = parameters[16].valueAsText
+    #        thickness_field = parameters[17].valueAsText
+    #        syms_field = parameters[18].valueAsText
+    #        length_field = parameters[2].valueAsText
+    #        MaxDepthMeasured_field = parameters[3].valueAsText
+    #        MaxDiameter_field = parameters[4].valueAsText
+    #        MeasuredWallThickness_field = parameters[5].valueAsText
+    #        maop_field = parameters[19].valueAsText
+
+    #        ili_segmentor = Segmentor()
+    #        route_layer = FuncParam(self.input_centerline)  #FuncParam(os.path.join(self.projDatabase.path, HCAOperation.CENTERLINE_TABLE))
+    #        route_id = FuncParam(CENTERLINE_UNIQUE_ID)
+    #        begin_meas = FuncParam(CENTERLINE_BEGIN_MEASURE)
+    #        end_meas = FuncParam(CENTERLINE_END_MEASURE)
+                
+    #        json_str = self.build_json_for_segmentor(ili_layer,maop_layer,parameters)
+    #        inlineinspection.AddMessage("JSON build for segmentor is done")
+
+    #        segmentor_json = FuncParam(json_str)
+
+    #        segmentor_out = FuncParam(self.tempoutputgdb_path + "\\ILISegmentCount_Segmentor")
+    #        if arcpy.Exists(segmentor_out.valueAsText):
+    #            arcpy.Delete_management(segmentor_out.valueAsText)
+    #        segmentor_error = FuncParam(self.tempoutputgdb_path + "\\ILISegmentCount_Segmentor_E")
+    #        if arcpy.Exists(segmentor_error.valueAsText):
+    #            arcpy.Delete_management(segmentor_error.valueAsText)
+    #        seg_parameters = [route_layer, route_id, begin_meas, end_meas, segmentor_json, segmentor_out, segmentor_error]
+    #        ili_segmentor.execute(seg_parameters, None)
+    #        inlineinspection.AddMessage("JSON build for segmentor is done")
+
+    #        # Attributor
+
+    #        # Delete record from route
+    #        where_clause = "layer_Name='route'"  #----
+    #        with arcpy.da.UpdateCursor(segmentor_out.valueAsText, '*', where_clause) as cursor:
+    #            for row in cursor:
+    #                cursor.deleteRow()
+
+    #        # Run attributor
+    #        hca_attributor = Attributer()
+    #        attributor_in = segmentor_out
+
+    #        # Build json string
+    #        attr_list=[{"name":pipesegment_layer,"columns":[{"inputColumnName":"RouteEventID","outputColumnName":"RouteEventID"},
+    #                                                    {"inputColumnName":"EventID","outputColumnName":"SegEventID"},
+    #                                                               {"inputColumnName": diameter_field,"outputColumnName":diameter_field},
+    #                                                               {"inputColumnName": thickness_field,"outputColumnName":thickness_field},
+    #                                                               {"inputColumnName": syms_field,"outputColumnName":syms_field}
+    #                                                               ]},
+    #                   {"name":ili_layer,"columns":[{"inputColumnName":"RouteEventID","outputColumnName":"RouteEventID"},
+    #                                                    {"inputColumnName":"EventID","outputColumnName":"ILIEventID"},
+    #                                                               {"inputColumnName":length_field,"outputColumnName":length_field},
+    #                                                               {"inputColumnName":MaxDepthMeasured_field,"outputColumnName":MaxDepthMeasured_field}
+    #                                                               ]},
+    #                    {"name":maop_layer,"columns":[{"inputColumnName":"RouteEventID","outputColumnName":"RouteEventID"},
+    #                                                    {"inputColumnName":"EventID","outputColumnName":"MAOPEventID"},
+    #                                                               {"inputColumnName":maop_field,"outputColumnName":maop_field}
+                                                                 
+    #                                                               ]}
+    #                    ]        
+
+    #        json_str = json.dumps(attr_list)
+    #        attributor_json = FuncParam(json_str)
+        
+    #        attributor_out = FuncParam(self.tempoutputgdb_path + "\\ILISegmentCount_Attributor")
+    #        if arcpy.Exists(attributor_out.valueAsText):
+    #            arcpy.Delete_management(attributor_out.valueAsText)
+    #        attributor_error = FuncParam(self.tempoutputgdb_path + "\\ILISegmentCount_Attributor_E")
+    #        if arcpy.Exists(attributor_error.valueAsText):
+    #            arcpy.Delete_management(attributor_error.valueAsText)
+    #        parameters = [attributor_in, attributor_json, attributor_out, attributor_error]
+    #        hca_attributor.execute(parameters, None)
+    #        inlineinspection.AddMessage("Attributor execution done")
+                
+    #        # run statistitator
+    #        hca_statistitator = Statistitater()
+    #        statistitator_in = attributor_out
+    #        group_by = FuncParam("SEGMENT_ID")
+    #        stat_list = [{"name":"RouteEventID","calculation":"calculation.First(default=None,input='row.RouteEventID',orderby='SEGMENT_ID',data=data,newData=newData)","dataType":{"type":"String","length":50}},
+    #                   {"name":"FROM_MEASURE","calculation":"calculation.First(default=None,input='row.FROM_MEASURE',orderby='SEGMENT_ID',data=data,newData=newData)","dataType":{"type":"Double","precision":10}},
+    #                   {"name":"TO_MEASURE","calculation":"calculation.First(default=None,input='row.TO_MEASURE',orderby='SEGMENT_ID',data=data,newData=newData)","dataType":{"type":"Double","precision":10}},
+    #                   {"name":"NominalDiameterGCL","calculation":"calculation.First(default=None,input='row."+diameter_field+"',orderby='SEGMENT_ID',data=data,newData=newData)","dataType":{"type":"Double"}},
+    #                   {"name":"NominalWallThicknessGCL","calculation":"calculation.First(default=None,input='row."+thickness_field+"',orderby='SEGMENT_ID',data=data,newData=newData)","dataType":{"type":"Double"}},
+    #                   {"name":"SMYSGCL","calculation":"calculation.First(default=None,input='row."+syms_field+"',orderby='SEGMENT_ID',data=data,newData=newData)","dataType":{"type":"Double"}},
+    #                   {"name":"Length","calculation":"calculation.First(default=None,input='row."+length_field+"',orderby='SEGMENT_ID',data=data,newData=newData)","dataType":{"type":"Double"}},
+    #                   {"name":"MaxDepthMeasured","calculation":"calculation.First(default=None,input='row."+MaxDepthMeasured_field+"',orderby='SEGMENT_ID',data=data,newData=newData)","dataType":{"type":"Double"}},
+    #                   {"name":"MAOPRating","calculation":"calculation.First(default=None,input='row."+maop_field+"',orderby='SEGMENT_ID',data=data,newData=newData)","dataType":{"type":"Double"}},
+    #                   {"name":"ILIEventID","calculation":"calculation.First(default=None,input='row.ILIEventID',orderby='SEGMENT_ID',data=data,newData=newData)","dataType":{"type":"Guid"}}                   
+                   
+    #                   ]
+        
+    #        json_str = json.dumps(stat_list)
+    #        statistitator_json = FuncParam(json_str)
+    #        statistitator_out = FuncParam(self.tempoutputgdb_path + "\\ILISegmentCount_Statistitater2")
+    #        if arcpy.Exists(statistitator_out.valueAsText):
+    #            arcpy.Delete_management(statistitator_out.valueAsText)
+    #        statistitator_error = FuncParam(self.tempoutputgdb_path  + "\\ILISegmentCount_Statistitater_E")
+    #        if arcpy.Exists(statistitator_error.valueAsText):
+    #            arcpy.Delete_management(statistitator_error.valueAsText)
+    #        parameters = [statistitator_in, group_by, statistitator_json, statistitator_out, statistitator_error]
+    #        hca_statistitator.execute(parameters, None)
+    #        inlineinspection.AddMessage("Statistitator process is done")
+
+    #    except Exception as e:
+    #        tb = sys.exc_info()[2]
+    #        inlineinspection.AddError("An error occurred on line %i" % tb.tb_lineno)
+    #        inlineinspection.AddError(str(e))
+    #        inlineinspection.AddError("Issue in dynamic segmention process .\n{}".format(arcpy.GetMessages(2)))
+    #        return False
 
     ''' Check Intermediate gdb existing or not if not create '''
     def createtempgdb(self, output_dir, output_gdb):
@@ -823,7 +823,7 @@ class PressureCalculator(object):
     def build_spatialjoin_table(self,parameters):
 
         try:
-            ili_layer =parameters[1].valueAsText
+            ili_layer =parameters[0].valueAsText
             pipesegment_layer=parameters[10].valueAsText       
             maop_layer = parameters[11].valueAsText
         
@@ -847,41 +847,50 @@ class PressureCalculator(object):
 
             inlineinspection.AddMessage("Temp gdb is created and the path is {}".format(self.tempoutputgdb_path))
 
-            spatialjoin1 = FuncParam(self.tempoutputgdb_path  + "\\ILIData_SJ1")
-            if arcpy.Exists(spatialjoin1.valueAsText):
-                arcpy.Delete_management(spatialjoin1.valueAsText)
+            spatial_join1 = FuncParam(self.tempoutputgdb_path  + "\\ILIData_SJ1")
+            spatialjoin1 =spatial_join1.valueAsText
+            if arcpy.Exists(spatialjoin1):
+                arcpy.Delete_management(spatialjoin1)
 
-            spatialjoin2 = FuncParam(self.tempoutputgdb_path  + "\\ILIData_SJ2")
-            if arcpy.Exists(spatialjoin2.valueAsText):
-                arcpy.Delete_management(spatialjoin2.valueAsText)
+            spatial_join2 = FuncParam(self.tempoutputgdb_path  + "\\ILIData_SJ2")
+            spatialjoin2 =spatial_join2.valueAsText
+            if arcpy.Exists(spatialjoin2):
+                arcpy.Delete_management(spatialjoin2)
 
             #arcpy.analysis.SpatialJoin(ili_layer, pipesegment_layer, spatialjoin1, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+ili_layer+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Text 0 0,First,#,'+pipesegment_layer+','+syms_field+',0,50;'+config.OUTPUT_DIAMETER_FIELDNAME+' "'+config.OUTPUT_DIAMETER_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+pipesegment_layer+','+diameter_field+',-1,-1;'+config.OUTPUT_THICKNESS_FIELDNAME+' "'+config.OUTPUT_THICKNESS_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+pipesegment_layer+','+thickness_field+',-1,-1', "INTERSECT", None, '')
-            
+            inlineinspection.AddMessage("spatial join1 feature {} {} {}".format(spatialjoin1,ili_layer,pipesegment_layer))
             arcpy.SpatialJoin_analysis(ili_layer, pipesegment_layer, spatialjoin1, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+ili_layer+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Text 0 0,First,#,'+pipesegment_layer+','+syms_field+',0,50;'+config.OUTPUT_DIAMETER_FIELDNAME+' "'+config.OUTPUT_DIAMETER_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+pipesegment_layer+','+diameter_field+',-1,-1;'+config.OUTPUT_THICKNESS_FIELDNAME+' "'+config.OUTPUT_THICKNESS_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+pipesegment_layer+','+thickness_field+',-1,-1', "INTERSECT", None, '')
             
 
             inlineinspection.AddMessage("Spatial Join is performed on Pipe Segment")
             #arcpy.analysis.SpatialJoin(spatialjoin1, maop_layer, spatialjoin2, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+spatialjoin1+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Text 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_SYMS_FIELDNAME+',0,50;'+config.OUTPUT_DIAMETER_FIELDNAME+' "'+config.OUTPUT_DIAMETER_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_DIAMETER_FIELDNAME+',-1,-1;'+config.OUTPUT_THICKNESS_FIELDNAME+' "'+config.OUTPUT_THICKNESS_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_THICKNESS_FIELDNAME+',-1,-1;'+config.OUTPUT_MAOP_FIELDNAME+' "'+config.OUTPUT_MAOP_FIELDNAME+'" true true false 4 Long 0 0,First,#,'+maop_layer+','+maop_field+',-1,-1', "INTERSECT", None, '')
-
+            inlineinspection.AddMessage(" spatial join2 {}".format(spatialjoin2))
+           
             arcpy.SpatialJoin_analysis(spatialjoin1, maop_layer, spatialjoin2, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+spatialjoin1+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Text 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_SYMS_FIELDNAME+',0,50;'+config.OUTPUT_DIAMETER_FIELDNAME+' "'+config.OUTPUT_DIAMETER_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_DIAMETER_FIELDNAME+',-1,-1;'+config.OUTPUT_THICKNESS_FIELDNAME+' "'+config.OUTPUT_THICKNESS_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_THICKNESS_FIELDNAME+',-1,-1;'+config.OUTPUT_MAOP_FIELDNAME+' "'+config.OUTPUT_MAOP_FIELDNAME+'" true true false 4 Long 0 0,First,#,'+maop_layer+','+maop_field+',-1,-1', "INTERSECT", None, '')
-
             inlineinspection.AddMessage("Spatial Join is performed on MAOP")
 
-            #Remove existing join
-            arcpy.management.RemoveJoin(ili_layer)
-            inlineinspection.AddMessage("Existing Join is removed from ILI Data")
-            #Add join with ILI Layer
-            #arcpy.management.AddJoin(ili_layer, "EventID", spatialjoin2, "EventID", "KEEP_ALL")
-            arcpy.AddJoin_management(ili_layer, "EventID", spatialjoin2, "EventID", "KEEP_ALL")
-            
+            arcpy.management.AddFields(ili_layer, config.OUTPUT_DIAMETER_FIELDNAME+" LONG # # # #;"+config.OUTPUT_THICKNESS_FIELDNAME+" LONG # # # #;"+config.OUTPUT_SYMS_FIELDNAME+" LONG # # # #;"+config.OUTPUT_MAOP_FIELDNAME+" LONG # # # #")
+            inlineinspection.AddMessage("Added temp fields")
+          
+            #Add join with ILI Layer          
+            arcpy.AddJoin_management(ili_layer, "EventID", spatialjoin2, "EventID", "KEEP_ALL")            
             inlineinspection.AddMessage("Join is performed on ILI Data")
 
-            calulatepressure= CalculateILIPressures()
-            calulatepressure.run(parameters)
-            inlineinspection.AddMessage("Caliculation is performed")
+            arcpy.management.CalculateField(ili_layer, config.OUTPUT_DIAMETER_FIELDNAME, "!ILIData_SJ2."+config.OUTPUT_DIAMETER_FIELDNAME+"!", "PYTHON3", '', "TEXT")
+            arcpy.management.CalculateField(ili_layer, config.OUTPUT_THICKNESS_FIELDNAME, "!ILIData_SJ2."+config.OUTPUT_THICKNESS_FIELDNAME+"!", "PYTHON3", '', "TEXT")
+            arcpy.management.CalculateField(ili_layer, config.OUTPUT_SYMS_FIELDNAME , "!ILIData_SJ2."+config.OUTPUT_SYMS_FIELDNAME+"!", "PYTHON3", '', "TEXT")
+            arcpy.management.CalculateField(ili_layer, config.OUTPUT_MAOP_FIELDNAME, "!ILIData_SJ2."+config.OUTPUT_MAOP_FIELDNAME+"!", "PYTHON3", '', "TEXT")
+            inlineinspection.AddMessage("Calculate temp fields")
 
-            arcpy.management.RemoveJoin(ili_layer)
+            arcpy.management.RemoveJoin(ili_layer, "ILIData_SJ2")
             inlineinspection.AddMessage("Existing Join is removed from ILI Data")
+
+            calulatepressure= CalculateILIPressures()
+            calulatepressure.fieldscaliculation(parameters)
+            inlineinspection.AddMessage("Caliculation is performed")            
+
+            arcpy.management.DeleteField(ili_layer, ""+config.OUTPUT_DIAMETER_FIELDNAME+";"+config.OUTPUT_THICKNESS_FIELDNAME+";"+config.OUTPUT_SYMS_FIELDNAME+";"+config.OUTPUT_SYMS_FIELDNAME+"")
+            inlineinspection.AddMessage("Deleted temp fields")
 
         except Exception as e:
             tb = sys.exc_info()[2]
@@ -1076,10 +1085,22 @@ class CalculateILIPressures(object):
     def addMissingField(self,fc,outFields):
         if(fc):
             flds = []            
-            flds += [f.name for f in arcpy.ListFields (fc)]
+            flds += [f.name.upper() for f in arcpy.ListFields (fc)]
+            #inlineinspection.AddMessage("FC Fields list {} {} ".format(flds,outFields))
+
+            #f1=[]
+            #for f in flds:
+            #    x=f.split('.')
+            #    if len(x)>1:
+            #        x1=x[1]
+            #        f1.append(x1)
+            #    else:
+            #        f1.append(f)
+
+            #inlineinspection.AddMessage("FC Fields list {} ".format(f1))
             for outField in outFields:
-                if not outField in flds: 
-                    # Execute AddField twice for two new fields
+                if not outField.upper() in flds: 
+                    # Execute AddField for new fields
                     arcpy.AddField_management(fc, outField, "LONG", 9,
                                               field_alias=outField, field_is_nullable="NULLABLE")
                     inlineinspection.AddMessage("{} field added".format(outField))
@@ -1132,7 +1153,7 @@ class CalculateILIPressures(object):
                 #pipeMAOPField=parameters[15].valueAsText         
                 
                 maxDiameter=config.OUTPUT_DIAMETER_FIELDNAME
-                measuredWallthickness=config.OUTPUT_THICKNESS_FIELDNAME          
+                measuredWallthickness=config.OUTPUT_THICKNESS_FIELDNAME    
                 pipeSmys=config.OUTPUT_SYMS_FIELDNAME
                 pipeMAOPField=config.OUTPUT_MAOP_FIELDNAME
                 
@@ -1147,6 +1168,7 @@ class CalculateILIPressures(object):
             #*** Check output fields are existing or not if not add fields     
             self.addMissingField(inFeatures,outputfields)
             # Create update cursor for feature class 
+            warningCounter=0
             with arcpy.da.UpdateCursor(inFeatures, fields) as cursor:
                 # Update the fields based on the values               
                 for row in cursor:                   
@@ -1181,30 +1203,30 @@ class CalculateILIPressures(object):
                     if(rlength and rmaxDepthMeasure):                        
                         areaOfMetalLoss = (2/3)*(rmaxDepthMeasure)*(rlength)
                         row[7]=areaOfMetalLoss
-                    else:
-                        inlineinspection.AddWarning("{} Area of Metal Loss is not caliculated as required fileds are null".format(reventid))
-                                       
+                    else:                        
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Area of Metal Loss is not caliculated as required fileds are null".format(reventid))
+                        warningCounter +=1             
                     # calculate Mod Area Of Metal Loss              
                     if(rlength and rmaxDepthMeasure):                        
                         modAreaOfMetalLoss = (.85)*(rmaxDepthMeasure)*(rlength)
                         row[8]=modAreaOfMetalLoss
                     else:
-                        inlineinspection.AddWarning("{} Mod Area of Metal Loss is not caliculated as required fileds are null".format(reventid))
-                                                        
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Mod Area of Metal Loss is not caliculated as required fileds are null".format(reventid))
+                        warningCounter +=1                        
                     # calculate Flow Stress
                     if(rpipeSmys):                        
                         flowStress = (1.1)*rpipeSmys
                         row[9]=flowStress
                     else:
-                        inlineinspection.AddWarning("{} Flow Stress is not caliculated as required fileds are null".format(reventid))
-                    
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Flow Stress is not caliculated as required fileds are null".format(reventid))
+                        warningCounter +=1
                     # calculate mod Flow Stress
                     if(rpipeSmys):                        
                         modFlowStress = (rpipeSmys+10000)
                         row[10]=modFlowStress
                     else:
-                        inlineinspection.AddWarning("{} Mod Flow Stress is not caliculated as required fileds are null".format(reventid))
-                    
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Mod Flow Stress is not caliculated as required fileds are null".format(reventid))
+                        warningCounter +=1
                     # calculate foliasFactor
                     if(rlength and rmaxDiameter and rmeasuredWallthickness):                        
                         foliasFactor=0
@@ -1213,8 +1235,8 @@ class CalculateILIPressures(object):
                         
                         row[11]=foliasFactor
                     else:
-                        inlineinspection.AddWarning("{} Folias Factor is not caliculated as required fileds are null".format(reventid))
-                    
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Folias Factor is not caliculated as required fileds are null".format(reventid))
+                        warningCounter +=1
                     # calculate mod Folias Factor
                     if(rlength and rmaxDiameter and rmeasuredWallthickness):                        
                         modFoliasFactor=0
@@ -1225,70 +1247,70 @@ class CalculateILIPressures(object):
                         
                         row[12]=modFoliasFactor
                     else:
-                        inlineinspection.AddWarning("{} Mod Folias Factor is not caliculated as required fileds are null".format(reventid))
-                    
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Mod Folias Factor is not caliculated as required fileds are null".format(reventid))
+                        warningCounter +=1
                     # calculate pipe Burst Pressure
                     if(flowStress and areaOfMetalLoss and foliasFactor and rlength and rmaxDiameter and rmeasuredWallthickness):                        
                         pipeBurstPressure = flowStress*((1-(areaOfMetalLoss/(rmeasuredWallthickness*rlength)))/(1-(areaOfMetalLoss/(rmeasuredWallthickness*rlength*foliasFactor))))*((2*rmeasuredWallthickness)/rmaxDiameter)
                         
                         row[13]=pipeBurstPressure
                     else:
-                        inlineinspection.AddWarning("{} Pipe Burst Pressure is not caliculated as required fileds are null".format(reventid))
-
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Pipe Burst Pressure is not caliculated as required fileds are null".format(reventid))
+                        warningCounter +=1
                     # calculate Mod Pipe Burst Pressure
                     if(modFlowStress and modAreaOfMetalLoss and modFoliasFactor and rlength and rmaxDiameter and rmeasuredWallthickness):                        
                         modPipeBurstPressure = (modFlowStress)*((1-(modAreaOfMetalLoss/(rmeasuredWallthickness*rlength)))/(1-(modAreaOfMetalLoss/(rmeasuredWallthickness*rlength*(modFoliasFactor)))))*((2*rmeasuredWallthickness)/rmaxDiameter)
                         #*** Check the formula
                         row[14]=modPipeBurstPressure
                     else:
-                        inlineinspection.AddWarning("{} Mod Pipe Burst Pressure is not caliculated as required fileds are null".format(reventid))
-                    
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Mod Pipe Burst Pressure is not caliculated as required fileds are null".format(reventid))
+                        warningCounter +=1
                     # calculated Pressure
                     if(pipeBurstPressure and rpipeMAOP and rpipeSmys):                        
                         calculatedPressure = (pipeBurstPressure*(rpipeMAOP)/(rpipeSmys))
                         row[15]=calculatedPressure
                     else:
-                        inlineinspection.AddWarning("{} calculated Pressure is not caliculated as required fileds are null".format(reventid))
-                    
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} calculated Pressure is not caliculated as required fileds are null".format(reventid))
+                        warningCounter +=1
                     # calculated Reference Pressure
                     if(rpipeMAOP):
                         referencePressure = rpipeMAOP
                         row[16]=referencePressure
                     else:
-                        inlineinspection.AddWarning("{} Reference Pressure is not caliculated as required fileds are null".format(reventid))
-
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Reference Pressure is not caliculated as required fileds are null".format(reventid))
+                        warningCounter +=1
                     # calculated Safety Factor
                     if(rpipeMAOP and pipeBurstPressure):
                         safetyFactor = (pipeBurstPressure/rpipeMAOP)
                         row[17]=safetyFactor
                     else:
-                        inlineinspection.AddWarning("{} Safety Factor is not caliculated as required fileds are null".format(reventid))
-
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Safety Factor is not caliculated as required fileds are null".format(reventid))
+                        warningCounter +=1
                     # calculated Pressure Referenced Ratio
                     if(calculatedPressure and referencePressure):
                         pressureReferencedRatio = (calculatedPressure/referencePressure)
                         row[18]=pressureReferencedRatio
                     else:
-                        inlineinspection.AddWarning("{} Pressure Referenced Ratio is not caliculated as required fileds are null".format(reventid))
-
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Pressure Referenced Ratio is not caliculated as required fileds are null".format(reventid))
+                        warningCounter +=1
                     # calculated Estimated Repair Factor
                     if(rpipeMAOP and calculatedPressure):
                         estimatedRepairFactor = (rpipeMAOP/calculatedPressure)
                         row[19]=estimatedRepairFactor
                     else:
-                        inlineinspection.AddWarning("{} Estimated Repair Factor is not caliculated as required fileds are null".format(reventid))
-
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Estimated Repair Factor is not caliculated as required fileds are null".format(reventid))
+                        warningCounter +=1
                     # calculated Rupture Pressure Ratio
                     if(rpipeSmys and pipeBurstPressure):
                         rupturePressureRatio = (pipeBurstPressure/rpipeSmys)
                         row[20]=rupturePressureRatio
                     else:
-                        inlineinspection.AddWarning("{} Rupture Pressure Ratio is not caliculated as required fileds are null".format(reventid))
-
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Rupture Pressure Ratio is not caliculated as required fileds are null".format(reventid))
+                        warningCounter +=1
                     
                     cursor.updateRow(row) 
                     
-                       
+            inlineinspection.AddWarning("Total number of warning {} due to values are null or empty, Please check the log file for details".format(warningCounter))
         except Exception as e:
             # If an error occurred, print line number and error message
             tb = sys.exc_info()[2]
