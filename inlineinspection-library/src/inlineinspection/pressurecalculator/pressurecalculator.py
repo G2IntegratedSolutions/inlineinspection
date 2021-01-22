@@ -34,11 +34,7 @@ class PressureCalculator(object):
         self.category = config.ILI_PC_TOOL_CATAGORY  
                
     def getParameterInfo(self):
-
-        """
-                parameters[0]->   in_workspace,
-                parameters[1]->   in_nhd_intersections_features              
-                """
+               
         # Input ILI point featuere - Parameter [0]       
         in_ili_features = arcpy.Parameter(displayName="Input ILI Features",
             name="in_ili_features",
@@ -255,11 +251,11 @@ class PressureCalculator(object):
         in_ps_diameter_field.value = "NominalDiameterCl"
 
         # Parameter [32]
-        #in_ps_thickness_field = arcpy.Parameter(category ="Input Pipe Segment Data Fields",
-        #    displayName="Nominal Wall Thickness Field", name="in_ps_thickness_field",
-        #    datatype="Field", parameterType="optional", direction="Input")
-        #in_ps_thickness_field.parameterDependencies = [in_ili_pipe_features.name]
-        #in_ps_thickness_field.value = "NominalWallThicknessCl"
+        in_ps_thickness_field = arcpy.Parameter(category ="Input Pipe Segment Data Fields",
+            displayName="Nominal Wall Thickness Field", name="in_ps_thickness_field",
+            datatype="Field", parameterType="optional", direction="Input")
+        in_ps_thickness_field.parameterDependencies = [in_ili_pipe_features.name]
+        in_ps_thickness_field.value = "NominalWallThicknessCl"
 
         # Parameter [33]
         in_ps_syms_field = arcpy.Parameter(category ="Input Pipe Segment Data Fields",
@@ -289,7 +285,8 @@ class PressureCalculator(object):
                       in_ili_pipe_features,
                       in_ili_maop_features,
                       in_ps_diameter_field,
-                      in_ps_syms_field,
+                      in_ps_thickness_field,
+                      in_ps_syms_field,#testing
                       in_maop_field,
                       in_pc_AreaOfMetalLoss_field, 
                       in_pc_modAreaOfMetalLoss_field,
@@ -331,11 +328,9 @@ class PressureCalculator(object):
                parameters[10].enabled = False 
                parameters[11].enabled = False
                parameters[12].enabled = False
-
-              
                parameters[13].enabled = False
                parameters[14].enabled = False
-               parameters[15].enabled = True
+               parameters[15].enabled = False
                parameters[16].enabled = True
                parameters[17].enabled = True
                parameters[18].enabled = True
@@ -349,13 +344,14 @@ class PressureCalculator(object):
                parameters[26].enabled = True
                parameters[27].enabled = True
                parameters[28].enabled = True
+               parameters[29].enabled = True
               
             elif parameters[1].value == config.ILI_PIPE_PARAMETER_TYPE[2]:
                #Pipe Information from Pipe Segment feature class
                parameters[2].enabled = True
                parameters[3].enabled = True
                parameters[4].enabled = False
-               parameters[5].enabled = True
+               parameters[5].enabled = False
                parameters[6].enabled = False              
                parameters[7].enabled = False              
                parameters[8].enabled = False
@@ -368,17 +364,19 @@ class PressureCalculator(object):
                parameters[15].enabled = True
                parameters[16].enabled = True
                parameters[17].enabled = True
-               parameters[18].enabled = True 
-               parameters[19].enabled = True
+               parameters[18].enabled = True
+               parameters[19].enabled = True 
                parameters[20].enabled = True
                parameters[21].enabled = True
                parameters[22].enabled = True
                parameters[23].enabled = True
                parameters[24].enabled = True
                parameters[25].enabled = True
-               parameters[26].enabled = True
                parameters[27].enabled = True
                parameters[28].enabled = True
+               parameters[29].enabled = True
+
+
                              
             else:                               
                #Pipe information from ILI Data
@@ -395,21 +393,22 @@ class PressureCalculator(object):
                parameters[12].enabled = False
                parameters[13].enabled = False
                parameters[14].enabled = False
-               parameters[15].enabled = True
+               parameters[15].enabled = False
                parameters[16].enabled = True
                parameters[17].enabled = True
-               parameters[18].enabled = True 
-               parameters[19].enabled = True #Output Data Parameters [20]-[33]:
-               parameters[20].enabled = True
+               parameters[18].enabled = True
+               parameters[19].enabled = True 
+               parameters[20].enabled = True #Output Data Parameters [20]-[33]:
                parameters[21].enabled = True
                parameters[22].enabled = True
                parameters[23].enabled = True
                parameters[24].enabled = True
                parameters[25].enabled = True
-               parameters[26].enabled = True
                parameters[27].enabled = True
                parameters[28].enabled = True
+               parameters[29].enabled = True
 
+               
         if(parameters[0].value):
             if not parameters[2].value:
                parameters[2].value = config.ILI_PC_REQ_FIELDS[0]
@@ -429,11 +428,13 @@ class PressureCalculator(object):
                parameters[12].value = config.ILI_PIPE_REQ_FIELDS[0]
             if not parameters[13].value:
                parameters[13].value = config.ILI_PIPE_REQ_FIELDS[1]
-            
+            if not parameters[14].value:
+               parameters[14].value = config.ILI_PIPE_REQ_FIELDS[2]
 
         if(parameters[11].value):
-            if not parameters[14].value:
-               parameters[14].value = config.ILI_MAOP_REQ_FIELDS[0]
+            if not parameters[15].value:
+               parameters[15].value = config.ILI_MAOP_REQ_FIELDS[0]
+
 
             # Assigning add field  #config.ILI_PC_ADDING_FIELDS[0]
         if(parameters[0].value):
@@ -441,14 +442,15 @@ class PressureCalculator(object):
             fc=parameters[0].value
             flds += [f.name for f in arcpy.ListFields (fc)]
 
-            for i in range(15, 29):
+            for i in range(16, 30):
                 if not parameters[i].value:
-                   j=i-15
+                   j=i-16
                    comparevalue= config.ILI_PC_ADDING_FIELDS[j]
                    self.populate_add_field(flds,parameters,i,comparevalue)
+
            
         else:
-            for i in range(2, 29):
+            for i in range(2, 30):
                 parameters[i].value = None
 
         return
@@ -492,10 +494,12 @@ class PressureCalculator(object):
                     if not parameters[12].value:
                         parameters[12].setErrorMessage("You must supply a value for the parameter Diameter")
                     if not parameters[13].value:
-                        parameters[13].setErrorMessage("You must supply a value for the parameter SMYS")
-                if(parameters[11].value):
+                        parameters[13].setErrorMessage("You must supply a value for the parameter Nominal Wall Thickness")
                     if not parameters[14].value:
-                        parameters[14].setErrorMessage("You must supply a value for the parameter MAOP")
+                        parameters[14].setErrorMessage("You must supply a value for the parameter SMYS")
+                if(parameters[11].value):
+                    if not parameters[15].value:
+                        parameters[15].setErrorMessage("You must supply a value for the parameter MAOP")
 
             elif parameters[1].value == config.ILI_PIPE_PARAMETER_TYPE[0]:   
                 if(parameters[0].value):
@@ -585,8 +589,8 @@ class PressureCalculator(object):
 
         parameters[idx].value = addfield
 
-    def build_json_for_segmentor(self, ili_layer, maop_layer,parameters):
-        try:
+    #def build_json_for_segmentor(self, ili_layer, maop_layer,parameters):
+    #    try:
 
     #        # Build json string
     #        #self.structure_segment ="PipeSegment"
@@ -601,65 +605,65 @@ class PressureCalculator(object):
     #        #toMeasureField_2="Measure"
     #        #key_1 = "EventID"
 
-            self.structure_segment = os.path.basename(parameters[11].valueAsText)
-            self.projDatabase = r"C:\G2\UnitedBrine\Anomaly Comparison\Freeport\PODS_ili.gdb"
-            self.projDataSet="Transmission"
-            name_1 = self.structure_segment
-            path_1 = parameters[11].valueAsText
-            routeIdentifierField_1 = parameters[13].valueAsText
-            fromMeasureField_1 = parameters[14].valueAsText
-            toMeasureField_1 = parameters[15].valueAsText
-            fromMeasureField_2="Measure"
-            toMeasureField_2="Measure"
-            key_1 = parameters[13].valueAsText
+    #        self.structure_segment = os.path.basename(parameters[11].valueAsText)
+    #        self.projDatabase = r"C:\G2\UnitedBrine\Anomaly Comparison\Freeport\PODS_ili.gdb"
+    #        self.projDataSet="Transmission"
+    #        name_1 = self.structure_segment
+    #        path_1 = parameters[11].valueAsText
+    #        routeIdentifierField_1 = parameters[13].valueAsText
+    #        fromMeasureField_1 = parameters[14].valueAsText
+    #        toMeasureField_1 = parameters[15].valueAsText
+    #        fromMeasureField_2="Measure"
+    #        toMeasureField_2="Measure"
+    #        key_1 = parameters[13].valueAsText
 
 
-            # Build JSON for segmentor!!
-            segmentor_json = list()
-            segmentor_json_1 = dict()
-            segmentor_json_1["name"] = name_1
-            segmentor_json_1["path"] = path_1
-            segmentor_json_1["routeIdentifierField"] = routeIdentifierField_1
-            segmentor_json_1["fromMeasureField"] = fromMeasureField_1
-            segmentor_json_1["toMeasureField"] = toMeasureField_1
-            segmentor_json_1["primaryKeyField"] = key_1
-            # segmentor_json = [segmentor_json_1]
-            segmentor_json.append(segmentor_json_1)
+    #        # Build JSON for segmentor!!
+    #        segmentor_json = list()
+    #        segmentor_json_1 = dict()
+    #        segmentor_json_1["name"] = name_1
+    #        segmentor_json_1["path"] = path_1
+    #        segmentor_json_1["routeIdentifierField"] = routeIdentifierField_1
+    #        segmentor_json_1["fromMeasureField"] = fromMeasureField_1
+    #        segmentor_json_1["toMeasureField"] = toMeasureField_1
+    #        segmentor_json_1["primaryKeyField"] = key_1
+    #        # segmentor_json = [segmentor_json_1]
+    #        segmentor_json.append(segmentor_json_1)
 
-            if ili_layer:
-                name_2 = ili_layer
-                path_2 = parameters[1].valueAsText
-                segmentor_json_2 = dict()
-                segmentor_json_2["name"] = name_2
-                segmentor_json_2["path"] = path_2
-                segmentor_json_2["routeIdentifierField"] = routeIdentifierField_1
-                segmentor_json_2["fromMeasureField"] = fromMeasureField_2
-                segmentor_json_2["toMeasureField"] = toMeasureField_2
-                segmentor_json_2["primaryKeyField"] = key_1
-                segmentor_json.append(segmentor_json_2)
+    #        if ili_layer:
+    #            name_2 = ili_layer
+    #            path_2 = parameters[0].valueAsText
+    #            segmentor_json_2 = dict()
+    #            segmentor_json_2["name"] = name_2
+    #            segmentor_json_2["path"] = path_2
+    #            segmentor_json_2["routeIdentifierField"] = routeIdentifierField_1
+    #            segmentor_json_2["fromMeasureField"] = fromMeasureField_2
+    #            segmentor_json_2["toMeasureField"] = toMeasureField_2
+    #            segmentor_json_2["primaryKeyField"] = key_1
+    #            segmentor_json.append(segmentor_json_2)
 
-            if maop_layer:
-                name_3 = maop_layer
-                path_3 =  parameters[12].valueAsText
-                segmentor_json_3 = dict()
-                segmentor_json_3["name"] = name_3
-                segmentor_json_3["path"] = path_3
-                segmentor_json_3["routeIdentifierField"] = routeIdentifierField_1
-                segmentor_json_3["fromMeasureField"] = fromMeasureField_1
-                segmentor_json_3["toMeasureField"] = toMeasureField_1
-                segmentor_json_3["primaryKeyField"] = key_1
-                segmentor_json.append(segmentor_json_3)
+    #        if maop_layer:
+    #            name_3 = maop_layer
+    #            path_3 =  parameters[12].valueAsText
+    #            segmentor_json_3 = dict()
+    #            segmentor_json_3["name"] = name_3
+    #            segmentor_json_3["path"] = path_3
+    #            segmentor_json_3["routeIdentifierField"] = routeIdentifierField_1
+    #            segmentor_json_3["fromMeasureField"] = fromMeasureField_1
+    #            segmentor_json_3["toMeasureField"] = toMeasureField_1
+    #            segmentor_json_3["primaryKeyField"] = key_1
+    #            segmentor_json.append(segmentor_json_3)
 
-            segmentor_json_string = json.dumps(segmentor_json)
-            return segmentor_json_string
-        except Exception as e:
-            tb = sys.exc_info()[2]
-            inlineinspection.AddError("An error occurred on line %i" % tb.tb_lineno)
-            inlineinspection.AddError(str(e))
-            inlineinspection.AddError("Issue in json file creation .\n{}".format(arcpy.GetMessages(2)))
-            return False
-    def build_segmentor_table(self,parameters):
-        try:
+    #        segmentor_json_string = json.dumps(segmentor_json)
+    #        return segmentor_json_string
+    #    except Exception as e:
+    #        tb = sys.exc_info()[2]
+    #        inlineinspection.AddError("An error occurred on line %i" % tb.tb_lineno)
+    #        inlineinspection.AddError(str(e))
+    #        inlineinspection.AddError("Issue in json file creation .\n{}".format(arcpy.GetMessages(2)))
+    #        return False
+    #def build_segmentor_table(self,parameters):
+    #    try:
 
     #        #Create intermediate folder and gdb to store the segmentor related tables 
     #        self.output_dir=r"C:\G2\UnitedBrine\Test\TestOutputdatabase.gdb"
