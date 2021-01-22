@@ -270,27 +270,43 @@ if __name__ == "__main__":
 
     try:
 
-        spatialjoin1=r"C:\G2\UnitedBrine\Anomaly Comparison\scratch\ILI_TEMP\ILI_TEMP_GDB.gdb\ILIData_SJ1"
-        #arcpy.analysis.SpatialJoin(ili_layer, pipesegment_layer, spatialjoin1, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+ili_layer+',EventID,-1,-1;SMYS_SJ "SMYS_SJ" true true false 50 Text 0 0,First,#,'+pipesegment_layer+',SMYSGCL,0,50; NominalDiameter_SJ  "NominalDiameter_SJ" true true false 8 Double 0 0,First,#,'+pipesegment_layer+',NominalDiameterGCL,-1,-1;NominalWallThicknessGCL "NominalWallThicknessGCL" true true false 8 Double 0 0,First,#,'+pipesegment_layer+',NominalWallThicknessGCL,-1,-1', "INTERSECT", None, '')
+        #spatialjoin1=r"C:\G2\UnitedBrine\Anomaly Comparison\scratch\ILI_TEMP\ILI_TEMP_GDB.gdb\ILIData_SJ12"
     
-        #arcpy.SpatialJoin_analysis(r"C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Transmission\ILIData", 
-        #                           r"C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Transmission\PipeSegment", 
-        #                           r"C:\G2\UnitedBrine\Test\TestOutputdatabase.gdb\ILIData_SpatialJoin1", 
-        #                           "JOIN_ONE_TO_ONE", "KEEP_ALL",
-        #                          r'EventID "EventID" true true false 38 Guid 0 0,First,#,C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Transmission\ILIData,EventID,-1,-1;NominalWallThicknessCl "NominalWallThicknessCl" true true false 50 Text 0 0,First,#,C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Transmission\PipeSegment,NominalWallThicknessCl,0,50;SMYSCL "SMYSCL" true true false 4 Long 0 0,First,#,C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Transmission\PipeSegment,SMYSCL,-1,-1', "INTERSECT", None, '')
-    
-        arcpy.SpatialJoin_analysis(ili_layer, pipesegment_layer, spatialjoin1)
-        arcpy.AddMessage("Spatial Join is performed on Pipe Segment")
-        spatialjoin1=r"C:\G2\UnitedBrine\Anomaly Comparison\scratch\ILI_TEMP\ILI_TEMP_GDB.gdb\ILIData_SJ2"
-        arcpy.SpatialJoin_analysis(spatialjoin1, maop_layer, spatialjoin2, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+spatialjoin1+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Text 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_SYMS_FIELDNAME+',0,50;'+config.OUTPUT_DIAMETER_FIELDNAME+' "'+config.OUTPUT_DIAMETER_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_DIAMETER_FIELDNAME+',-1,-1;'+config.OUTPUT_THICKNESS_FIELDNAME+' "'+config.OUTPUT_THICKNESS_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_THICKNESS_FIELDNAME+',-1,-1;'+config.OUTPUT_MAOP_FIELDNAME+' "'+config.OUTPUT_MAOP_FIELDNAME+'" true true false 4 Long 0 0,First,#,'+maop_layer+','+maop_field+',-1,-1', "INTERSECT", None, '')
+        #arcpy.SpatialJoin_analysis(ili_layer, pipesegment_layer, spatialjoin1)
+        #arcpy.AddMessage("Spatial Join is performed on Pipe Segment")
+        #spatialjoin2=r"C:\G2\UnitedBrine\Anomaly Comparison\scratch\ILI_TEMP\ILI_TEMP_GDB.gdb\ILIData_SJ22"
+        #maop_field="MAOPRating"
+        #arcpy.SpatialJoin_analysis(spatialjoin1, maop_layer, spatialjoin2, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+spatialjoin1+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Text 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_SYMS_FIELDNAME+',0,50;'+config.OUTPUT_DIAMETER_FIELDNAME+' "'+config.OUTPUT_DIAMETER_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_DIAMETER_FIELDNAME+',-1,-1;'+config.OUTPUT_THICKNESS_FIELDNAME+' "'+config.OUTPUT_THICKNESS_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_THICKNESS_FIELDNAME+',-1,-1;'+config.OUTPUT_MAOP_FIELDNAME+' "'+config.OUTPUT_MAOP_FIELDNAME+'" true true false 4 Long 0 0,First,#,'+maop_layer+','+maop_field+',-1,-1', "INTERSECT", None, '')
 
-        #inlineinspection.AddMessage("Spatial Join is performed on MAOP")
+        ##inlineinspection.AddMessage("Spatial Join is performed on MAOP")
+        
+        ###Add join with ILI Layer
+        ##arcpy.management.AddJoin(ili_layer, "EventID", spatialjoin2, "EventID", "KEEP_ALL")
+        #arcpy.AddJoin_management(ili_layer, "EventID", spatialjoin2, "EventID", "KEEP_ALL")
 
-        ##Remove existing join
-        #arcpy.management.RemoveJoin(ili_layer)
-        #arcpy.AddMessage("Existing Join is removed from ILI Data")
-        ##Add join with ILI Layer
-        #arcpy.management.AddJoin(ili_layer, "EventID", spatialjoin2, "EventID", "KEEP_ALL")
+        if(ili_layer):
+            flds = []            
+            flds += [f.name.upper() for f in arcpy.ListFields (ili_layer)]
+            filds=['ILIDATA.ANOMALYDESCRIPTION', 'ILIDATA.AREAOFMETALLOSS', 'ILIDATA.MOD_AREAOFMETALLOSS', 'ILIDATA.FLOWSTRESS', 'ILIDATA.MOD_FLOWSTRESS', 'ILIDATA.FOLIASFACTOR', 'ILIDATA.MOD_FOLIASFACTOR', 'ILIDATA.PIPEBURSTPRESSURE', 'ILIDATA.MOD_PIPEBURSTPRESSURE', 'ILIDATA.CALCULATEDPRESSURE', 'ILIDATA.REFERENCEPRESSURE', 'ILIDATA.SAFETY_FACTOR', 'ILIDATA.PRESSUREREFERENCEDRATIO', 'ILIDATA.ESTIMATEDREPAIRFACTOR', 'ILIDATA.RUPTUREPRESSURERATIO', 'ILIDATA_SJ2.OBJECTID', 'ILIDATA_SJ2.JOIN_COUNT', 'ILIDATA_SJ2.TARGET_FID', 'ILIDATA_SJ2.EVENTID', 'ILIDATA_SJ2.SMYS_SJ', 'ILIDATA_SJ2.NOMINALDIAMETER_SJ', 'ILIDATA_SJ2.NOMINALWALLTHICKNESS_SJ', 'ILIDATA_SJ2.MAOP_SJ']
+            f1=[]
+            for f in flds:
+                x=f.split('.')
+                if len(x)>1:
+                    x1=x[1]
+                    f1.append(x1)
+                else:
+                    f1.append(f)
+           
+            print(f1)
+            #for outField in outFields:
+            #    if not outField.upper() in flds: 
+            #        # Execute AddField for new fields
+            #        arcpy.AddField_management(fc, outField, "LONG", 9,
+            #                                  field_alias=outField, field_is_nullable="NULLABLE")
+            #        inlineinspection.AddMessage("{} field added".format(outField))
+
+        #arcpy.RemoveJoin_management(ili_layer)
+            
         #arcpy.AddMessage("Join is performed on ILI Data")
     except Exception as e:
             tb = sys.exc_info()[2]
