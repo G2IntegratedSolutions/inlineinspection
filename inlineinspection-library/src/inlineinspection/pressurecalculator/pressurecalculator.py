@@ -34,11 +34,7 @@ class PressureCalculator(object):
         self.category = config.ILI_PC_TOOL_CATAGORY  
                
     def getParameterInfo(self):
-
-        """
-                parameters[0]->   in_workspace,
-                parameters[1]->   in_nhd_intersections_features              
-                """
+               
         # Input ILI point featuere - Parameter [0]       
         in_ili_features = arcpy.Parameter(displayName="Input ILI Features",
             name="in_ili_features",
