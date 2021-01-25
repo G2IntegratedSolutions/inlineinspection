@@ -23,7 +23,7 @@ ILI_PIPE_PARAMETER_TYPE = ['Pipe Information From ILI Data', 'Manual Pipe Inform
 
 ILI_PC_PARAMETER_CATGRY_3 = "Input Required Manual Data Values"
 
-ILI_PIPE_REQ_FIELDS = ["NominalDiameterGCL", "NominalWallThicknessGCL","SMYSGCL" ]
+ILI_PIPE_REQ_FIELDS = ["NominalDiameterGCL", "SMYSGCL" ]
 ILI_MAOP_REQ_FIELDS = ["MAOPRating"]
 
 #ILI_MANUAL_PIPE_INFORMATION_VALUE = [42000,720]
