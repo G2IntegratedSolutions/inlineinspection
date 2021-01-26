@@ -13,17 +13,17 @@ ILI_TEMP_FOLDER = "ILI_TEMP"
 ILI_TEMP_GDB = 'TempOutput_ILI.gdb'
 
 ILI_PC_PARAMETER_CATGRY = "Input ILI Data Fields"
-ILI_PC_REQ_FIELDS = ['LENGTH' ,'MAXDEPTHMEASURED' ,'MAXDIAMETER' ,'MEASUREDWALLTHICKNESS' ,'PIPESMYS' ,'B31GMAOP']
+ILI_PC_REQ_FIELDS = ['LENGTH' ,'MAXDEPTHMEASURED' ,'MAXDIAMETER1' ,'MEASUREDWALLTHICKNESS' ,'PIPESMYS' ,'B31GMAOP']
 
 ILI_PC_PARAMETER_CATGRY_2 = "Output Calculated ILI Fields"
-ILI_PC_ADDING_FIELDS = ['AreaOfMetalLoss' ,'Mod_AreaOfMetalLoss' ,'FlowStress' ,'Mod_FlowStress' ,'FoliasFactor' ,'Mod_FoliasFactor'
-                        ,'PipeBurstPressure' ,'Mod_PipeBurstPressure' ,'CalculatedPressure' ,'ReferencePressure' ,'Safety_Factor' ,'PressureReferencedRatio', 'EstimatedRepairFactor', 'RupturePressureRatio'
+ILI_PC_ADDING_FIELDS = ['PipeBurstPressure' ,'Mod_PipeBurstPressure' ,'CalculatedPressure' ,'ReferencePressure' ,'Safety_Factor' ,'PressureReferencedRatio', 'EstimatedRepairFactor', 'RupturePressureRatio'
                         ]
-ILI_PIPE_PARAMETER_TYPE = ['Pipe Information From ILI Data', 'Manual Pipe Information', 'Pipe Information from Pipe Segment Features Class']
+ILI_PC_HIDDEN_ADDING_FIELDS = ['AreaOfMetalLoss' ,'Mod_AreaOfMetalLoss' ,'FlowStress' ,'Mod_FlowStress' ,'FoliasFactor' ,'Mod_FoliasFactor']
+ILI_PIPE_PARAMETER_TYPE = ['Pipe Information From ILI Data', 'Manual Pipe Information', 'Pipe Information from Pipe Segment Feature Class']
 
 ILI_PC_PARAMETER_CATGRY_3 = "Input Required Manual Data Values"
 
-ILI_PIPE_REQ_FIELDS = ["NominalDiameterGCL", "SMYSGCL" ]
+ILI_PIPE_REQ_FIELDS = ["SMYSGCL" ]
 ILI_MAOP_REQ_FIELDS = ["MAOPRating"]
 
 #ILI_MANUAL_PIPE_INFORMATION_VALUE = [42000,720]

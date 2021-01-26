@@ -135,12 +135,12 @@ class PressureCalculator(object):
        
         # Parameter [16]
         in_pc_calculatePressure_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
-            displayName="Calculate Pressure Field", name="in_pc_calculatePressure_field",
+            displayName="Calculated Safety Pressure Field", name="in_pc_calculatePressure_field",
             datatype="GPString", parameterType="Required", direction="Input")
        
         # Parameter [17]
         in_pc_referencePressure_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
-            displayName="Reference Pressure Pressure Field", name="in_pc_referencePressure_field",
+            displayName="Reference Pressure Field", name="in_pc_referencePressure_field",
             datatype="GPString", parameterType="Required", direction="Input")
       
         # Parameter [18]
@@ -244,11 +244,11 @@ class PressureCalculator(object):
         #in_ss_eventid_field.value = "EventID"
 
         # Parameter [31]
-        in_ps_diameter_field = arcpy.Parameter(category ="Input Pipe Segment Data Fields",
-            displayName="Nominal Diameter Field", name="in_ps_diameter_field",
-            datatype="Field", parameterType="optional", direction="Input")
-        in_ps_diameter_field.parameterDependencies = [in_ili_pipe_features.name]
-        in_ps_diameter_field.value = "NominalDiameterCl"
+        #in_ps_diameter_field = arcpy.Parameter(category ="Input Pipe Segment Data Fields",
+        #    displayName="Nominal Diameter Field", name="in_ps_diameter_field",
+        #    datatype="Field", parameterType="optional", direction="Input")
+        #in_ps_diameter_field.parameterDependencies = [in_ili_pipe_features.name]
+        #in_ps_diameter_field.value = "NominalDiameterCl"
 
         # Parameter [32]
         #in_ps_thickness_field = arcpy.Parameter(category ="Input Pipe Segment Data Fields",
@@ -284,15 +284,8 @@ class PressureCalculator(object):
                       in_pc_PipeMAOP_fieldvalue, 
                       in_ili_pipe_features,
                       in_ili_maop_features,
-                      in_ps_diameter_field,
                       in_ps_syms_field,
                       in_maop_field,
-                      in_pc_AreaOfMetalLoss_field, 
-                      in_pc_modAreaOfMetalLoss_field,
-                      in_pc_flowStress_field, 
-                      in_pc_modflowStress_field,
-                      in_pc_foliasFactor_field,
-                      in_pc_modFoliasFactor_field,
                       in_pc_pipeBurstPressure_field, 
                       in_pc_modPipeBurstPressure_field,
                       in_pc_calculatePressure_field, 
@@ -333,9 +326,8 @@ class PressureCalculator(object):
                parameters[10].enabled = False 
                parameters[11].enabled = False
                parameters[12].enabled = False
-
                parameters[13].enabled = False
-               parameters[14].enabled = False
+               parameters[14].enabled = True 
                parameters[15].enabled = True
                parameters[16].enabled = True
                parameters[17].enabled = True
@@ -343,19 +335,12 @@ class PressureCalculator(object):
                parameters[19].enabled = True
                parameters[20].enabled = True
                parameters[21].enabled = True
-               parameters[22].enabled = True
-               parameters[23].enabled = True
-               parameters[24].enabled = True
-               parameters[25].enabled = True
-               parameters[26].enabled = True
-               parameters[27].enabled = True
-               parameters[28].enabled = True
               
             elif parameters[1].value == config.ILI_PIPE_PARAMETER_TYPE[2]:
                #Pipe Information from Pipe Segment feature class       
                parameters[2].enabled = True
                parameters[3].enabled = True
-               parameters[4].enabled = False
+               parameters[4].enabled = True
                parameters[5].enabled = True
                parameters[6].enabled = False              
                parameters[7].enabled = False              
@@ -363,23 +348,10 @@ class PressureCalculator(object):
                parameters[9].enabled = False
                parameters[10].enabled = True
                parameters[11].enabled = True 
-               parameters[12].enabled = True 
+               parameters[12].enabled = True
                parameters[13].enabled = True
                parameters[14].enabled = True
-               parameters[15].enabled = True
-               parameters[16].enabled = True
-               parameters[17].enabled = True
-               parameters[18].enabled = True 
-               parameters[19].enabled = True
-               parameters[20].enabled = True
                parameters[21].enabled = True
-               parameters[22].enabled = True
-               parameters[23].enabled = True
-               parameters[24].enabled = True
-               parameters[25].enabled = True
-               parameters[26].enabled = True
-               parameters[27].enabled = True
-               parameters[28].enabled = True
 
 
                              
@@ -397,21 +369,14 @@ class PressureCalculator(object):
                parameters[11].enabled = False
                parameters[12].enabled = False
                parameters[13].enabled = False
-               parameters[14].enabled = False
+               parameters[14].enabled = True
                parameters[15].enabled = True
                parameters[16].enabled = True
                parameters[17].enabled = True
-               parameters[18].enabled = True 
-               parameters[19].enabled = True #Output Data Parameters [20]-[33]:
+               parameters[18].enabled = True
+               parameters[19].enabled = True
                parameters[20].enabled = True
                parameters[21].enabled = True
-               parameters[22].enabled = True
-               parameters[23].enabled = True
-               parameters[24].enabled = True
-               parameters[25].enabled = True
-               parameters[26].enabled = True
-               parameters[27].enabled = True
-               parameters[28].enabled = True
                
         if(parameters[0].value):
             if not parameters[2].value:
@@ -430,13 +395,10 @@ class PressureCalculator(object):
         if(parameters[10].value):
             if not parameters[12].value:
                parameters[12].value = config.ILI_PIPE_REQ_FIELDS[0]
-            if not parameters[13].value:
-               parameters[13].value = config.ILI_PIPE_REQ_FIELDS[1]
           
-
         if(parameters[11].value):
-            if not parameters[14].value:
-               parameters[14].value = config.ILI_MAOP_REQ_FIELDS[0]
+            if not parameters[13].value:
+               parameters[13].value = config.ILI_MAOP_REQ_FIELDS[0]
 
 
             # Assigning add field  #config.ILI_PC_ADDING_FIELDS[0]
@@ -445,15 +407,15 @@ class PressureCalculator(object):
             fc=parameters[0].value
             flds += [f.name for f in arcpy.ListFields (fc)]
 
-            for i in range(15, 29):
+            for i in range(14, 22):
                 if not parameters[i].value:
-                   j=i-15
+                   j=i-14
                    comparevalue= config.ILI_PC_ADDING_FIELDS[j]
                    self.populate_add_field(flds,parameters,i,comparevalue)
 
            
         else:
-            for i in range(2, 29):
+            for i in range(2, 22):
                 parameters[i].value = None
 
         return
@@ -495,13 +457,11 @@ class PressureCalculator(object):
                         parameters[3].setErrorMessage("You must supply a value for the parameter Max Depth Measure")
                 if(parameters[10].value):   
                     if not parameters[12].value:
-                        parameters[12].setErrorMessage("You must supply a value for the parameter Diameter")
-                    if not parameters[13].value:
-                        parameters[13].setErrorMessage("You must supply a value for the parameter SMYS")
+                        parameters[12].setErrorMessage("You must supply a value for the parameter SMYS")
                     
                 if(parameters[11].value):
-                    if not parameters[14].value:
-                        parameters[14].setErrorMessage("You must supply a value for the parameter MAOP")
+                    if not parameters[13].value:
+                        parameters[13].setErrorMessage("You must supply a value for the parameter MAOP")
 
             elif parameters[1].value == config.ILI_PIPE_PARAMETER_TYPE[0]:   
                 if(parameters[0].value):
@@ -828,82 +788,72 @@ class PressureCalculator(object):
 
     def build_spatialjoin_table(self,parameters):
 
-        try:
-            ili_layer =parameters[0].valueAsText
-            pipesegment_layer=parameters[10].valueAsText       
-            maop_layer = parameters[11].valueAsText
-        
-            diameter_field=parameters[12].valueAsText
-            thickness_field = parameters[5].valueAsText  #** need to remove 
-            syms_field = parameters[13].valueAsText
-            maop_field = parameters[14].valueAsText
-            
-            
-            #Create temp gdb to process and store intermediate data           
-            #self.output_dir=r"C:\G2\UnitedBrine\Test\TestOutputdatabase.gdb"
-            self.ILI_TEMP_FOLDER = "ILI_TEMP"
-            self.ILI_TEMP_GDB = "ILI_TEMP_GDB.gdb"
-            tempoutput_workspace = arcpy.env.scratchFolder if arcpy.Exists(arcpy.env.scratchFolder) and arcpy.env.scratchFolder is not None else self.output_dir
-            tempoutput_dir = os.path.join(tempoutput_workspace, self.ILI_TEMP_FOLDER )
-            tempoutput_gdb = self.ILI_TEMP_GDB 
-            self.tempoutputgdb_path = os.path.join(tempoutput_dir, tempoutput_gdb)
-                   
-            # Create temp gbd for intermediate process
-            self.createtempgdb(tempoutput_dir, tempoutput_gdb)
+         try:
+        ili_layer =parameters[0].valueAsText
+        pipesegment_layer=parameters[10].valueAsText
+        maop_layer = parameters[11].valueAsText
+        #diameter_field=parameters[12].valueAsText
+        thickness_field = parameters[5].valueAsText #** need to remove
+        syms_field = parameters[13].valueAsText
+        maop_field = parameters[14].valueAsText
 
-            inlineinspection.AddMessage("Temp gdb is created and the path is {}".format(self.tempoutputgdb_path))
+        #Create temp gdb to process and store intermediate data
+        #self.output_dir=r"C:\G2\UnitedBrine\Test\TestOutputdatabase.gdb"
+        self.ILI_TEMP_FOLDER = "ILI_TEMP"
+        self.ILI_TEMP_GDB = "ILI_TEMP_GDB.gdb"
+        tempoutput_workspace = arcpy.env.scratchFolder if arcpy.Exists(arcpy.env.scratchFolder) and arcpy.env.scratchFolder is not None else self.output_dir
+        tempoutput_dir = os.path.join(tempoutput_workspace, self.ILI_TEMP_FOLDER )
+        tempoutput_gdb = self.ILI_TEMP_GDB
+        self.tempoutputgdb_path = os.path.join(tempoutput_dir, tempoutput_gdb)
+        # Create temp gbd for intermediate process
+        self.createtempgdb(tempoutput_dir, tempoutput_gdb)
 
-            spatial_join1 = FuncParam(self.tempoutputgdb_path  + "\\ILIData_SJ1")
-            spatialjoin1 =spatial_join1.valueAsText
-            if arcpy.Exists(spatialjoin1):
-                arcpy.Delete_management(spatialjoin1)
+         inlineinspection.AddMessage("Temp gdb is created and the path is {}".format(self.tempoutputgdb_path))
 
-            spatial_join2 = FuncParam(self.tempoutputgdb_path  + "\\ILIData_SJ2")
-            spatialjoin2 =spatial_join2.valueAsText
-            if arcpy.Exists(spatialjoin2):
-                arcpy.Delete_management(spatialjoin2)
+         spatial_join1 = FuncParam(self.tempoutputgdb_path + "\\ILIData_SJ1")
+        spatialjoin1 =spatial_join1.valueAsText
+        if arcpy.Exists(spatialjoin1):
+        arcpy.Delete_management(spatialjoin1)
 
-            #arcpy.analysis.SpatialJoin(ili_layer, pipesegment_layer, spatialjoin1, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+ili_layer+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Text 0 0,First,#,'+pipesegment_layer+','+syms_field+',0,50;'+config.OUTPUT_DIAMETER_FIELDNAME+' "'+config.OUTPUT_DIAMETER_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+pipesegment_layer+','+diameter_field+',-1,-1;'+config.OUTPUT_THICKNESS_FIELDNAME+' "'+config.OUTPUT_THICKNESS_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+pipesegment_layer+','+thickness_field+',-1,-1', "INTERSECT", None, '')
-            inlineinspection.AddMessage("spatial join1 feature {} {} {}".format(spatialjoin1,ili_layer,pipesegment_layer))
-            #arcpy.SpatialJoin_analysis(ili_layer, pipesegment_layer, spatialjoin1, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+ili_layer+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Text 0 0,First,#,'+pipesegment_layer+','+syms_field+',0,50;'+config.OUTPUT_DIAMETER_FIELDNAME+' "'+config.OUTPUT_DIAMETER_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+pipesegment_layer+','+diameter_field+',-1,-1;'+config.OUTPUT_THICKNESS_FIELDNAME+' "'+config.OUTPUT_THICKNESS_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+pipesegment_layer+','+thickness_field+',-1,-1', "INTERSECT", None, '')
-            arcpy.SpatialJoin_analysis(ili_layer, pipesegment_layer, spatialjoin1, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+ili_layer+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Text 0 0,First,#,'+pipesegment_layer+','+syms_field+',0,50;'+config.OUTPUT_DIAMETER_FIELDNAME+' "'+config.OUTPUT_DIAMETER_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+pipesegment_layer+','+diameter_field+',-1,-1', "INTERSECT", None, '')
-            
+         spatial_join2 = FuncParam(self.tempoutputgdb_path + "\\ILIData_SJ2")
+        spatialjoin2 =spatial_join2.valueAsText
+        if arcpy.Exists(spatialjoin2):
+        arcpy.Delete_management(spatialjoin2)
 
-            inlineinspection.AddMessage("Spatial Join is performed on Pipe Segment")
-            #arcpy.analysis.SpatialJoin(spatialjoin1, maop_layer, spatialjoin2, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+spatialjoin1+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Text 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_SYMS_FIELDNAME+',0,50;'+config.OUTPUT_DIAMETER_FIELDNAME+' "'+config.OUTPUT_DIAMETER_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_DIAMETER_FIELDNAME+',-1,-1;'+config.OUTPUT_THICKNESS_FIELDNAME+' "'+config.OUTPUT_THICKNESS_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_THICKNESS_FIELDNAME+',-1,-1;'+config.OUTPUT_MAOP_FIELDNAME+' "'+config.OUTPUT_MAOP_FIELDNAME+'" true true false 4 Long 0 0,First,#,'+maop_layer+','+maop_field+',-1,-1', "INTERSECT", None, '')
-            inlineinspection.AddMessage(" spatial join2 {}".format(spatialjoin2))
-           
-            arcpy.SpatialJoin_analysis(spatialjoin1, maop_layer, spatialjoin2, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+spatialjoin1+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Text 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_SYMS_FIELDNAME+',0,50;'+config.OUTPUT_DIAMETER_FIELDNAME+' "'+config.OUTPUT_DIAMETER_FIELDNAME+'" true true false 8 Double 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_DIAMETER_FIELDNAME+',-1,-1;'+config.OUTPUT_MAOP_FIELDNAME+' "'+config.OUTPUT_MAOP_FIELDNAME+'" true true false 4 Long 0 0,First,#,'+maop_layer+','+maop_field+',-1,-1', "INTERSECT", None, '')
-            inlineinspection.AddMessage("Spatial Join is performed on MAOP")
+         inlineinspection.AddMessage("spatial join1 feature {} {} {}".format(spatialjoin1,ili_layer,pipesegment_layer))
+        arcpy.SpatialJoin_analysis(ili_layer, pipesegment_layer, spatialjoin1, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+ili_layer+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Text 0 0,First,#,'+pipesegment_layer+','+syms_field+',0,50', "INTERSECT", None, '')
+        inlineinspection.AddMessage("Spatial Join is performed on Pipe Segment")
+        inlineinspection.AddMessage(" spatial join2 {}".format(spatialjoin2))
+        arcpy.SpatialJoin_analysis(spatialjoin1, maop_layer, spatialjoin2, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+spatialjoin1+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Text 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_SYMS_FIELDNAME+',0,50;'+config.OUTPUT_MAOP_FIELDNAME+' "'+config.OUTPUT_MAOP_FIELDNAME+'" true true false 4 Long 0 0,First,#,'+maop_layer+','+maop_field+',-1,-1', "INTERSECT", None, '')
+        inlineinspection.AddMessage("Spatial Join is performed on MAOP")
 
-            arcpy.management.AddFields(ili_layer, config.OUTPUT_DIAMETER_FIELDNAME+" LONG # # # #;"+config.OUTPUT_SYMS_FIELDNAME+" LONG # # # #;"+config.OUTPUT_MAOP_FIELDNAME+" LONG # # # #")
-            inlineinspection.AddMessage("Added temp fields")
-          
-            #Add join with ILI Layer          
-            arcpy.AddJoin_management(ili_layer, "EventID", spatialjoin2, "EventID", "KEEP_ALL")            
-            inlineinspection.AddMessage("Join is performed on ILI Data")
+         arcpy.management.AddFields(ili_layer, config.OUTPUT_DIAMETER_FIELDNAME+" LONG # # # #;"+config.OUTPUT_SYMS_FIELDNAME+" LONG # # # #;"+config.OUTPUT_MAOP_FIELDNAME+" LONG # # # #")
+        inlineinspection.AddMessage("Added temp fields")
+        #Add join with ILI Layer
+        arcpy.AddJoin_management(ili_layer, "EventID", spatialjoin2, "EventID", "KEEP_ALL")
+        inlineinspection.AddMessage("Join is performed on ILI Data")
 
-            arcpy.management.CalculateField(ili_layer, config.OUTPUT_DIAMETER_FIELDNAME, "!ILIData_SJ2."+config.OUTPUT_DIAMETER_FIELDNAME+"!", "PYTHON3", '', "TEXT")
-            arcpy.management.CalculateField(ili_layer, config.OUTPUT_SYMS_FIELDNAME , "!ILIData_SJ2."+config.OUTPUT_SYMS_FIELDNAME+"!", "PYTHON3", '', "TEXT")
-            arcpy.management.CalculateField(ili_layer, config.OUTPUT_MAOP_FIELDNAME, "!ILIData_SJ2."+config.OUTPUT_MAOP_FIELDNAME+"!", "PYTHON3", '', "TEXT")
-            inlineinspection.AddMessage("Calculate temp fields")
+         arcpy.management.CalculateField(ili_layer, config.OUTPUT_SYMS_FIELDNAME , "!ILIData_SJ2."+config.OUTPUT_SYMS_FIELDNAME+"!", "PYTHON3", '', "TEXT")
+        arcpy.management.CalculateField(ili_layer, config.OUTPUT_MAOP_FIELDNAME, "!ILIData_SJ2."+config.OUTPUT_MAOP_FIELDNAME+"!", "PYTHON3", '', "TEXT")
+        inlineinspection.AddMessage("Calculate temp fields")
 
-            arcpy.management.RemoveJoin(ili_layer, "ILIData_SJ2")
-            inlineinspection.AddMessage("Existing Join is removed from ILI Data")
+         arcpy.management.RemoveJoin(ili_layer, "ILIData_SJ2")
+        inlineinspection.AddMessage("Existing Join is removed from ILI Data")
 
-            calulatepressure= CalculateILIPressures()
-            calulatepressure.fieldscaliculation(parameters)
-            inlineinspection.AddMessage("Caliculation is performed")            
+         calulatepressure= CalculateILIPressures()
+        calulatepressure.fieldscaliculation(parameters)
+        inlineinspection.AddMessage("Caliculation is performed")
 
-            arcpy.management.DeleteField(ili_layer, ""+config.OUTPUT_DIAMETER_FIELDNAME+";"+config.OUTPUT_SYMS_FIELDNAME+";"+config.OUTPUT_SYMS_FIELDNAME+"")
-            inlineinspection.AddMessage("Deleted temp fields")
+         arcpy.management.DeleteField(ili_layer, ""+config.OUTPUT_SYMS_FIELDNAME+";"+config.OUTPUT_SYMS_FIELDNAME+"")
+        inlineinspection.AddMessage("Deleted temp fields")
 
-        except Exception as e:
-            tb = sys.exc_info()[2]
-            inlineinspection.AddError("An error occurred on line %i" % tb.tb_lineno)
-            inlineinspection.AddError(str(e))
-            inlineinspection.AddError("Issue in build spatial join creation, Please check and try again.\n{}".format(arcpy.GetMessages(2)))
-            return False
+         except Exception as e:
+        tb = sys.exc_info()[2]
+        inlineinspection.AddError("An error occurred on line %i" % tb.tb_lineno)
+        inlineinspection.AddError(str(e))
+        inlineinspection.AddError("Issue in build spatial join creation, Please check and try again.\n{}".format(arcpy.GetMessages(2)))
+        return False
+
 
 
 class CalculateILIPressures(object):
@@ -941,20 +891,22 @@ class CalculateILIPressures(object):
             measuredWallthickness=parameters[5].valueAsText
             pipeSmys=parameters[6].valueAsText
             pipeMAOPField=parameters[7].valueAsText
-            areaOfMetalLoss=parameters[15].valueAsText
-            modAreaOfMetalLoss=parameters[16].valueAsText
-            flowStress=parameters[17].valueAsText
-            modFlowStress=parameters[18].valueAsText
-            foliasFactor=parameters[19].valueAsText
-            modFoliasFactor=parameters[20].valueAsText
-            pipeBurstPressure=parameters[21].valueAsText
-            modPipeBurstPressure=parameters[22].valueAsText
-            calculatedPressure=parameters[23].valueAsText
-            referencePressure=parameters[24].valueAsText
-            safetyFactor=parameters[25].valueAsText
-            pressureReferencedRatio=parameters[26].valueAsText
-            estimatedRepairFactor=parameters[27].valueAsText
-            rupturePressureRatio=parameters[28].valueAsText
+
+            areaOfMetalLoss=config.ILI_PC_HIDDEN_ADDING_FIELDS[0]
+            modAreaOfMetalLoss=config.ILI_PC_HIDDEN_ADDING_FIELDS[1]
+            flowStress=config.ILI_PC_HIDDEN_ADDING_FIELDS[2]
+            modFlowStress=config.ILI_PC_HIDDEN_ADDING_FIELDS[3]
+            foliasFactor=config.ILI_PC_HIDDEN_ADDING_FIELDS[4]
+            modFoliasFactor=config.ILI_PC_HIDDEN_ADDING_FIELDS[5]
+
+            pipeBurstPressure=parameters[14].valueAsText
+            modPipeBurstPressure=parameters[15].valueAsText
+            calculatedPressure=parameters[16].valueAsText
+            referencePressure=parameters[17].valueAsText
+            safetyFactor=parameters[18].valueAsText
+            pressureReferencedRatio=parameters[19].valueAsText
+            estimatedRepairFactor=parameters[20].valueAsText
+            rupturePressureRatio=parameters[21].valueAsText
 
             if(parameters[1].value==config.ILI_PIPE_PARAMETER_TYPE[1]):
                 pipeSmysValOrField =parameters[8].valueAsText
@@ -962,13 +914,7 @@ class CalculateILIPressures(object):
 
             elif(parameters[1].value==config.ILI_PIPE_PARAMETER_TYPE[2]):
 
-                #maxDiameter=parameters[12].valueAsText
-                #measuredWallthickness=parameters[13].valueAsText                
-                #pipeSmys=parameters[14].valueAsText
-                #pipeMAOPField=parameters[15].valueAsText
-
-                maxDiameter=config.OUTPUT_DIAMETER_FIELDNAME
-                measuredWallthickness=config.OUTPUT_THICKNESS_FIELDNAME          
+                 
                 pipeSmys=config.OUTPUT_SYMS_FIELDNAME
                 pipeMAOPField=config.OUTPUT_MAOP_FIELDNAME
 
@@ -1123,20 +1069,22 @@ class CalculateILIPressures(object):
             measuredWallthickness=parameters[5].valueAsText
             pipeSmys=parameters[6].valueAsText
             pipeMAOPField=parameters[7].valueAsText
-            fAreaOfMetalLoss=parameters[15].valueAsText
-            fModAreaOfMetalLoss=parameters[16].valueAsText
-            fFlowStress=parameters[17].valueAsText
-            fModFlowStress=parameters[18].valueAsText
-            fFoliasFactor=parameters[19].valueAsText
-            fModFoliasFactor=parameters[20].valueAsText
-            fPipeBurstPressure=parameters[21].valueAsText
-            fModPipeBurstPressure=parameters[22].valueAsText
-            fCalculatedPressure=parameters[23].valueAsText
-            fReferencePressure=parameters[24].valueAsText
-            fSafetyFactor=parameters[25].valueAsText
-            fPressureReferencedRatio=parameters[26].valueAsText
-            fEstimatedRepairFactor=parameters[27].valueAsText
-            fRupturePressureRatio=parameters[28].valueAsText
+
+            fAreaOfMetalLoss=config.ILI_PC_HIDDEN_ADDING_FIELDS[0]
+            fModAreaOfMetalLoss=config.ILI_PC_HIDDEN_ADDING_FIELDS[1]
+            fFlowStress=config.ILI_PC_HIDDEN_ADDING_FIELDS[2]
+            fModFlowStress=config.ILI_PC_HIDDEN_ADDING_FIELDS[3]
+            fFoliasFactor=config.ILI_PC_HIDDEN_ADDING_FIELDS[4]
+            fModFoliasFactor=config.ILI_PC_HIDDEN_ADDING_FIELDS[5]
+
+            fPipeBurstPressure=parameters[14].valueAsText
+            fModPipeBurstPressure=parameters[15].valueAsText
+            fCalculatedPressure=parameters[16].valueAsText
+            fReferencePressure=parameters[17].valueAsText
+            fSafetyFactor=parameters[18].valueAsText
+            fPressureReferencedRatio=parameters[19].valueAsText
+            fEstimatedRepairFactor=parameters[20].valueAsText
+            fRupturePressureRatio=parameters[21].valueAsText
             eventidField ="EVENTID"
 
             outputfields=[fAreaOfMetalLoss,fModAreaOfMetalLoss,fFlowStress,fModFlowStress,fFoliasFactor,fModFoliasFactor,fPipeBurstPressure,
