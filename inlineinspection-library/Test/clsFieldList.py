@@ -257,6 +257,13 @@ if __name__ == "__main__":
     ili_layer=r"C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Transmission\ILIData"
     maop_layer=r"C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Transmission\MAOPRating"
     fc0=r"C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Transmission\StationSeries"
+
+    table =r"C:\G2\UnitedBrine\FromMarissa\UB_PODSSpatial6.gdb\Company"
+
+    desc = arcpy.Describe(ili_layer)
+
+    print(desc.datatype)
+
     #cls = my_class(fc0)
     ##cls.run()
     ##cls.build_segmentor_table()
