@@ -13,7 +13,7 @@ ILI_TEMP_FOLDER = "ILI_TEMP"
 ILI_TEMP_GDB = 'TempOutput_ILI.gdb'
 
 ILI_PC_PARAMETER_CATGRY = "Input ILI Data Fields"
-ILI_PC_REQ_FIELDS = ['LENGTH' ,'MAXDEPTHMEASURED' ,'MAXDIAMETER1' ,'MEASUREDWALLTHICKNESS' ,'PIPESMYS' ,'B31GMAOP']
+ILI_PC_REQ_FIELDS = ['LENGTH' ,'MAXDEPTHMEASURED' ,'PIPEDIAMETER' ,'MEASUREDWALLTHICKNESS' ,'PIPESMYS' ,'B31GMAOP']
 
 ILI_PC_PARAMETER_CATGRY_2 = "Output Calculated ILI Fields"
 ILI_PC_ADDING_FIELDS = ['PipeBurstPressure' ,'Mod_PipeBurstPressure' ,'CalculatedPressure' ,'ReferencePressure' ,'Safety_Factor' ,'PressureReferencedRatio', 'EstimatedRepairFactor', 'RupturePressureRatio'

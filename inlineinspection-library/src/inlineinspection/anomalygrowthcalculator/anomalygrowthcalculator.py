@@ -1,9 +1,9 @@
 
-""" Headline: Anomaly Processing Inline Inspection pressure caliculation tool 
+""" Headline: Anomaly Processing Inline Inspection Anomaly Growth Caliculation tool 
     Calls:  inlineinspection, inlineinspection.config
     inputs: ILI Feature class(Which is calibrated and imported)
-    Description: This tool calculates severity ratios, burst/safe pressures, according to B31G and Modified B31G.  
-    Output: The output of this tool estimates burst pressure values for Metal Loss anomalies based on depth, length and pressure.
+    Description: This tool calculates Anomaly Growth.  
+    Output: The output of this tool.
    """
 
 from logging import exception
@@ -14,17 +14,13 @@ import datetime as dt
 import numpy as np
 import math
 from inlineinspection import config
-from eaglepy.lr.toolbox import Segmentor,Attributer,Statistitater
-from eaglepy.funcparam import FuncParam
 import traceback
 import sys
 import locale
-import json
-import arcpy.cim
 from arcpy import env
 
 
-class PressureCalculator(object):
+class AnomalyGrowthCalculator(object):
 
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
@@ -69,7 +65,7 @@ class PressureCalculator(object):
 
         # Parameter [4]
         in_pc_MaxDiameter_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY,
-            displayName="Pipe Diameter Field", name="in_pc_MaxDiameter_field",
+            displayName="Diameter Field", name="in_pc_MaxDiameter_field",
             datatype="Field", parameterType="optional", direction="Input")
         in_pc_MaxDiameter_field.parameterDependencies = [in_ili_features.name]
         in_pc_MaxDiameter_field.filter.list = ['int', 'long', 'double']
@@ -302,7 +298,7 @@ class PressureCalculator(object):
                     else:
                         flds.append(f)                    
               
-            if not parameters[2].value:                
+            if not parameters[2].value:
                 if config.ILI_PC_REQ_FIELDS[0].upper() in flds:
                     parameters[2].value = config.ILI_PC_REQ_FIELDS[0]
             if not parameters[3].value:
@@ -544,15 +540,12 @@ class PressureCalculator(object):
             if arcpy.Exists(spatialjoin2):
                 arcpy.Delete_management(spatialjoin2)
 
-            #inlineinspection.AddMessage("spatial join1 feature {} {} {}".format(spatialjoin1,ili_layer,pipesegment_layer))
-            #arcpy.SpatialJoin_analysis(ili_layer, pipesegment_layer, spatialjoin1, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+ili_layer+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Long 0 0,First,#,'+pipesegment_layer+','+syms_field+',0,50', "INTERSECT", None, '')
-            arcpy.SpatialJoin_analysis(ili_layer, pipesegment_layer, spatialjoin1, "JOIN_ONE_TO_ONE", "KEEP_ALL", r''+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'"  true true false 50 Long 0 0,First,#,'+pipesegment_layer+','+syms_field+',0,50', "INTERSECT", None, '')
+            inlineinspection.AddMessage("spatial join1 feature {} {} {}".format(spatialjoin1,ili_layer,pipesegment_layer))
+            arcpy.SpatialJoin_analysis(ili_layer, pipesegment_layer, spatialjoin1, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+ili_layer+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Long 0 0,First,#,'+pipesegment_layer+','+syms_field+',0,50', "INTERSECT", None, '')
             inlineinspection.AddMessage("Spatial Join is performed on Pipe Segment")
                        
-            #arcpy.SpatialJoin_analysis(spatialjoin1, maop_layer, spatialjoin2, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+spatialjoin1+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 4 Long 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_SYMS_FIELDNAME+',-1,-1;'+config.OUTPUT_MAOP_FIELDNAME+' "'+config.OUTPUT_MAOP_FIELDNAME+'" true true false 4 Long 0 0,First,#,'+maop_layer+','+maop_field+',-1,-1', "INTERSECT", None, '')
-            arcpy.SpatialJoin_analysis(spatialjoin1, maop_layer, spatialjoin2, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'TARGET_FID_SJ "TARGET_FID_SJ" true true false 4 Long 0 0,First,#,'+spatialjoin1+',TARGET_FID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 4 Long 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_SYMS_FIELDNAME+',-1,-1;'+config.OUTPUT_MAOP_FIELDNAME+' "'+config.OUTPUT_MAOP_FIELDNAME+'" true true false 4 Long 0 0,First,#,'+maop_layer+','+maop_field+',-1,-1', "INTERSECT", None, '')
-            
-            inlineinspection.AddMessage("Spatial Join is performed on MAOP") 
+            arcpy.SpatialJoin_analysis(spatialjoin1, maop_layer, spatialjoin2, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+spatialjoin1+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 4 Long 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_SYMS_FIELDNAME+',-1,-1;'+config.OUTPUT_MAOP_FIELDNAME+' "'+config.OUTPUT_MAOP_FIELDNAME+'" true true false 4 Long 0 0,First,#,'+maop_layer+','+maop_field+',-1,-1', "INTERSECT", None, '')
+            inlineinspection.AddMessage("Spatial Join is performed on MAOP")
 
             #Check and delete if fields existing.
             ili_flds=[]           
@@ -574,7 +567,7 @@ class PressureCalculator(object):
             inlineinspection.AddMessage("Added temp fields")
           
             #Add join with ILI Layer          
-            arcpy.AddJoin_management(ili_layer, "OBJECTID", spatialjoin2, "TARGET_FID_SJ", "KEEP_ALL")            
+            arcpy.AddJoin_management(ili_layer, "EventID", spatialjoin2, "EventID", "KEEP_ALL")            
             inlineinspection.AddMessage("Join is performed on ILI Data")
             ili_layer_name=os.path.basename(ili_layer)
             
@@ -645,7 +638,7 @@ class CalculateILIPressures(object):
             fPressureReferencedRatio=parameters[19].valueAsText
             fEstimatedRepairFactor=parameters[20].valueAsText
             fRupturePressureRatio=parameters[21].valueAsText
-            eventidField ="OBJECTID"
+            eventidField ="EVENTID"
 
             outputfields=[fPipeBurstPressure,fModPipeBurstPressure,fCalculatedPressure,fReferencePressure,fSafetyFactor,fPressureReferencedRatio,fEstimatedRepairFactor,fRupturePressureRatio]           
                       
@@ -664,17 +657,8 @@ class CalculateILIPressures(object):
                 pipeMAOPField=parameters[7].valueAsText               
 
             infields=[lengthField,maxDepthMeasure,maxDiameter,measuredWallthickness,pipeSmys,pipeMAOPField,eventidField]
-            #Input fields indexes
-            lengthFieldIdx =0
-            maxDepthMeasureIdx=1
-            maxDiameterIdx=2
-            measuredWallthicknessIdx=3
-            pipeSmysIdx=4
-            pipeMAOPFieldIdx=5
-
-
             fields=infields+outputfields
-            #inlineinspection.AddMessage("Input ILI Feature class {}".format(inFeatures))
+            inlineinspection.AddMessage("Input ILI Feature class {}".format(inFeatures))
             #*** Check output fields are existing or not if not add fields     
             self.addMissingField(inFeatures,outputfields)
             # Create update cursor for feature class 
@@ -711,61 +695,31 @@ class CalculateILIPressures(object):
 
                     #calculate Area Of Metal Loss
                     if(rlength and rmaxDepthMeasure):                        
-                        areaOfMetalLoss = (2/3)*(rmaxDepthMeasure)*(rlength)                      
-                    else:
-                        emptyfields=[]                       
-                        if(not rlength):                        
-                            emptyfields.append(infields[lengthFieldIdx])
-                        if(not rmaxDepthMeasure):                        
-                            emptyfields.append(infields[maxDepthMeasureIdx])
-
-                        emptyFieldsString="filed {} is".format(emptyfields)
-                        if(len(emptyfields)>1):
-                            emptyFieldsString="fileds {} are".format(emptyfields)                            
-
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Area of Metal Loss is not caliculated as {} null".format(reventid,emptyFieldsString))
+                        areaOfMetalLoss = (2/3)*(rmaxDepthMeasure)*(rlength)
+                      
+                    else:                        
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Area of Metal Loss is not caliculated as required fileds are null".format(reventid))
                         warningCounter +=1             
                     # calculate Mod Area Of Metal Loss              
                     if(rlength and rmaxDepthMeasure):                        
-                        modAreaOfMetalLoss = (.85)*(rmaxDepthMeasure)*(rlength)                      
+                        modAreaOfMetalLoss = (.85)*(rmaxDepthMeasure)*(rlength)
+                      
                     else:
-                        emptyfields=[]                       
-                        if(not rlength):                         
-                            emptyfields.append(infields[lengthFieldIdx])
-                        if(not rmaxDepthMeasure):                           
-                            emptyfields.append(infields[maxDepthMeasureIdx])
-
-                        emptyFieldsString="filed {} is".format(emptyfields)
-                        if(len(emptyfields)>1):
-                            emptyFieldsString="fileds {} are".format(emptyfields) 
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Mod Area of Metal Loss is not caliculated as required {} null".format(reventid,emptyFieldsString))
-                        warningCounter +=1       
-                        
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Mod Area of Metal Loss is not caliculated as required fileds are null".format(reventid))
+                        warningCounter +=1                        
                     # calculate Flow Stress
                     if(rpipeSmys):                        
-                        flowStress = (1.1)*rpipeSmys                       
-                    else:
-                        emptyfields=[]                        
-                        if(not rpipeSmys):                          
-                            emptyfields.append(infields[pipeSmysIdx])
-                        emptyFieldsString="filed {} is".format(emptyfields)
-                        if(len(emptyfields)>1):
-                            emptyFieldsString="fileds {} are".format(emptyfields)
+                        flowStress = (1.1)*rpipeSmys
                        
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Flow Stress is not caliculated as required {} null".format(reventid,emptyFieldsString))
+                    else:
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Flow Stress is not caliculated as required fileds are null".format(reventid))
                         warningCounter +=1
                     # calculate mod Flow Stress
                     if(rpipeSmys):                        
-                        modFlowStress = (rpipeSmys+10000)                        
+                        modFlowStress = (rpipeSmys+10000)
+                        
                     else:
-                        emptyfields=[]
-                        emptyval=""
-                        if(not rpipeSmys):                         
-                            emptyfields.append(infields[pipeSmysIdx])
-                        emptyFieldsString="filed {} is".format(emptyfields)
-                        if(len(emptyfields)>1):
-                            emptyFieldsString="fileds {} are".format(emptyfields)
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Mod Flow Stress is not caliculated as required {} null".format(reventid,emptyFieldsString))
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Mod Flow Stress is not caliculated as required fileds are null".format(reventid))
                         warningCounter +=1
                     # calculate foliasFactor
                     if(rlength and rmaxDiameter and rmeasuredWallthickness):                        
@@ -774,18 +728,7 @@ class CalculateILIPressures(object):
                             foliasFactor= math.sqrt((1 + 0.8 * (rlength**2/(rmaxDiameter*rmeasuredWallthickness))))                      
                                              
                     else:
-                        emptyfields=[]
-                        if(not rlength):                         
-                            emptyfields.append(infields[lengthFieldIdx])
-                        if(not rmaxDiameter):                       
-                            emptyfields.append(infields[maxDiameterIdx])
-                        if(not rmeasuredWallthickness):                        
-                            emptyfields.append(infields[measuredWallthicknessIdx])
-                        emptyFieldsString="filed {} is".format(emptyfields)
-                        if(len(emptyfields)>1):
-                            emptyFieldsString="fileds {} are".format(emptyfields)
-
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Folias Factor is not caliculated as required {} null".format(reventid,emptyFieldsString))
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Folias Factor is not caliculated as required fileds are null".format(reventid))
                         warningCounter +=1
                     # calculate mod Folias Factor
                     if(rlength and rmaxDiameter and rmeasuredWallthickness):                        
@@ -796,18 +739,7 @@ class CalculateILIPressures(object):
                             modFoliasFactor = ((.032)*((rlength**2)/(rmaxDiameter*rmeasuredWallthickness)))+3.3                   
                        
                     else:
-                        emptyfields=[]
-                        if(not rlength):                         
-                            emptyfields.append(infields[lengthFieldIdx])
-                        if(not rmaxDiameter):                       
-                            emptyfields.append(infields[maxDiameterIdx])
-                        if(not rmeasuredWallthickness):                        
-                            emptyfields.append(infields[measuredWallthicknessIdx])
-                        emptyFieldsString="filed {} is".format(emptyfields)
-                        if(len(emptyfields)>1):
-                            emptyFieldsString="fileds {} are".format(emptyfields)
-
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Mod Folias Factor is not caliculated as required {} null".format(reventid,emptyFieldsString))
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Mod Folias Factor is not caliculated as required fileds are null".format(reventid))
                         warningCounter +=1
                     # calculate pipe Burst Pressure
                     if(flowStress and areaOfMetalLoss and foliasFactor and rlength and rmaxDiameter and rmeasuredWallthickness):                        
@@ -815,23 +747,7 @@ class CalculateILIPressures(object):
                         
                         row[7]=pipeBurstPressure
                     else:
-                        emptyfields=[]
-                        if(not rlength):                         
-                            emptyfields.append(infields[lengthFieldIdx])
-                        if(not rmaxDiameter):                       
-                            emptyfields.append(infields[maxDiameterIdx])
-                        if(not rmeasuredWallthickness):                        
-                            emptyfields.append(infields[measuredWallthicknessIdx])
-                        if(not flowStress):                        
-                            emptyfields.append("flowStress")
-                        if(not areaOfMetalLoss):                        
-                            emptyfields.append("areaOfMetalLoss")
-
-                        emptyFieldsString="filed {} is".format(emptyfields)
-                        if(len(emptyfields)>1):
-                            emptyFieldsString="fileds {} are".format(emptyfields)
-
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Pipe Burst Pressure is not caliculated as required {} null".format(reventid, emptyFieldsString))
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Pipe Burst Pressure is not caliculated as required fileds are null".format(reventid))
                         warningCounter +=1
                     # calculate Mod Pipe Burst Pressure
                     if(modFlowStress and modAreaOfMetalLoss and modFoliasFactor and rlength and rmaxDiameter and rmeasuredWallthickness):                        
@@ -839,126 +755,53 @@ class CalculateILIPressures(object):
                         #*** Check the formula
                         row[8]=modPipeBurstPressure
                     else:
-                        emptyfields=[]
-                        if(not rlength):                         
-                            emptyfields.append(infields[lengthFieldIdx])
-                        if(not rmaxDiameter):                       
-                            emptyfields.append(infields[maxDiameterIdx])
-                        if(not rmeasuredWallthickness):                        
-                            emptyfields.append(infields[measuredWallthicknessIdx])
-                        if(not modFlowStress):                        
-                            emptyfields.append("modFlowStress")
-                        if(not modAreaOfMetalLoss):                        
-                            emptyfields.append("modAreaOfMetalLoss")
-
-                        emptyFieldsString="filed {} is".format(emptyfields)
-                        if(len(emptyfields)>1):
-                            emptyFieldsString="fileds {} are".format(emptyfields)
-
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Mod Pipe Burst Pressure is not caliculated as required {} null".format(reventid,emptyFieldsString))
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Mod Pipe Burst Pressure is not caliculated as required fileds are null".format(reventid))
                         warningCounter +=1
                     # calculated Pressure
                     if(pipeBurstPressure and rpipeMAOP and rpipeSmys):                        
                         calculatedPressure = (pipeBurstPressure*(rpipeMAOP)/(rpipeSmys))
                         row[9]=calculatedPressure
                     else:
-                        emptyFields=[]
-                        if(not rpipeSmys):                         
-                            emptyFields.append(infields[pipeSmysIdx])
-                        if(not rpipeMAOP):                       
-                            emptyFields.append(infields[pipeMAOPFieldIdx])                       
-
-                        emptyFieldsString="filed {} is".format(emptyFields)
-                        if(len(emptyfields)>1):
-                            emptyFieldsString="fileds {} are".format(emptyFields)
-
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} calculated Pressure is not caliculated as required {} null".format(reventid,emptyFieldsString))
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} calculated Pressure is not caliculated as required fileds are null".format(reventid))
                         warningCounter +=1
                     # calculated Reference Pressure
                     if(rpipeMAOP):
                         referencePressure = rpipeMAOP
                         row[10]=referencePressure
                     else:
-                        emptyFields=[]                       
-                        if(not rpipeMAOP):                       
-                            emptyFields.append(infields[pipeMAOPFieldIdx])  
-
-                        emptyFieldsString="filed {} is".format(emptyFields)
-                        if(len(emptyfields)>1):
-                            emptyFieldsString="fileds {} are".format(emptyFields)
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Reference Pressure is not caliculated as required {} null".format(reventid,emptyFieldsString))
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Reference Pressure is not caliculated as required fileds are null".format(reventid))
                         warningCounter +=1
                     # calculated Safety Factor
                     if(rpipeMAOP and pipeBurstPressure):
                         safetyFactor = (pipeBurstPressure/rpipeMAOP)
                         row[11]=safetyFactor
                     else:
-                        emptyFields=[]                       
-                        if(not rpipeMAOP):                       
-                            emptyFields.append(infields[pipeMAOPFieldIdx])                                              
-                        if(not pipeBurstPressure):                       
-                            emptyFields.append("pipeBurstPressure") 
-
-                        emptyFieldsString="filed {} is".format(emptyFields)
-                        if(len(emptyfields)>1):
-                            emptyFieldsString="fileds {} are".format(emptyFields)
-
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Safety Factor is not caliculated as required {} null".format(reventid,emptyFieldsString))
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Safety Factor is not caliculated as required fileds are null".format(reventid))
                         warningCounter +=1
                     # calculated Pressure Referenced Ratio
                     if(calculatedPressure and referencePressure):
                         pressureReferencedRatio = (calculatedPressure/referencePressure)
                         row[12]=pressureReferencedRatio
                     else:
-                        emptyFields=[]                       
-                        if(not calculatedPressure):                       
-                            emptyFields.append("calculatedPressure")                                              
-                        if(not referencePressure):                       
-                            emptyFields.append("referencePressure") 
-
-                        emptyFieldsString="filed {} is".format(emptyFields)
-                        if(len(emptyfields)>1):
-                            emptyFieldsString="fileds {} are".format(emptyFields)
-
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Pressure Referenced Ratio is not caliculated as required {} null".format(reventid,emptyFieldsString))
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Pressure Referenced Ratio is not caliculated as required fileds are null".format(reventid))
                         warningCounter +=1
                     # calculated Estimated Repair Factor
                     if(rpipeMAOP and calculatedPressure):
                         estimatedRepairFactor = (rpipeMAOP/calculatedPressure)
                         row[13]=estimatedRepairFactor
                     else:
-                        emptyFields=[]                       
-                        if(not calculatedPressure):                       
-                            emptyFields.append("calculatedPressure")                                              
-                        if(not rpipeMAOP):                       
-                            emptyFields.append(infields[pipeMAOPFieldIdx]) 
-
-                        emptyFieldsString="filed {} is".format(emptyFields)
-                        if(len(emptyfields)>1):
-                            emptyFieldsString="fileds {} are".format(emptyFields)
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Estimated Repair Factor is not caliculated as required {} null".format(reventid,emptyFieldsString))
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Estimated Repair Factor is not caliculated as required fileds are null".format(reventid))
                         warningCounter +=1
                     # calculated Rupture Pressure Ratio
                     if(rpipeSmys and pipeBurstPressure):
                         rupturePressureRatio = (pipeBurstPressure/rpipeSmys)
                         row[14]=rupturePressureRatio
                     else:
-                        emptyFields=[]                       
-                        if(not rpipeSmys):                       
-                            emptyFields.append(infields[pipeSmysIdx])                                              
-                        if(not pipeBurstPressure):                       
-                            emptyFields.append("pipeBurstPressure") 
-
-                        emptyFieldsString="filed {} is".format(emptyFields)
-                        if(len(emptyfields)>1):
-                            emptyFieldsString="fileds {} are".format(emptyFields)
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Rupture Pressure Ratio is not caliculated as required {} null".format(reventid,emptyFieldsString))
+                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Rupture Pressure Ratio is not caliculated as required fileds are null".format(reventid))
                         warningCounter +=1
                     
                     cursor.updateRow(row) 
-                # Delete cursor and row objects to remove locks on the data.
-                del row
-            del cursor   
+                    
             inlineinspection.AddWarning("Total number of warning {} due to values are null or empty, Please check the log file for details".format(warningCounter))
         except Exception as e:
             # If an error occurred, print line number and error message
