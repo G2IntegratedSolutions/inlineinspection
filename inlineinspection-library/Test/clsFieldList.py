@@ -313,6 +313,17 @@ if __name__ == "__main__":
             #        inlineinspection.AddMessage("{} field added".format(outField))
 
         #arcpy.RemoveJoin_management(ili_layer)
+
+        # Use SearchCursor to access state name and the population count
+        with arcpy.da.SearchCursor(ili_layer,f1) as cursor:
+            for row in cursor:
+                # Access and print the row values by index position.
+                #   state name: row[0]
+                #   population: row[1]
+                print('{} has a population of {}'.format(row[0], row[1]))
+            del row
+            del cursor
+
             
         #arcpy.AddMessage("Join is performed on ILI Data")
     except Exception as e:
