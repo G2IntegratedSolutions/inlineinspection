@@ -1,5 +1,5 @@
 """
-A collection of default settings that are used throughout the liquids hca system.
+A collection of default settings that are used throughout the PIMS system.
 These can be overridden by using a
 config file.
 """
@@ -22,6 +22,9 @@ ILI_PC_HIDDEN_ADDING_FIELDS = ['AreaOfMetalLoss' ,'Mod_AreaOfMetalLoss' ,'FlowSt
 ILI_PIPE_PARAMETER_TYPE = ['Pipe Information From ILI Data', 'Manual Pipe Information', 'Pipe Information from Pipe Segment Feature Class']
 
 ILI_PC_PARAMETER_CATGRY_3 = "Input Required Manual Data Values"
+ILI_PS_PARAMETER_CATGRY = "Input Pipe Segment Parameters"
+ILI_MAOP_PARAMETER_CATGRY = "Input MAOP Parameters"
+
 
 ILI_PIPE_REQ_FIELDS = ["SMYSGCL" ]
 ILI_MAOP_REQ_FIELDS = ["MAOPRating"]

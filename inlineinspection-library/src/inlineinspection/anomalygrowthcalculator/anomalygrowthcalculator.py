@@ -24,8 +24,8 @@ class AnomalyGrowthCalculator(object):
 
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
-        self.label = config.ILI_PC_TOOL_LABEL
-        self.description = config.ILI_PC_TOOL_DESC
+        self.label = "Convert ILI Anomalies to Features"
+        self.description = "This to Tools Convert ILI Anomalies to Point, Envelopes and Eclipese Features"
         self.canRunInBackground = False
         self.category = config.ILI_PC_TOOL_CATAGORY  
                
@@ -39,6 +39,61 @@ class AnomalyGrowthCalculator(object):
             direction="Input")
         #in_ili_features.filter.list = ["Point"]
 
+        in_ili_odometer_field = arcpy.Parameter(
+            displayName="Input ILI Pipe Tally Odometer Field", name="in_ili_odometer_field",
+            datatype="Field", parameterType="optional", direction="Input")
+        in_ili_odometer_field.parameterDependencies = [in_ili_features.name]       
+        in_ili_odometer_field.filter.list = ['int', 'long', 'double']
+
+        in_ili_width_field = arcpy.Parameter(
+            displayName="Input ILI Pipe Tally Anomaly Width Field", name="in_ili_width_field",
+            datatype="Field", parameterType="optional", direction="Input")
+        in_ili_width_field.parameterDependencies = [in_ili_features.name]
+        in_ili_width_field.filter.list = ['int', 'long', 'double']
+
+
+        in_ili_length_field = arcpy.Parameter(
+            displayName="Input ILI Pipe Tally Anomaly Length Field", name="in_ili_length_field",
+            datatype="Field", parameterType="optional", direction="Input")
+        in_ili_length_field.parameterDependencies = [in_ili_features.name]       
+        in_ili_length_field.filter.list = ['int', 'long', 'double']
+        
+        in_ili_clockposition_field = arcpy.Parameter(
+            displayName="Input ILI Pipe Tally Clock Position Field", name="in_ili_clockposition_field",
+            datatype="Field", parameterType="optional", direction="Input")
+        in_ili_clockposition_field.parameterDependencies = [in_ili_features.name]
+        in_ili_clockposition_field.filter.list = ['int', 'long', 'double']
+
+        in_ili_clockpostion_offset_value = arcpy.Parameter(
+            displayName="Input Clock Position Offset", name="in_ili_clockpostion_offset_value",
+            datatype="GPDouble", parameterType="optional", direction="Input")
+
+        in_ili_yaxisorientation_value = arcpy.Parameter(
+            displayName="Input Y-Axis Clock Orientation", name="in_ili_yaxisorientation_value",
+            datatype="GPString", parameterType="optional", direction="Input")
+        in_ili_yaxisorientation_value.list=["6:00 Centered","12:00 Centered"]
+
+        in_ili_pipediameter_field = arcpy.Parameter(
+            displayName="Input Pipeline Diameter Field", name="in_ili_pipediameter_field",
+            datatype="Field", parameterType="optional", direction="Input")
+        in_ili_pipediameter_field.parameterDependencies = [in_ili_features.name]
+        in_ili_pipediameter_field.filter.list = ['int', 'long', 'double']
+
+        in_ili_falsenorthing_value = arcpy.Parameter(
+            displayName="Input Clock Position Offset", name="in_ili_falsenorthing_value",
+            datatype="GPDouble", parameterType="optional", direction="Input")
+
+        in_ili_falseeasting_value = arcpy.Parameter(
+            displayName="Input Clock Position Offset", name="in_ili_falseeasting_value",
+            datatype="GPDouble", parameterType="optional", direction="Input")
+
+
+
+
+
+
+
+
          # Input Pipe Parameter type - Parameter [1]
         in_pipe_parameter_type = arcpy.Parameter(displayName="Input Pipe Parameter Source",
             name="in_pipe_parameter_type",
@@ -50,26 +105,7 @@ class AnomalyGrowthCalculator(object):
                 
         # CATEGORY 1 PARAMETERS ['Length', 'MaxDepthMeasured' ,'MaxDiameter' ,'MeasuredWallThickness' ,'PipeSmys' ,'PipeMAOP', 'AreaOfMetalLoss']
         # Parameter [2]  
-        in_pc_length_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY,
-            displayName="Anomaly Length Field", name="in_pc_length_field",
-            datatype="Field", parameterType="optional", direction="Input")
-        in_pc_length_field.parameterDependencies = [in_ili_features.name]       
-        in_pc_length_field.filter.list = ['int', 'long', 'double']
-        
-        # Parameter [3] 
-        in_pc_MaxDepthMeasured_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY,
-            displayName="Max Depth Measured Field", name="in_pc_MaxDepthMeasured_field",
-            datatype="Field", parameterType="optional", direction="Input")
-        in_pc_MaxDepthMeasured_field.parameterDependencies = [in_ili_features.name]
-        in_pc_MaxDepthMeasured_field.filter.list = ['int', 'long', 'double']
-
-        # Parameter [4]
-        in_pc_MaxDiameter_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY,
-            displayName="Diameter Field", name="in_pc_MaxDiameter_field",
-            datatype="Field", parameterType="optional", direction="Input")
-        in_pc_MaxDiameter_field.parameterDependencies = [in_ili_features.name]
-        in_pc_MaxDiameter_field.filter.list = ['int', 'long', 'double']
-
+       
         # Parameter [5]
         in_pc_MeasuredWallThickness_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY,
             displayName="Measured Wall Thickness Field", name="in_pc_MeasuredWallThickness_field",
