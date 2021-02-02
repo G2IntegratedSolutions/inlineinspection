@@ -958,7 +958,8 @@ class CalculateILIPressures(object):
                     cursor.updateRow(row) 
                 # Delete cursor and row objects to remove locks on the data.
                 del row
-            del cursor   
+                inlineinspection.AddMessage("Deleted cursor Object")
+                del cursor   
             inlineinspection.AddWarning("Total number of warning {} due to values are null or empty, Please check the log file for details".format(warningCounter))
         except Exception as e:
             # If an error occurred, print line number and error message
