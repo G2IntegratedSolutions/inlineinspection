@@ -14,8 +14,8 @@ import datetime as dt
 import numpy as np
 import math
 from inlineinspection import config
-from eaglepy.lr.toolbox import Segmentor,Attributer,Statistitater
-from eaglepy.funcparam import FuncParam
+#from eaglepy.lr.toolbox import Segmentor,Attributer,Statistitater
+#from eaglepy.funcparam import FuncParam
 import traceback
 import sys
 import locale
@@ -106,7 +106,7 @@ class PressureCalculator(object):
             datatype="GPDouble", parameterType="optional", direction="Input")        
                       
         # Input Pipelie featuere - Parameter [10]    
-        in_ili_pipe_features = arcpy.Parameter(displayName="Input Pipe Segment Features",
+        in_ili_pipe_features = arcpy.Parameter(category =config.ILI_PS_PARAMETER_CATGRY,displayName="Input Pipe Segment Features",
             name="in_ili_pipe_features",
             datatype="GPFeatureLayer",
             parameterType="optional",
@@ -114,7 +114,7 @@ class PressureCalculator(object):
         in_ili_pipe_features.filter.list = ["Polyline"]
 
         # Input Pipelie featuere - Parameter [11]    
-        in_ili_maop_features = arcpy.Parameter(displayName="Input MAOP Features",
+        in_ili_maop_features = arcpy.Parameter(category =config.ILI_MAOP_PARAMETER_CATGRY,displayName="Input MAOP Features",
             name="in_ili_maop_features",
             datatype="GPFeatureLayer",
             parameterType="optional",
@@ -122,14 +122,14 @@ class PressureCalculator(object):
         in_ili_maop_features.filter.list = ["Polyline"]
 
         # Parameter [12]
-        in_ps_syms_field = arcpy.Parameter(category ="Input Pipe Segment Data Fields",
+        in_ps_syms_field = arcpy.Parameter(category =config.ILI_PS_PARAMETER_CATGRY,
             displayName="SMYS Field", name="in_ps_syms_field",
             datatype="Field", parameterType="optional", direction="Input")
         in_ps_syms_field.parameterDependencies = [in_ili_pipe_features.name]      
         #in_ps_syms_field.filter.list = ['int', 'long', 'double']
                 
         # Parameter [13]
-        in_maop_field = arcpy.Parameter(category ="Input MAOP Data Field",
+        in_maop_field = arcpy.Parameter(category =config.ILI_MAOP_PARAMETER_CATGRY,
             displayName="MAOP Field", name="in_maop_field",
             datatype="Field", parameterType="optional", direction="Input")
         in_maop_field.parameterDependencies = [in_ili_maop_features.name]       
@@ -533,14 +533,12 @@ class PressureCalculator(object):
             # Create temp gbd for intermediate process
             self.createtempgdb(tempoutput_dir, tempoutput_gdb)
             inlineinspection.AddMessage("Temp gdb is created and the path is {}".format(self.tempoutputgdb_path))
-
-            spatial_join1 = FuncParam(self.tempoutputgdb_path  + "\\ILIData_SJ1")
-            spatialjoin1 =spatial_join1.valueAsText
+                       
+            spatialjoin1 =os.path.join(self.tempoutputgdb_path  + "\\ILIData_SJ1")
             if arcpy.Exists(spatialjoin1):
                 arcpy.Delete_management(spatialjoin1)
 
-            spatial_join2 = FuncParam(self.tempoutputgdb_path  + "\\ILIData_SJ2")
-            spatialjoin2 =spatial_join2.valueAsText
+            spatialjoin2 =os.path.join(self.tempoutputgdb_path  + "\\ILIData_SJ2")
             if arcpy.Exists(spatialjoin2):
                 arcpy.Delete_management(spatialjoin2)
 
@@ -956,15 +954,17 @@ class CalculateILIPressures(object):
                         warningCounter +=1
                     
                     cursor.updateRow(row) 
-                # Delete cursor and row objects to remove locks on the data.
-                del row
-                inlineinspection.AddMessage("Deleted cursor Object")
-                del cursor   
+            #    del row
+            #    # Delete cursor and row objects to remove locks on the data.                
+            #del cursor   
             inlineinspection.AddWarning("Total number of warning {} due to values are null or empty, Please check the log file for details".format(warningCounter))
         except Exception as e:
             # If an error occurred, print line number and error message
             tb = sys.exc_info()[2]
             arcpy.AddError("An error occurred on line %i" % tb.tb_lineno)
+            if("lock" in str(e)):
+                arcpy.AddError("Please close all Pressure Calculator tool associated input data tables and try again!")            
+
             arcpy.AddError(str(e))
 
    

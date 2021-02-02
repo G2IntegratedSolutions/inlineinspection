@@ -338,3 +338,7 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/inlineinspection-library/src/recipe
+/inlineinspection-library/src/setup.py
+/inlineinspection-library/src/README.md
+/inlineinspection-library/src/license.txt
