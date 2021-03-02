@@ -49,3 +49,6 @@ EVENT_TABLE_FIELD_DESCRIPTION = [["POINT_ID", "Text", "Point ID", 27],
 
 OUTPUT_SYMS_FIELDNAME = "SMYS_SJ" 
 OUTPUT_MAOP_FIELDNAME ="MAOP_SJ"
+
+
+ILI_ANOM_CON_REQ_FIELDS =['AbsoluteOdometer','Width','Length','ClockPosition','PipeDiameter']
