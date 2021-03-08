@@ -38,25 +38,25 @@ class AnomalyGrowthCalculator(object):
         #in_ili_features.filter.list = ["Point"]
 
         in_ili_odometer_field = arcpy.Parameter(
-            displayName="Input ILI Pipe Tally Odometer Field", name="in_ili_odometer_field",
+            displayName="ILI Anomaly Odometer Field", name="in_ili_odometer_field",
             datatype="Field", parameterType="Required", direction="Input")
         in_ili_odometer_field.parameterDependencies = [in_ili_features.name]       
         in_ili_odometer_field.filter.list = ['int', 'long', 'double']
 
         in_ili_width_field = arcpy.Parameter(
-            displayName="Input ILI Pipe Tally Anomaly Width Field", name="in_ili_width_field",
+            displayName="ILI Anomaly Width Field", name="in_ili_width_field",
             datatype="Field", parameterType="Required", direction="Input")
         in_ili_width_field.parameterDependencies = [in_ili_features.name]
         in_ili_width_field.filter.list = ['int', 'long', 'double']
 
         in_ili_length_field = arcpy.Parameter(
-            displayName="Input ILI Pipe Tally Anomaly Length Field", name="in_ili_length_field",
+            displayName="ILI Anomaly Length Field", name="in_ili_length_field",
             datatype="Field", parameterType="Required", direction="Input")
         in_ili_length_field.parameterDependencies = [in_ili_features.name]       
         in_ili_length_field.filter.list = ['int', 'long', 'double']
         
         in_ili_clockposition_field = arcpy.Parameter(
-            displayName="Input ILI Pipe Tally Clock Position Field", name="in_ili_clockposition_field",
+            displayName="ILI Anomaly Clock Position Field", name="in_ili_clockposition_field",
             datatype="Field", parameterType="Required", direction="Input")
         in_ili_clockposition_field.parameterDependencies = [in_ili_features.name]
         in_ili_clockposition_field.filter.list = ['Text']
@@ -73,7 +73,7 @@ class AnomalyGrowthCalculator(object):
         in_ili_yaxisorientation_value.value="6:00 Centered"
        
         in_ili_pipediameter_field = arcpy.Parameter(
-            displayName="Input Pipeline Diameter Field", name="in_ili_pipediameter_field",
+            displayName="ILI Anomaly Diameter Field", name="in_ili_pipediameter_field",
             datatype="Field", parameterType="Required", direction="Input")
         in_ili_pipediameter_field.parameterDependencies = [in_ili_features.name]
         in_ili_pipediameter_field.filter.list = ['int', 'long', 'double']
@@ -98,25 +98,25 @@ class AnomalyGrowthCalculator(object):
         out_ili_point_features = arcpy.Parameter(displayName="Output Anomaly Point Features",
             name="out_ili_point_features",
             datatype="GPFeatureLayer",
-            parameterType="Required",
+            parameterType="Optional",
             direction="Output")
-        out_ili_point_features.filter.list = ["Point"]
+        #out_ili_point_features.filter.list = ["Point"]
         out_ili_point_features.value="%scratchGDB%\AnomalyPoint"
 
         out_ili_ellipse_features = arcpy.Parameter(displayName="Output Anomaly Ellipse Features",
             name="out_ili_ellipse_features",
             datatype="GPFeatureLayer",
-            parameterType="Required",
+            parameterType="Optional",
             direction="Output")
-        out_ili_ellipse_features.filter.list = ["Polygon"]
+        #out_ili_ellipse_features.filter.list = ["Polygon"]
         out_ili_ellipse_features.value ="%scratchGDB%\AnomalyEllipse"
 
         out_ili_envelop_features = arcpy.Parameter(displayName="Output Anomaly Envelop Features",
             name="out_ili_envelop_features",
             datatype="GPFeatureLayer",
-            parameterType="Required",
+            parameterType="Optional",
             direction="Output")
-        out_ili_envelop_features.filter.list = ["Polygon"]
+        #out_ili_envelop_features.filter.list = ["Polygon"]
         out_ili_envelop_features.value ="%scratchGDB%\AnomalyEnvelope"
          
         # Generate Grid Lines
@@ -130,9 +130,9 @@ class AnomalyGrowthCalculator(object):
         out_grid_features = arcpy.Parameter(displayName="Output Grid Line Features",
             name="out_grid_features",
             datatype="GPFeatureLayer",
-            parameterType="Required",
+            parameterType="Optional",
             direction="Output")
-        out_grid_features.filter.list = ["Polyline"]
+        #out_grid_features.filter.list = ["Polyline"]
         out_grid_features.value ="%scratchGDB%\GridLines"
 
         # Generate Weld Lines
@@ -147,25 +147,37 @@ class AnomalyGrowthCalculator(object):
             displayName="Input ILI Weld Features", name="in_ili_weld_features",
              datatype=["GPFeatureLayer","GPTableView"], parameterType="Optional", direction="Input")
 
+        in_ili_weld_odometer_field = arcpy.Parameter(
+            displayName="ILI Weld Odometer Field", name="in_ili_weld_odometer_field",
+            datatype="Field", parameterType="Required", direction="Input")
+        in_ili_weld_odometer_field.parameterDependencies = [in_ili_weld_features.name]       
+        in_ili_weld_odometer_field.filter.list = ['int', 'long', 'double']
+
+        in_ili_weld_diameter_field = arcpy.Parameter(
+            displayName="ILI Weld Diameter Field", name="in_ili_weld_diameter_field",
+            datatype="Field", parameterType="Required", direction="Input")
+        in_ili_weld_diameter_field.parameterDependencies = [in_ili_weld_features.name]       
+        in_ili_weld_diameter_field.filter.list = ['int', 'long', 'double']
+
         out_weld_features = arcpy.Parameter(displayName="Output Weld Line Features",
             name="out_weld_features",
             datatype="GPFeatureLayer",
-            parameterType="Required",
+            parameterType="Optional",
             direction="Output")
-        out_weld_features.filter.list = ["Polyline"]
+        #out_weld_features.filter.list = ["Polyline"]
         out_weld_features.value ="%scratchGDB%\WeldLines"
 
         parameters = [in_ili_features,
                       in_ili_odometer_field,
+                      in_ili_pipediameter_field,
                       in_ili_width_field,
                       in_ili_length_field,
                       in_ili_clockposition_field,
                       in_ili_clockpostion_offset_value,                      
-                      in_ili_yaxisorientation_value,
-                      in_ili_pipediameter_field,
+                      in_ili_yaxisorientation_value,                      
+                      in_ili_sr,
                       in_ili_falsenorthing_value,
-                      in_ili_falseeasting_value,
-                      in_ili_sr,                      
+                      in_ili_falseeasting_value,                                           
                       out_ili_point_features,
                       out_ili_ellipse_features,
                       out_ili_envelop_features,                      
@@ -173,6 +185,8 @@ class AnomalyGrowthCalculator(object):
                       out_grid_features,
                       in_is_weld_line,
                       in_ili_weld_features,
+                      in_ili_weld_odometer_field,
+                      in_ili_weld_diameter_field,
                       out_weld_features
                       ]
 
@@ -203,18 +217,18 @@ class AnomalyGrowthCalculator(object):
             if not parameters[1].value:                
                 if config.ILI_ANOM_CON_REQ_FIELDS[0].upper() in flds:
                     parameters[1].value = config.ILI_ANOM_CON_REQ_FIELDS[0]
-            if not parameters[2].value:                
+            if not parameters[3].value:                
                 if config.ILI_ANOM_CON_REQ_FIELDS[1].upper() in flds:
-                    parameters[2].value = config.ILI_ANOM_CON_REQ_FIELDS[1]
-            if not parameters[3].value:
-                if config.ILI_ANOM_CON_REQ_FIELDS[2].upper() in flds:
-                    parameters[3].value = config.ILI_ANOM_CON_REQ_FIELDS[2]
+                    parameters[3].value = config.ILI_ANOM_CON_REQ_FIELDS[1]
             if not parameters[4].value:
+                if config.ILI_ANOM_CON_REQ_FIELDS[2].upper() in flds:
+                    parameters[4].value = config.ILI_ANOM_CON_REQ_FIELDS[2]
+            if not parameters[5].value:
                 if config.ILI_ANOM_CON_REQ_FIELDS[3].upper() in flds:
-                    parameters[4].value = config.ILI_ANOM_CON_REQ_FIELDS[3]
-            if not parameters[7].value:
+                    parameters[5].value = config.ILI_ANOM_CON_REQ_FIELDS[3]
+            if not parameters[2].value:
                 if config.ILI_ANOM_CON_REQ_FIELDS[4].upper() in flds:
-                    parameters[7].value = config.ILI_ANOM_CON_REQ_FIELDS[4]        
+                    parameters[2].value = config.ILI_ANOM_CON_REQ_FIELDS[4]        
         
         #To enable Grid option based on the check box selection
         if(parameters[14].value):
@@ -226,9 +240,37 @@ class AnomalyGrowthCalculator(object):
         if(parameters[16].value):
             parameters[17].enabled = True
             parameters[18].enabled = True
+            parameters[19].enabled = True
+            parameters[20].enabled = True
         else:
             parameters[17].enabled = False
             parameters[18].enabled = False
+            parameters[19].enabled = False
+            parameters[20].enabled = False
+
+        if(parameters[17].value):
+            
+                fldsw = [] 
+                fcw=parameters[17].value
+                if(fcw):
+                    fls = []           
+                    fls += [f.name.upper() for f in arcpy.ListFields (fc)]
+                
+                    fldsw=[]
+                    for f in fls:
+                        x=f.split('.')
+                        if len(x)>1:
+                            x1=x[1]
+                            fldsw.append(x1)
+                        else:
+                            fldsw.append(f)    
+                if not parameters[18].value:
+                    if config.ILI_ANOM_CON_REQ_FIELDS[0].upper() in fldsw:                   
+                        parameters[18].value = config.ILI_ANOM_CON_REQ_FIELDS[0]  
+                if not parameters[19].value:
+                    if config.ILI_ANOM_CON_REQ_FIELDS[4].upper() in fldsw:                   
+                        parameters[19].value = config.ILI_ANOM_CON_REQ_FIELDS[4] 
+
 
         return
 
@@ -292,16 +334,15 @@ class AnomalyGrowthCalculator(object):
 
             Input_ILI_Pipe_Tally_Table = parameters[0].valueAsText
             Input_ILI_Pipe_Tally_Odometer_Field = parameters[1].valueAsText
-            Input_ILI_Pipe_Tally_Anomaly_Width_Field = parameters[2].valueAsText
-            Input_ILI_Pipe_Tally_Anomaly_Length_Field =parameters[3].valueAsText
-            Input_ILI_Pipe_Tally_Clock_Position_Field =parameters[4].valueAsText
-            Input_Clock_Position_Offset="\""+parameters[5].valueAsText+"\"" # "\"0:00\"" #parameters[5].valueAsText            
-            Input_Y_Axis_Clock_Orientation= "\""+parameters[6].valueAsText+"\"" #parameters[6].valueAsText
-            Input_Pipeline_Diameter_Value =parameters[7].valueAsText
-            Input_False_Northing_Value=parameters[8].valueAsText
-            Input_False_Easting_Value=parameters[9].valueAsText
-            Spatial_Reference_for_Output_Features= parameters[10].valueAsText #"PROJCS['NAD_1983_UTM_Zone_16N',GEOGCS['GCS_North_American_1983',DATUM['D_North_American_1983',SPHEROID['GRS_1980',6378137.0,298.257222101]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]],PROJECTION['Transverse_Mercator'],PARAMETER['False_Easting',1640416.666666667],PARAMETER['False_Northing',0.0],PARAMETER['Central_Meridian',-87.0],PARAMETER['Scale_Factor',0.9996],PARAMETER['Latitude_Of_Origin',0.0],UNIT['Foot_US',0.3048006096012192]];-5120900 -9998100 10000;-100000 10000;-100000 10000;0.001;0.001;0.001;IsHighPrecision"
-            
+            Input_Pipeline_Diameter_Value =parameters[2].valueAsText
+            Input_ILI_Pipe_Tally_Anomaly_Width_Field = parameters[3].valueAsText
+            Input_ILI_Pipe_Tally_Anomaly_Length_Field =parameters[4].valueAsText
+            Input_ILI_Pipe_Tally_Clock_Position_Field =parameters[5].valueAsText
+            Input_Clock_Position_Offset="\""+parameters[6].valueAsText+"\""
+            Input_Y_Axis_Clock_Orientation= "\""+parameters[7].valueAsText+"\"" 
+            Spatial_Reference_for_Output_Features= parameters[8].valueAsText 
+            Input_False_Northing_Value=parameters[9].valueAsText
+            Input_False_Easting_Value=parameters[10].valueAsText            
             Output_Anomaly_Point_Features=parameters[11].valueAsText
             Output_Anomaly_Ellipse_Features=parameters[12].valueAsText 
             Output_Anomaly_Envelope_Features=parameters[13].valueAsText
@@ -343,7 +384,7 @@ class AnomalyGrowthCalculator(object):
     " clock_hours + 1\n    elif clock_minutes < 0:\n        clock_minutes = clock_minut" +
     "es + 60\n        clock_hours = clock_hours - 1\n\n    # Correct clock hours for the" +
     " clock hours offset\n    clock_hours = clock_hours + offset_hours\n    if clock_ho" +
-    "urs > 12:\n        clock_hours = clock_hours - 12\n    elif clock_hours < 0:\n     " +
+    "urs > 12:\n        clock_hours = clock_hours - 12\n    elif clock_hours <=0:\n     " +
     "   clock_hours = clock_hours + 12\n\n    # Calculate y-coordinate\n    if y_axis_cl" +
     "ock == \"6:00 Centered\":\n        if clock_hours == 12:\n            y_coord = ((cl" +
     "ock_minutes / 60 / 12) * (pipe_od / 12 * math.pi)) + false_northing\n        else" +
@@ -416,20 +457,23 @@ class AnomalyGrowthCalculator(object):
            
             Input_ILI_Pipe_Tally_Table = parameters[0].valueAsText
             Input_ILI_Pipe_Tally_Odometer_Field = parameters[1].valueAsText
-            Input_ILI_Pipe_Tally_Anomaly_Width_Field = parameters[2].valueAsText
-            Input_ILI_Pipe_Tally_Anomaly_Length_Field =parameters[3].valueAsText
-            Input_ILI_Pipe_Tally_Clock_Position_Field =parameters[4].valueAsText
-            Input_Clock_Position_Offset="\""+parameters[5].valueAsText+"\""             
-            Input_Y_Axis_Clock_Orientation= "\""+parameters[6].valueAsText+"\"" 
-            Input_Pipeline_Diameter_Value =parameters[7].valueAsText
-            Input_False_Northing_Value=parameters[8].valueAsText
-            Input_False_Easting_Value=parameters[9].valueAsText
-            Spatial_Reference_for_Output_Features= parameters[10].valueAsText 
+            Input_Pipeline_Diameter_Value =parameters[2].valueAsText
+            Input_ILI_Pipe_Tally_Anomaly_Width_Field = parameters[3].valueAsText
+            Input_ILI_Pipe_Tally_Anomaly_Length_Field =parameters[4].valueAsText
+            Input_ILI_Pipe_Tally_Clock_Position_Field =parameters[5].valueAsText
+            Input_Clock_Position_Offset="\""+parameters[6].valueAsText+"\""
+            Input_Y_Axis_Clock_Orientation= "\""+parameters[7].valueAsText+"\"" 
+            Spatial_Reference_for_Output_Features= parameters[8].valueAsText 
+            Input_False_Northing_Value=parameters[9].valueAsText
+            Input_False_Easting_Value=parameters[10].valueAsText            
             Output_Anomaly_Point_Features=parameters[11].valueAsText
             Output_Anomaly_Ellipse_Features=parameters[12].valueAsText 
             Output_Anomaly_Envelope_Features=parameters[13].valueAsText
             Input_ILI_Weld_Table = parameters[17].valueAsText
-            Output_Weld_Features=parameters[18].valueAsText
+            Input_ILI_Weld_Odometer_Field=parameters[18].valueAsText
+            Input_Weld_Pipeline_Diameter_Value =parameters[19].valueAsText
+            Output_Weld_Features=parameters[20].valueAsText
+
                         
             # To allow overwriting outputs change overwriteOutput option to True.
             arcpy.env.overwriteOutput = True
@@ -446,7 +490,7 @@ class AnomalyGrowthCalculator(object):
                     #ymin_coord = (((0 / 12) + (0 / 60 / 12)) * (pipe_od / 12 * math.pi)) + false_northing                
                     #ymax_coord = (((12 / 12) + (0 / 60 / 12)) * (pipe_od / 12 * math.pi)) + false_northing
 
-                    arcpy.management.CalculateFields(Pipe_WeldTally_Table, "PYTHON3", "WeldXMinCoord !"+Input_ILI_Pipe_Tally_Odometer_Field+"!;WeldYMinCoord  float("+str(Input_False_Northing_Value)+");WeldXMaxCoord !"+Input_ILI_Pipe_Tally_Odometer_Field+"!;WeldYMaxCoord \'((!"+Input_Pipeline_Diameter_Value+"!/ 12) * math.pi) + float("+str(Input_False_Northing_Value)+")\'", '')
+                    arcpy.management.CalculateFields(Pipe_WeldTally_Table, "PYTHON3", "WeldXMinCoord !"+Input_ILI_Weld_Odometer_Field+"!;WeldYMinCoord  \'(((0 / 12) + (0 / 60 / 12)) * (!"+Input_Weld_Pipeline_Diameter_Value+"!/ 12 * math.pi)) +float("+str(Input_False_Northing_Value)+")\';WeldXMaxCoord !"+Input_ILI_Pipe_Tally_Odometer_Field+"!;WeldYMaxCoord \'(((12 / 12) + (0 / 60 / 12)) * (!"+Input_Weld_Pipeline_Diameter_Value+"!/ 12) * math.pi) + float("+str(Input_False_Northing_Value)+")\'", '')
                     #                arcpy.management.CalculateFields("PipeWeldTally", "PYTHON3", "WeldXMinCoord !AbsoluteOdometer!;WeldYMinCoord 0;WeldXMaxCoord !AbsoluteOdometer!" +
                     #";WeldYMaxCoord \'(!PipeDiameter!/12)*math.pi+float(str(\"0.0\"))\'", '')
                     inlineinspection.AddMessage("Weld Tally Fields are Calculated with 6:00 Centered")
@@ -455,13 +499,13 @@ class AnomalyGrowthCalculator(object):
                     #    ymin_coord = (-1) * ((((6 / 12) + (0 / 60 / 12)) * (pipe_od / 12 * math.pi)) + false_northing)
                     ##else:  # 6 <= clock_hours <= 11
                     #    ymax_coord = ((1 - ((6 / 12) + (0 / 60 / 12))) * (pipe_od / 12 * math.pi)) + false_northing
-                    arcpy.management.CalculateFields(Pipe_WeldTally_Table, "PYTHON3", "WeldXMinCoord !"+Input_ILI_Pipe_Tally_Odometer_Field+"!;WeldYMinCoord \'(-1)*((((6 / 12) + (0 / 60 / 12)) * (!"+Input_Pipeline_Diameter_Value+"!/ 12 * math.pi)) + float("+str(Input_False_Northing_Value)+"))\';WeldXMaxCoord !"+Input_ILI_Pipe_Tally_Odometer_Field+"!;WeldYMaxCoord \'(0.5 * (!"+Input_Pipeline_Diameter_Value+"!/12 * math.pi)) + float("+str(Input_False_Northing_Value)+")\'", '')
+                    arcpy.management.CalculateFields(Pipe_WeldTally_Table, "PYTHON3", "WeldXMinCoord !"+Input_ILI_Weld_Odometer_Field+"!;WeldYMinCoord \'(-1)*((((6 / 12) + (0 / 60 / 12)) * (!"+Input_Weld_Pipeline_Diameter_Value+"!/ 12 * math.pi)) + float("+str(Input_False_Northing_Value)+"))\';WeldXMaxCoord !"+Input_ILI_Weld_Odometer_Field+"!;WeldYMaxCoord \'(0.5 * (!"+Input_Weld_Pipeline_Diameter_Value+"!/12 * math.pi)) + float("+str(Input_False_Northing_Value)+")\'", '')
                     inlineinspection.AddMessage("Weld Tally Fields are Calculated with 12:00 Centered")
 
-            #arcpy.management.CalculateFields(Pipe_WeldTally_Table, "PYTHON3", "WeldXMinCoord !"+Input_ILI_Pipe_Tally_Odometer_Field+"!;WeldYMinCoord 0.0;WeldXMaxCoord !"+Input_ILI_Pipe_Tally_Odometer_Field+"!;WeldYMaxCoord !"+Input_Pipeline_Diameter_Value+"!", '')
+            #arcpy.management.CalculateFields(Pipe_WeldTally_Table, "PYTHON3", "WeldXMinCoord !"+Input_ILI_Weld_Odometer_Field+"!;WeldYMinCoord 0.0;WeldXMaxCoord !"+Input_ILI_Pipe_Tally_Odometer_Field+"!;WeldYMaxCoord !"+Input_Pipeline_Diameter_Value+"!", '')
             #inlineinspection.AddMessage("Weld Tally Fields are Calculated")
 
-            arcpy.management.XYToLine(Pipe_WeldTally_Table, Output_Weld_Features, "WeldXMinCoord", "WeldYMinCoord", "WeldXMaxCoord", "WeldYMaxCoord", "GEODESIC", "WeldNumber",Spatial_Reference_for_Output_Features , "NO_ATTRIBUTES")
+            arcpy.management.XYToLine(Pipe_WeldTally_Table, Output_Weld_Features, "WeldXMinCoord", "WeldYMinCoord", "WeldXMaxCoord", "WeldYMaxCoord", "GEODESIC", "WeldNumber",Spatial_Reference_for_Output_Features , "ATTRIBUTES")
             inlineinspection.AddMessage("Weld Line Features are Created")
 
         except Exception as e:
@@ -474,22 +518,23 @@ class AnomalyGrowthCalculator(object):
         try:
             Input_ILI_Pipe_Tally_Table = parameters[0].valueAsText
             Input_ILI_Pipe_Tally_Odometer_Field = parameters[1].valueAsText
-            Input_ILI_Pipe_Tally_Anomaly_Width_Field = parameters[2].valueAsText
-            Input_ILI_Pipe_Tally_Anomaly_Length_Field =parameters[3].valueAsText
-            Input_ILI_Pipe_Tally_Clock_Position_Field =parameters[4].valueAsText
-            Input_Clock_Position_Offset="\""+parameters[5].valueAsText+"\""             
-            Input_Y_Axis_Clock_Orientation= "\""+parameters[6].valueAsText+"\"" 
-            Input_Pipeline_Diameter_Value =parameters[7].valueAsText
-            Input_False_Northing_Value=parameters[8].valueAsText
-            Input_False_Easting_Value=parameters[9].valueAsText
-            Spatial_Reference_for_Output_Features= parameters[10].valueAsText 
+            Input_Pipeline_Diameter_Value =parameters[2].valueAsText
+            Input_ILI_Pipe_Tally_Anomaly_Width_Field = parameters[3].valueAsText
+            Input_ILI_Pipe_Tally_Anomaly_Length_Field =parameters[4].valueAsText
+            Input_ILI_Pipe_Tally_Clock_Position_Field =parameters[5].valueAsText
+            Input_Clock_Position_Offset="\""+parameters[6].valueAsText+"\""
+            Input_Y_Axis_Clock_Orientation= "\""+parameters[7].valueAsText+"\"" 
+            Spatial_Reference_for_Output_Features= parameters[8].valueAsText 
+            Input_False_Northing_Value=parameters[9].valueAsText
+            Input_False_Easting_Value=parameters[10].valueAsText            
             Output_Anomaly_Point_Features=parameters[11].valueAsText
             Output_Anomaly_Ellipse_Features=parameters[12].valueAsText 
             Output_Anomaly_Envelope_Features=parameters[13].valueAsText
             Output_Grid_Features=parameters[15].valueAsText 
             Input_is_weld_value = parameters[16].value
             Input_ILI_Weld_Table = parameters[17].valueAsText
-            Output_Weld_Features=parameters[18].valueAsText
+            Input_ILI_Weld_Odometer_Field=parameters[18].valueAsText
+            Output_Weld_Features=parameters[20].valueAsText
 
             # To allow overwriting outputs change overwriteOutput option to True.
             arcpy.env.overwriteOutput = True
@@ -506,7 +551,7 @@ class AnomalyGrowthCalculator(object):
             x_max_value =0.0
             x_max_WeldValue = 0.0
             if(Input_is_weld_value):
-                x_max_WeldValue = arcpy.da.SearchCursor(Pipe_GridTally_Table, field_to_find_x_max, "{} IS NOT NULL".format(field_to_find_x_max), sql_clause = (None, "ORDER BY {} DESC".format(field_to_find_x_max))).next()[0]
+                x_max_WeldValue = arcpy.da.SearchCursor(Pipe_GridTally_Table, Input_ILI_Weld_Odometer_Field, "{} IS NOT NULL".format(Input_ILI_Weld_Odometer_Field), sql_clause = (None, "ORDER BY {} DESC".format(Input_ILI_Weld_Odometer_Field))).next()[0]
             x_max_value=x_max_WeldValue if x_max_AnamalyValue < x_max_WeldValue else x_max_AnamalyValue
             
             y_max_value = arcpy.da.SearchCursor(Pipe_GridTally_Table, field_to_find_y_max, "{} IS NOT NULL".format(field_to_find_y_max), sql_clause = (None, "ORDER BY {} DESC".format(field_to_find_y_max))).next()[0]
@@ -523,7 +568,7 @@ class AnomalyGrowthCalculator(object):
 
             x_min_value = 0           
             split_interval =5           
-            grid_interval =round((ymax_coord-ymin_coord)/(split_interval-1),1)
+            grid_interval =round((ymax_coord-ymin_coord)/(split_interval-1),6)
 
             inlineinspection.AddMessage(" ymin_coord {} ,ymax_coord {}, grid_interval {} ".format(ymin_coord,ymax_coord,grid_interval))
             
@@ -549,10 +594,10 @@ class AnomalyGrowthCalculator(object):
             for interval in range(0,split_interval):
                 # Set X and Y for start and end points
                 point.X = x_min_value
-                point.Y = ymin_coord+interval*grid_interval
+                point.Y = ymin_coord+(interval*grid_interval)
                 array.add(point)
                 point.X = x_max_value
-                point.Y = ymin_coord+interval*grid_interval
+                point.Y = ymin_coord+(interval*grid_interval)
                 array.add(point)   
                 # Create a Polyline object based on the array of points
                 polyline = arcpy.Polyline(array)
@@ -564,9 +609,9 @@ class AnomalyGrowthCalculator(object):
                 feat.shape = polyline
                 feat.setValue(GridLable_Column,grid_id[interval])
                 feat.setValue("GridXMinCoord",x_min_value)
-                feat.setValue("GridYMinCoord",interval*grid_interval)
+                feat.setValue("GridYMinCoord",ymin_coord+(interval*grid_interval))
                 feat.setValue("GridXMaxCoord",x_max_value)
-                feat.setValue("GridYMaxCoord",interval*grid_interval)
+                feat.setValue("GridYMaxCoord",ymin_coord+(interval*grid_interval))
                 cursor.insertRow(feat)
             del feat
             del cursor
