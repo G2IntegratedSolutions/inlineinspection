@@ -8,8 +8,8 @@ import os
 import numpy as np
 import math
 from inlineinspection import config
-from eaglepy.lr.toolbox import Segmentor,Attributer,Statistitater
-from eaglepy.funcparam import FuncParam
+#from eaglepy.lr.toolbox import Segmentor,Attributer,Statistitater
+#from eaglepy.funcparam import FuncParam
 import traceback
 import sys
 import locale
@@ -291,20 +291,22 @@ if __name__ == "__main__":
         ##arcpy.management.AddJoin(ili_layer, "EventID", spatialjoin2, "EventID", "KEEP_ALL")
         #arcpy.AddJoin_management(ili_layer, "EventID", spatialjoin2, "EventID", "KEEP_ALL")
 
-        if(ili_layer):
-            flds = []            
-            flds += [f.name.upper() for f in arcpy.ListFields (ili_layer)]
-            filds=['ILIDATA.ANOMALYDESCRIPTION', 'ILIDATA.AREAOFMETALLOSS', 'ILIDATA.MOD_AREAOFMETALLOSS', 'ILIDATA.FLOWSTRESS', 'ILIDATA.MOD_FLOWSTRESS', 'ILIDATA.FOLIASFACTOR', 'ILIDATA.MOD_FOLIASFACTOR', 'ILIDATA.PIPEBURSTPRESSURE', 'ILIDATA.MOD_PIPEBURSTPRESSURE', 'ILIDATA.CALCULATEDPRESSURE', 'ILIDATA.REFERENCEPRESSURE', 'ILIDATA.SAFETY_FACTOR', 'ILIDATA.PRESSUREREFERENCEDRATIO', 'ILIDATA.ESTIMATEDREPAIRFACTOR', 'ILIDATA.RUPTUREPRESSURERATIO', 'ILIDATA_SJ2.OBJECTID', 'ILIDATA_SJ2.JOIN_COUNT', 'ILIDATA_SJ2.TARGET_FID', 'ILIDATA_SJ2.EVENTID', 'ILIDATA_SJ2.SMYS_SJ', 'ILIDATA_SJ2.NOMINALDIAMETER_SJ', 'ILIDATA_SJ2.NOMINALWALLTHICKNESS_SJ', 'ILIDATA_SJ2.MAOP_SJ']
-            f1=[]
-            for f in flds:
-                x=f.split('.')
-                if len(x)>1:
-                    x1=x[1]
-                    f1.append(x1)
-                else:
-                    f1.append(f)
+        #if(ili_layer):
+        #    flds = []            
+        #    flds += [f.name for f in arcpy.ListFields (ili_layer)]
+        #    filds=['ILIDATA.ANOMALYDESCRIPTION', 'ILIDATA.AREAOFMETALLOSS', 'ILIDATA.MOD_AREAOFMETALLOSS', 'ILIDATA.FLOWSTRESS', 'ILIDATA.MOD_FLOWSTRESS', 'ILIDATA.FOLIASFACTOR', 'ILIDATA.MOD_FOLIASFACTOR', 'ILIDATA.PIPEBURSTPRESSURE', 'ILIDATA.MOD_PIPEBURSTPRESSURE', 'ILIDATA.CALCULATEDPRESSURE', 'ILIDATA.REFERENCEPRESSURE', 'ILIDATA.SAFETY_FACTOR', 'ILIDATA.PRESSUREREFERENCEDRATIO', 'ILIDATA.ESTIMATEDREPAIRFACTOR', 'ILIDATA.RUPTUREPRESSURERATIO', 'ILIDATA_SJ2.OBJECTID', 'ILIDATA_SJ2.JOIN_COUNT', 'ILIDATA_SJ2.TARGET_FID', 'ILIDATA_SJ2.EVENTID', 'ILIDATA_SJ2.SMYS_SJ', 'ILIDATA_SJ2.NOMINALDIAMETER_SJ', 'ILIDATA_SJ2.NOMINALWALLTHICKNESS_SJ', 'ILIDATA_SJ2.MAOP_SJ']
+        #    f1=[]
+        #    for f in flds:
+        #        x=f.split('.')
+        #        if len(x)>1:
+        #            x1=x[1]
+        #            f1.append(x1)
+        #            print(x1)
+        #        else:
+        #            f1.append(f)
+        #            print(f)
            
-            print(f1)
+            #print(f1)
             #for outField in outFields:
             #    if not outField.upper() in flds: 
             #        # Execute AddField for new fields
@@ -314,18 +316,53 @@ if __name__ == "__main__":
 
         #arcpy.RemoveJoin_management(ili_layer)
 
-        # Use SearchCursor to access state name and the population count
-        with arcpy.da.SearchCursor(ili_layer,f1) as cursor:
-            for row in cursor:
-                # Access and print the row values by index position.
-                #   state name: row[0]
-                #   population: row[1]
-                print('{} has a population of {}'.format(row[0], row[1]))
-            del row
-            del cursor
+        ## Use SearchCursor to access state name and the population count
+        #with arcpy.da.SearchCursor(ili_layer,f1) as cursor:
+        #    for row in cursor:
+        #        # Access and print the row values by index position.
+        #        #   state name: row[0]
+        #        #   population: row[1]
+        #        print('{} has a population of {}'.format(row[0], row[1]))
+        #    del row
+        #    del cursor
 
             
         #arcpy.AddMessage("Join is performed on ILI Data")
+        #---------------------------------
+        arcpy.AddMessage("Process Started")
+        arcpy.env.workspace=r"C:\G2\UnitedBrine\Anomaly Comparison\scratch.gdb"
+        arcpy.env.overwriteOutput = True
+        arcpy.CopyRows_management(ili_layer, "PipeTally_Test")
+        arcpy.MakeXYEventLayer_management("PipeTally_Test", "POINT_X", "POINT_Y", "Anomaly_Point_Events")
+        arcpy.CopyFeatures_management("Anomaly_Point_Events", "Output_Anomaly_Point_Features")
+
+        Input_Clock_Position_Offset="\"0:00\"" #parameters[0].valueAsText
+        Input_Y_Axis_Clock_Orientation="\"6:00 Centered\"" #parameters[0].valueAsText        
+        Output_Anomaly_Point_Features=fr"{arcpy.env.scratchGDB}\AnomalyPoint", 
+        Output_Anomaly_Ellipse_Features=fr"{arcpy.env.scratchGDB}\AnomalyEllipse", 
+        Output_Anomaly_Envelope_Features=fr"{arcpy.env.scratchGDB}\AnomalyEnvelope", 
+        Spatial_Reference_for_Output_Features="PROJCS['NAD_1983_UTM_Zone_16N',GEOGCS['GCS_North_American_1983',DATUM['D_North_American_1983',SPHEROID['GRS_1980',6378137.0,298.257222101]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]],PROJECTION['Transverse_Mercator'],PARAMETER['False_Easting',1640416.666666667],PARAMETER['False_Northing',0.0],PARAMETER['Central_Meridian',-87.0],PARAMETER['Scale_Factor',0.9996],PARAMETER['Latitude_Of_Origin',0.0],UNIT['Foot_US',0.3048006096012192]];-5120900 -9998100 10000;-100000 10000;-100000 10000;0.001;0.001;0.001;IsHighPrecision"
+        
+        Pipe_Tally_Table_View = "PipeTally"
+        # Process: Make XY Event Layer (Make XY Event Layer) (management)
+        Anomaly_Point_Events = "AnomalyEvents_Layer"
+        #arcpy.management.MakeXYEventLayer(table=Pipe_Tally_Table_View, in_x_field="AnomalyXCoord", in_y_field="AnomalyYCoord", out_layer=Anomaly_Point_Events, spatial_reference=Spatial_Reference_for_Output_Features, in_z_field="")
+        arcpy.MakeXYEventLayer_management("PipeTally", "AnomalyXCoord", "AnomalyYCoord", Anomaly_Point_Events)
+        arcpy.AddMessage("MakeXYEventLayer is done")
+        # Process: Copy Features (Copy Features) (management)
+        arcpy.management.CopyFeatures(in_features=Anomaly_Point_Events, out_feature_class=Output_Anomaly_Point_Features, config_keyword="", spatial_grid_1=0, spatial_grid_2=0, spatial_grid_3=0)
+        arcpy.AddMessage("CopyFeatures Anomaly_Point_Events is done")
+        # Process: Table To Ellipse (Table To Ellipse) (management)
+        Anomaly_Ellipse_Polylines = fr"{arcpy.env.scratchGDB}\AnomalyEllipsePolyline"
+        arcpy.management.TableToEllipse(in_table=Output_Anomaly_Point_Features, out_featureclass=Anomaly_Ellipse_Polylines, x_field="AnomalyXCoord", y_field="AnomalyYCoord", major_field="AnomalyMajorAxisFt", minor_field="AnomalyMinorAxisFt", distance_units="9003", azimuth_field="Azimuth", azimuth_units="9102", id_field="", spatial_reference=Spatial_Reference_for_Output_Features, attributes="NO_ATTRIBUTES")
+        arcpy.AddMessage("TableToEllipse is done")
+        # Process: Feature To Polygon (Feature To Polygon) (management)
+        arcpy.management.FeatureToPolygon(in_features=[Anomaly_Ellipse_Polylines], out_feature_class=Output_Anomaly_Ellipse_Features, cluster_tolerance="", attributes="ATTRIBUTES", label_features=Output_Anomaly_Point_Features)
+        arcpy.AddMessage("FeatureToPolygon is done")
+        # Process: Feature Envelope To Polygon (Feature Envelope To Polygon) (management)
+        arcpy.management.FeatureEnvelopeToPolygon(in_features=Output_Anomaly_Ellipse_Features, out_feature_class=Output_Anomaly_Envelope_Features, single_envelope="SINGLEPART")
+        arcpy.AddMessage("Feature Envelope To Polygon is done")
+        arcpy.AddMessage("Process Completed")
     except Exception as e:
             tb = sys.exc_info()[2]
             arcpy.AddError("An error occurred on line %i" % tb.tb_lineno)

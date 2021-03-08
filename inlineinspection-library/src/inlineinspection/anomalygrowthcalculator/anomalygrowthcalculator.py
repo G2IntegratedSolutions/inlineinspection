@@ -11,12 +11,10 @@ import arcpy
 import inlineinspection
 import os
 import datetime as dt
-import numpy as np
 import math
 from inlineinspection import config
 import traceback
 import sys
-import locale
 from arcpy import env
 
 
@@ -24,15 +22,15 @@ class AnomalyGrowthCalculator(object):
 
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
-        self.label = "Convert ILI Anomalies to Features"
-        self.description = "This to Tools Convert ILI Anomalies to Point, Envelopes and Eclipese Features"
+        self.label = "Convert ILI Anomalies to Point, Envelope and Ellipse Features"
+        self.description = "This Tool Convert ILI Anomalies to Point, Envelopes and Eclipese Features"
         self.canRunInBackground = False
-        self.category = config.ILI_PC_TOOL_CATAGORY  
+        #self.category = config.ILI_PC_TOOL_CATAGORY  
                
     def getParameterInfo(self):
                
         # Input ILI point featuere - Parameter [0]       
-        in_ili_features = arcpy.Parameter(displayName="Input ILI Features",
+        in_ili_features = arcpy.Parameter(displayName="Input ILI Anomaly Features",
             name="in_ili_features",
             datatype=["GPFeatureLayer","GPTableView"],
             parameterType="Required",
@@ -40,203 +38,156 @@ class AnomalyGrowthCalculator(object):
         #in_ili_features.filter.list = ["Point"]
 
         in_ili_odometer_field = arcpy.Parameter(
-            displayName="Input ILI Pipe Tally Odometer Field", name="in_ili_odometer_field",
-            datatype="Field", parameterType="optional", direction="Input")
+            displayName="ILI Anomaly Odometer Field", name="in_ili_odometer_field",
+            datatype="Field", parameterType="Required", direction="Input")
         in_ili_odometer_field.parameterDependencies = [in_ili_features.name]       
         in_ili_odometer_field.filter.list = ['int', 'long', 'double']
 
         in_ili_width_field = arcpy.Parameter(
-            displayName="Input ILI Pipe Tally Anomaly Width Field", name="in_ili_width_field",
-            datatype="Field", parameterType="optional", direction="Input")
+            displayName="ILI Anomaly Width Field", name="in_ili_width_field",
+            datatype="Field", parameterType="Required", direction="Input")
         in_ili_width_field.parameterDependencies = [in_ili_features.name]
         in_ili_width_field.filter.list = ['int', 'long', 'double']
 
-
         in_ili_length_field = arcpy.Parameter(
-            displayName="Input ILI Pipe Tally Anomaly Length Field", name="in_ili_length_field",
-            datatype="Field", parameterType="optional", direction="Input")
+            displayName="ILI Anomaly Length Field", name="in_ili_length_field",
+            datatype="Field", parameterType="Required", direction="Input")
         in_ili_length_field.parameterDependencies = [in_ili_features.name]       
         in_ili_length_field.filter.list = ['int', 'long', 'double']
         
         in_ili_clockposition_field = arcpy.Parameter(
-            displayName="Input ILI Pipe Tally Clock Position Field", name="in_ili_clockposition_field",
-            datatype="Field", parameterType="optional", direction="Input")
+            displayName="ILI Anomaly Clock Position Field", name="in_ili_clockposition_field",
+            datatype="Field", parameterType="Required", direction="Input")
         in_ili_clockposition_field.parameterDependencies = [in_ili_features.name]
-        in_ili_clockposition_field.filter.list = ['int', 'long', 'double']
+        in_ili_clockposition_field.filter.list = ['Text']
 
         in_ili_clockpostion_offset_value = arcpy.Parameter(
             displayName="Input Clock Position Offset", name="in_ili_clockpostion_offset_value",
-            datatype="GPDouble", parameterType="optional", direction="Input")
-
+            datatype="GPString", parameterType="Required", direction="Input")
+        in_ili_clockpostion_offset_value.value="0:00"
+         
         in_ili_yaxisorientation_value = arcpy.Parameter(
             displayName="Input Y-Axis Clock Orientation", name="in_ili_yaxisorientation_value",
-            datatype="GPString", parameterType="optional", direction="Input")
-        in_ili_yaxisorientation_value.list=["6:00 Centered","12:00 Centered"]
-
+            datatype="GPString", parameterType="Required", direction="Input")
+        in_ili_yaxisorientation_value.filter.list=["6:00 Centered","12:00 Centered"]
+        in_ili_yaxisorientation_value.value="6:00 Centered"
+       
         in_ili_pipediameter_field = arcpy.Parameter(
-            displayName="Input Pipeline Diameter Field", name="in_ili_pipediameter_field",
-            datatype="Field", parameterType="optional", direction="Input")
+            displayName="ILI Anomaly Diameter Field", name="in_ili_pipediameter_field",
+            datatype="Field", parameterType="Required", direction="Input")
         in_ili_pipediameter_field.parameterDependencies = [in_ili_features.name]
         in_ili_pipediameter_field.filter.list = ['int', 'long', 'double']
 
         in_ili_falsenorthing_value = arcpy.Parameter(
-            displayName="Input Clock Position Offset", name="in_ili_falsenorthing_value",
-            datatype="GPDouble", parameterType="optional", direction="Input")
+            displayName="Input False Northing Value", name="in_ili_falsenorthing_value",
+            datatype="GPDouble", parameterType="Required", direction="Input")
+        in_ili_falsenorthing_value.value=0
 
         in_ili_falseeasting_value = arcpy.Parameter(
-            displayName="Input Clock Position Offset", name="in_ili_falseeasting_value",
-            datatype="GPDouble", parameterType="optional", direction="Input")
-
-
-
-
-
-
-
-
-         # Input Pipe Parameter type - Parameter [1]
-        in_pipe_parameter_type = arcpy.Parameter(displayName="Input Pipe Parameter Source",
-            name="in_pipe_parameter_type",
-            datatype="GPString",
+            displayName="Input False Easting Value", name="in_ili_falseeasting_value",
+            datatype="GPDouble", parameterType="Required", direction="Input")
+        in_ili_falseeasting_value.value=0
+         
+        in_ili_sr = arcpy.Parameter(displayName="Spatial Refference for Output Features",
+            name="in_ili_sr",
+            datatype="GPSpatialReference",
             parameterType="Required",
             direction="Input")
-        in_pipe_parameter_type.filter.list = config.ILI_PIPE_PARAMETER_TYPE
-        in_pipe_parameter_type.value = config.ILI_PIPE_PARAMETER_TYPE[0]
-                
-        # CATEGORY 1 PARAMETERS ['Length', 'MaxDepthMeasured' ,'MaxDiameter' ,'MeasuredWallThickness' ,'PipeSmys' ,'PipeMAOP', 'AreaOfMetalLoss']
-        # Parameter [2]  
+        in_ili_sr.value="PROJCS['NAD_1983_UTM_Zone_16N',GEOGCS['GCS_North_American_1983',DATUM['D_North_American_1983',SPHEROID['GRS_1980',6378137.0,298.257222101]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]],PROJECTION['Transverse_Mercator'],PARAMETER['False_Easting',1640416.666666667],PARAMETER['False_Northing',0.0],PARAMETER['Central_Meridian',-87.0],PARAMETER['Scale_Factor',0.9996],PARAMETER['Latitude_Of_Origin',0.0],UNIT['Foot_US',0.3048006096012192]];-5120900 -9998100 10000;-100000 10000;-100000 10000;0.001;0.001;0.001;IsHighPrecision"   
        
-        # Parameter [5]
-        in_pc_MeasuredWallThickness_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY,
-            displayName="Measured Wall Thickness Field", name="in_pc_MeasuredWallThickness_field",
-            datatype="Field", parameterType="optional", direction="Input")
-        in_pc_MeasuredWallThickness_field.parameterDependencies = [in_ili_features.name]
-        in_pc_MeasuredWallThickness_field.filter.list = ['int', 'long', 'double']
-
-        # Parameter [6]
-        in_pc_PipeSmys_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY,
-            displayName="Pipe SMYS Field", name="in_pc_PipeSmys_field",
-            datatype="Field", parameterType="optional", direction="Input")
-        in_pc_PipeSmys_field.parameterDependencies = [in_ili_features.name]
-        in_pc_PipeSmys_field.filter.list = ['int', 'long', 'double']         
-
-        # Parameter [7]
-        in_pc_PipeMAOP_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY,
-            displayName="Pipe MAOP Field", name="in_pc_PipeMAOP_field",
-            datatype="Field", parameterType="optional", direction="Input")
-        in_pc_PipeMAOP_field.parameterDependencies = [in_ili_features.name]
-        in_pc_PipeMAOP_field.filter.list = ['int', 'long', 'double']
-
-        # Parameter [8]
-        in_pc_PipeSmys_fieldvalue = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_3,
-            displayName="Pipe SMYS Value", name="in_pc_PipeSmys_fieldvalue",
-            datatype="GPDouble", parameterType="optional", direction="Input")      
-        
-        # Parameter [9]
-        in_pc_PipeMAOP_fieldvalue = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_3,
-            displayName="Pipe MAOP Value", name="in_pc_PipeMAOP_fieldvalue",
-            datatype="GPDouble", parameterType="optional", direction="Input")        
-                      
-        # Input Pipelie featuere - Parameter [10]    
-        in_ili_pipe_features = arcpy.Parameter(displayName="Input Pipe Segment Features",
-            name="in_ili_pipe_features",
+        out_ili_point_features = arcpy.Parameter(displayName="Output Anomaly Point Features",
+            name="out_ili_point_features",
             datatype="GPFeatureLayer",
-            parameterType="optional",
-            direction="Input")
-        in_ili_pipe_features.filter.list = ["Polyline"]
+            parameterType="Optional",
+            direction="Output")
+        #out_ili_point_features.filter.list = ["Point"]
+        out_ili_point_features.value="%scratchGDB%\AnomalyPoint"
 
-        # Input Pipelie featuere - Parameter [11]    
-        in_ili_maop_features = arcpy.Parameter(displayName="Input MAOP Features",
-            name="in_ili_maop_features",
+        out_ili_ellipse_features = arcpy.Parameter(displayName="Output Anomaly Ellipse Features",
+            name="out_ili_ellipse_features",
             datatype="GPFeatureLayer",
-            parameterType="optional",
-            direction="Input")
-        in_ili_maop_features.filter.list = ["Polyline"]
+            parameterType="Optional",
+            direction="Output")
+        #out_ili_ellipse_features.filter.list = ["Polygon"]
+        out_ili_ellipse_features.value ="%scratchGDB%\AnomalyEllipse"
 
-        # Parameter [12]
-        in_ps_syms_field = arcpy.Parameter(category ="Input Pipe Segment Data Fields",
-            displayName="SMYS Field", name="in_ps_syms_field",
-            datatype="Field", parameterType="optional", direction="Input")
-        in_ps_syms_field.parameterDependencies = [in_ili_pipe_features.name]      
-        #in_ps_syms_field.filter.list = ['int', 'long', 'double']
-                
-        # Parameter [13]
-        in_maop_field = arcpy.Parameter(category ="Input MAOP Data Field",
-            displayName="MAOP Field", name="in_maop_field",
-            datatype="Field", parameterType="optional", direction="Input")
-        in_maop_field.parameterDependencies = [in_ili_maop_features.name]       
-        in_maop_field.filter.list = ['int', 'long', 'double']
+        out_ili_envelop_features = arcpy.Parameter(displayName="Output Anomaly Envelop Features",
+            name="out_ili_envelop_features",
+            datatype="GPFeatureLayer",
+            parameterType="Optional",
+            direction="Output")
+        #out_ili_envelop_features.filter.list = ["Polygon"]
+        out_ili_envelop_features.value ="%scratchGDB%\AnomalyEnvelope"
+         
+        # Generate Grid Lines
+        in_is_grid_line = arcpy.Parameter(
+             displayName="Generate Grid Lines",
+             name="in_is_grid_line",
+             datatype="GPBoolean",  parameterType="Optional",
+             direction="Input")
+        in_is_grid_line.value = True
 
-        # Parameter [14]
-        in_pc_pipeBurstPressure_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
-            displayName="Pipe Burst Pressure Field", name="in_pc_pipeBurstPressurer_field",
-            datatype="GPString", parameterType="Required", direction="Input")
-        in_pc_pipeBurstPressure_field.filter.list = ['int', 'long', 'double']
+        out_grid_features = arcpy.Parameter(displayName="Output Grid Line Features",
+            name="out_grid_features",
+            datatype="GPFeatureLayer",
+            parameterType="Optional",
+            direction="Output")
+        #out_grid_features.filter.list = ["Polyline"]
+        out_grid_features.value ="%scratchGDB%\GridLines"
 
-        # Parameter [15]
-        in_pc_modPipeBurstPressure_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
-            displayName="Modified Pipe Burst Pressure Field", name="in_pc_modPipeBurstPressure_field",
-            datatype="GPString", parameterType="Required", direction="Input")
-        in_pc_modPipeBurstPressure_field.filter.list = ['int', 'long', 'double']
-       
-        # Parameter [16]
-        in_pc_calculatePressure_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
-            displayName="Calculated Safety Pressure Field", name="in_pc_calculatePressure_field",
-            datatype="GPString", parameterType="Required", direction="Input")
-        in_pc_calculatePressure_field.filter.list = ['int', 'long', 'double']
+        # Generate Weld Lines
+        in_is_weld_line = arcpy.Parameter(
+             displayName="Generate Weld Lines",
+             name="in_is_weld_line",
+             datatype="GPBoolean",  parameterType="Optional",
+             direction="Input")
+        in_is_weld_line.value = True
 
-        # Parameter [17]
-        in_pc_referencePressure_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
-            displayName="Reference Pressure Field", name="in_pc_referencePressure_field",
-            datatype="GPString", parameterType="Required", direction="Input")
-        in_pc_referencePressure_field.filter.list = ['int', 'long', 'double']
-      
-        # Parameter [18]
-        in_pc_safetyFactor_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
-            displayName="Safety Factor Field", name="in_pc_safetyFactor_field",
-            datatype="GPString", parameterType="Required", direction="Input")
-        in_pc_modPipeBurstPressure_field.filter.list = ['int', 'long', 'double']
-       
-        # Parameter [19]
-        in_pc_pressureReferencedRatio_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
-            displayName="Pressure Referenced Ratio Field", name="in_pc_pressureReferencedRatio_field",
-            datatype="GPString", parameterType="Required", direction="Input")
-        in_pc_pressureReferencedRatio_field.filter.list = ['int', 'long', 'double']
+        in_ili_weld_features = arcpy.Parameter(
+            displayName="Input ILI Weld Features", name="in_ili_weld_features",
+             datatype=["GPFeatureLayer","GPTableView"], parameterType="Optional", direction="Input")
 
-        # Parameter [20]
-        in_pc_estimatedRepairFactor_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
-            displayName="Estimated Repair Factor Field", name="in_pc_estimatedRepairFactor_field",
-            datatype="GPString", parameterType="Required", direction="Input")
-        in_pc_estimatedRepairFactor_field.filter.list = ['int', 'long', 'double']
+        in_ili_weld_odometer_field = arcpy.Parameter(
+            displayName="ILI Weld Odometer Field", name="in_ili_weld_odometer_field",
+            datatype="Field", parameterType="Required", direction="Input")
+        in_ili_weld_odometer_field.parameterDependencies = [in_ili_weld_features.name]       
+        in_ili_weld_odometer_field.filter.list = ['int', 'long', 'double']
 
-        # Parameter [21]
-        in_pc_rupturePressureRatio_field = arcpy.Parameter(category =config.ILI_PC_PARAMETER_CATGRY_2,
-            displayName="Rupture Pressure Ratio Field", name="in_pc_rupturePressureRatio_field",
-            datatype="GPString", parameterType="Required", direction="Input")
-        in_pc_rupturePressureRatio_field.filter.list = ['int', 'long', 'double']
-    
+        in_ili_weld_diameter_field = arcpy.Parameter(
+            displayName="ILI Weld Diameter Field", name="in_ili_weld_diameter_field",
+            datatype="Field", parameterType="Required", direction="Input")
+        in_ili_weld_diameter_field.parameterDependencies = [in_ili_weld_features.name]       
+        in_ili_weld_diameter_field.filter.list = ['int', 'long', 'double']
+
+        out_weld_features = arcpy.Parameter(displayName="Output Weld Line Features",
+            name="out_weld_features",
+            datatype="GPFeatureLayer",
+            parameterType="Optional",
+            direction="Output")
+        #out_weld_features.filter.list = ["Polyline"]
+        out_weld_features.value ="%scratchGDB%\WeldLines"
+
         parameters = [in_ili_features,
-                      in_pipe_parameter_type, 
-                      in_pc_length_field,
-                      in_pc_MaxDepthMeasured_field,
-                      in_pc_MaxDiameter_field,
-                      in_pc_MeasuredWallThickness_field,
-                      in_pc_PipeSmys_field,
-                      in_pc_PipeMAOP_field,
-                      in_pc_PipeSmys_fieldvalue,
-                      in_pc_PipeMAOP_fieldvalue, 
-                      in_ili_pipe_features,
-                      in_ili_maop_features,
-                      in_ps_syms_field,
-                      in_maop_field,
-                      in_pc_pipeBurstPressure_field, 
-                      in_pc_modPipeBurstPressure_field,
-                      in_pc_calculatePressure_field, 
-                      in_pc_referencePressure_field, 
-                      in_pc_safetyFactor_field, 
-                      in_pc_pressureReferencedRatio_field, 
-                      in_pc_estimatedRepairFactor_field, 
-                      in_pc_rupturePressureRatio_field                  
+                      in_ili_odometer_field,
+                      in_ili_pipediameter_field,
+                      in_ili_width_field,
+                      in_ili_length_field,
+                      in_ili_clockposition_field,
+                      in_ili_clockpostion_offset_value,                      
+                      in_ili_yaxisorientation_value,                      
+                      in_ili_sr,
+                      in_ili_falsenorthing_value,
+                      in_ili_falseeasting_value,                                           
+                      out_ili_point_features,
+                      out_ili_ellipse_features,
+                      out_ili_envelop_features,                      
+                      in_is_grid_line,
+                      out_grid_features,
+                      in_is_weld_line,
+                      in_ili_weld_features,
+                      in_ili_weld_odometer_field,
+                      in_ili_weld_diameter_field,
+                      out_weld_features
                       ]
 
         return parameters
@@ -246,78 +197,7 @@ class AnomalyGrowthCalculator(object):
         #return LicenseOperation.is_licensed
 
     def updateParameters(self, parameters):
-        if(parameters[0].value):
-            des = arcpy.Describe(parameters[0].value)
-            if(des.datatype=='FeatureClass' or des.datatype=='FeatureLayer'):
-                parameters[1].filter.list = config.ILI_PIPE_PARAMETER_TYPE
-            else:
-                parameters[1].filter.list = config.ILI_PIPE_PARAMETER_TYPE[:2]
-
-        # Populate dependent fields from the input feature class      
-        if(parameters[1].value):
-            if parameters[1].value == config.ILI_PIPE_PARAMETER_TYPE[1]: 
-               # Manual Pipe Information
-               parameters[2].enabled = True
-               parameters[3].enabled = True
-               parameters[4].enabled = True
-               parameters[5].enabled = True
-               parameters[6].enabled = False
-               parameters[7].enabled = False
-               parameters[8].enabled = True
-               parameters[9].enabled = True
-               parameters[10].enabled = False 
-               parameters[11].enabled = False
-               parameters[12].enabled = False
-               parameters[13].enabled = False
-               parameters[14].enabled = True 
-               parameters[15].enabled = True
-               parameters[16].enabled = True
-               parameters[17].enabled = True
-               parameters[18].enabled = True
-               parameters[19].enabled = True
-               parameters[20].enabled = True
-               parameters[21].enabled = True
-              
-            elif parameters[1].value == config.ILI_PIPE_PARAMETER_TYPE[2]:
-               #Pipe Information from Pipe Segment feature class       
-               parameters[2].enabled = True
-               parameters[3].enabled = True
-               parameters[4].enabled = True
-               parameters[5].enabled = True
-               parameters[6].enabled = False              
-               parameters[7].enabled = False              
-               parameters[8].enabled = False
-               parameters[9].enabled = False
-               parameters[10].enabled = True
-               parameters[11].enabled = True 
-               parameters[12].enabled = True
-               parameters[13].enabled = True
-               parameters[14].enabled = True
-               parameters[21].enabled = True
-                             
-            else:                                     
-               #Pipe information from ILI Data
-               parameters[2].enabled = True
-               parameters[3].enabled = True
-               parameters[4].enabled = True
-               parameters[5].enabled = True
-               parameters[6].enabled = True               
-               parameters[7].enabled = True 
-               parameters[8].enabled = False #Manual SMYS Value from user
-               parameters[9].enabled = False #Manual MAOP Value from user
-               parameters[10].enabled = False
-               parameters[11].enabled = False
-               parameters[12].enabled = False
-               parameters[13].enabled = False
-               parameters[14].enabled = True
-               parameters[15].enabled = True
-               parameters[16].enabled = True
-               parameters[17].enabled = True
-               parameters[18].enabled = True
-               parameters[19].enabled = True
-               parameters[20].enabled = True
-               parameters[21].enabled = True
-               
+        #Fill the fields after feature selection.
         if(parameters[0].value):
             flds = [] 
             fc=parameters[0].value
@@ -334,158 +214,110 @@ class AnomalyGrowthCalculator(object):
                     else:
                         flds.append(f)                    
               
-            if not parameters[2].value:
-                if config.ILI_PC_REQ_FIELDS[0].upper() in flds:
-                    parameters[2].value = config.ILI_PC_REQ_FIELDS[0]
-            if not parameters[3].value:
-                if config.ILI_PC_REQ_FIELDS[1].upper() in flds:
-                    parameters[3].value = config.ILI_PC_REQ_FIELDS[1]
+            if not parameters[1].value:                
+                if config.ILI_ANOM_CON_REQ_FIELDS[0].upper() in flds:
+                    parameters[1].value = config.ILI_ANOM_CON_REQ_FIELDS[0]
+            if not parameters[3].value:                
+                if config.ILI_ANOM_CON_REQ_FIELDS[1].upper() in flds:
+                    parameters[3].value = config.ILI_ANOM_CON_REQ_FIELDS[1]
             if not parameters[4].value:
-                if config.ILI_PC_REQ_FIELDS[2].upper() in flds:
-                    parameters[4].value = config.ILI_PC_REQ_FIELDS[2]
+                if config.ILI_ANOM_CON_REQ_FIELDS[2].upper() in flds:
+                    parameters[4].value = config.ILI_ANOM_CON_REQ_FIELDS[2]
             if not parameters[5].value:
-                if config.ILI_PC_REQ_FIELDS[3].upper() in flds:
-                    parameters[5].value = config.ILI_PC_REQ_FIELDS[3]
-            if not parameters[6].value:
-                if config.ILI_PC_REQ_FIELDS[4].upper() in flds:
-                    parameters[6].value = config.ILI_PC_REQ_FIELDS[4]
-            if not parameters[7].value:
-                if config.ILI_PC_REQ_FIELDS[5].upper() in flds:
-                    parameters[7].value = config.ILI_PC_REQ_FIELDS[5]
-
-        if(parameters[10].value):
-            flds_p = [] 
-            fc=parameters[10].value
-            if(fc):
-                fls = []           
-                fls += [f.name.upper() for f in arcpy.ListFields (fc)]
-                
-                flds=[]
-                for f in fls:
-                    x=f.split('.')
-                    if len(x)>1:
-                        x1=x[1]
-                        flds_p.append(x1)
-                    else:
-                        flds_p.append(f)          
-            if not parameters[12].value:
-               if config.ILI_PIPE_REQ_FIELDS[0].upper() in flds_p:
-                    parameters[12].value = config.ILI_PIPE_REQ_FIELDS[0]
-          
-        if(parameters[11].value):
-            flds_m = [] 
-            fc=parameters[11].value
-            if(fc):
-                fls = []           
-                fls += [f.name.upper() for f in arcpy.ListFields (fc)]
-                
-                flds=[]
-                for f in fls:
-                    x=f.split('.')
-                    if len(x)>1:
-                        x1=x[1]
-                        flds_m.append(x1)
-                    else:
-                        flds_m.append(f)          
-            if not parameters[13].value:
-                if config.ILI_MAOP_REQ_FIELDS[0].upper() in flds_m:
-                    parameters[13].value = config.ILI_MAOP_REQ_FIELDS[0]
-
-        # Assigning add field  #config.ILI_PC_ADDING_FIELDS[0]
-        if(parameters[0].value):
-            flds = []
-            fc=parameters[0].value
-            flds += [f.name for f in arcpy.ListFields (fc)]
-
-            for i in range(14, 22):
-                if not parameters[i].value:
-                   j=i-14
-                   comparevalue= config.ILI_PC_ADDING_FIELDS[j]
-                   self.populate_add_field(flds,parameters,i,comparevalue)           
+                if config.ILI_ANOM_CON_REQ_FIELDS[3].upper() in flds:
+                    parameters[5].value = config.ILI_ANOM_CON_REQ_FIELDS[3]
+            if not parameters[2].value:
+                if config.ILI_ANOM_CON_REQ_FIELDS[4].upper() in flds:
+                    parameters[2].value = config.ILI_ANOM_CON_REQ_FIELDS[4]        
+        
+        #To enable Grid option based on the check box selection
+        if(parameters[14].value):
+            parameters[15].enabled = True
         else:
-            for i in range(2, 22):
-                parameters[i].value = None
+            parameters[15].enabled = False        
+
+        #To enable Grid option based on the check box selection
+        if(parameters[16].value):
+            parameters[17].enabled = True
+            parameters[18].enabled = True
+            parameters[19].enabled = True
+            parameters[20].enabled = True
+        else:
+            parameters[17].enabled = False
+            parameters[18].enabled = False
+            parameters[19].enabled = False
+            parameters[20].enabled = False
+
+        if(parameters[17].value):
+            
+                fldsw = [] 
+                fcw=parameters[17].value
+                if(fcw):
+                    fls = []           
+                    fls += [f.name.upper() for f in arcpy.ListFields (fc)]
+                
+                    fldsw=[]
+                    for f in fls:
+                        x=f.split('.')
+                        if len(x)>1:
+                            x1=x[1]
+                            fldsw.append(x1)
+                        else:
+                            fldsw.append(f)    
+                if not parameters[18].value:
+                    if config.ILI_ANOM_CON_REQ_FIELDS[0].upper() in fldsw:                   
+                        parameters[18].value = config.ILI_ANOM_CON_REQ_FIELDS[0]  
+                if not parameters[19].value:
+                    if config.ILI_ANOM_CON_REQ_FIELDS[4].upper() in fldsw:                   
+                        parameters[19].value = config.ILI_ANOM_CON_REQ_FIELDS[4] 
+
 
         return
 
-    def updateMessages(self, parameters):                     
-      
-        if(parameters[1].value):
-            if parameters[1].value == config.ILI_PIPE_PARAMETER_TYPE[1]: 
-                if(parameters[0].Value):
-                    if not parameters[2].value:
-                        parameters[2].setErrorMessage("You must supply a value for the parameter Length")
-                    if not parameters[3].value:
-                        parameters[3].setErrorMessage("You must supply a value for the parameter Max Depth Measure")
-                    if not parameters[4].value:
-                        parameters[4].setErrorMessage("You must supply a value for the parameter Diameter")
-                    if not parameters[5].value:
-                        parameters[5].setErrorMessage("You must supply a value for the parameter Wall Thickness")
-                    if not parameters[8].value:
-                        parameters[8].setErrorMessage("You must supply a value for the parameter Pipe SMYS")
-                    if not parameters[9].value:
-                       parameters[9].setErrorMessage("You must supply a value for the parameter Pipe MAOP")
-     
-            elif parameters[1].value == config.ILI_PIPE_PARAMETER_TYPE[2]:
-                if(parameters[0].value):
-                    if not parameters[2].value:
-                        parameters[2].setErrorMessage("You must supply a value for the parameter Length")
-                    if not parameters[3].value:
-                        parameters[3].setErrorMessage("You must supply a value for the parameter Max Depth Measure")
-                if(parameters[10].value):   
-                    if not parameters[12].value:
-                        parameters[12].setErrorMessage("You must supply a value for the parameter SMYS")
-                    
-                if(parameters[11].value):
-                    if not parameters[13].value:
-                        parameters[13].setErrorMessage("You must supply a value for the parameter MAOP")
-
-            elif parameters[1].value == config.ILI_PIPE_PARAMETER_TYPE[0]:   
-                if(parameters[0].value):
-                    if not parameters[2].value:
-                        parameters[2].setErrorMessage("You must supply a value for the parameter Length")
-                    if not parameters[3].value:
-                        parameters[3].setErrorMessage("You must supply a value for the parameter Max Depth Measure")
-                    if not parameters[4].value:
-                        parameters[4].setErrorMessage("You must supply a value for the parameter Diameter")
-                    if not parameters[5].value:
-                        parameters[5].setErrorMessage("You must supply a value for the parameter Wall Thickness")
-                    if not parameters[6].value:
-                        parameters[6].setErrorMessage("You must supply a value for the parameter Pipe SMYS")
-                    if not parameters[7].value:
-                        parameters[7].setErrorMessage("You must supply a value for the parameter Pipe MAOP")
+    def updateMessages(self, parameters):  
+        if(parameters[0].value):
+            if(parameters[16].Value):
+                if not parameters[17].value:
+                    parameters[17].setErrorMessage("Please select input Weld Featues/Table,\n As Generate Weld Option is selected.")
         return
 
     def execute(self, parameters, messages):
-        inlineinspection.AddMessage("Start Logging.")        
+               
         arcpy.AddMessage("Log file location: " + inlineinspection.GetLogFileLocation())
-        inlineinspection.AddMessage("Starting ILI Pressure Calculator process...")
+        inlineinspection.AddMessage("Starting Anomaly Growth Calculator process...")
 
         try:          
-            ili_inputpoint_fc = parameters[0].valueAsText                       
+            ili_inputpoint_fc = parameters[0].valueAsText 
+            is_grid_line = parameters[14].value
+            is_weld_line = parameters[16].value
+            
             if(arcpy.Exists(ili_inputpoint_fc)):                  
                 ilicount = int(arcpy.GetCount_management(ili_inputpoint_fc).getOutput(0))  
-                inlineinspection.AddMessage("Record count for ILI Pressure Calculator {}".format(ilicount))
-                if (ilicount > 0):  
-                    if(parameters[1].value==config.ILI_PIPE_PARAMETER_TYPE[2]):
-                       #self.build_segmentor_table(parameters)
-                       self.build_spatialjoin_table(parameters)
-                       #inlineinspection.AddMessage("Option 3 is proceeding ")
-                    else:
-                        ht_result_flag = False
-                        calculateilipressures = CalculateILIPressures()                           
-                        calculateilipressures.fieldsCaliculation(parameters)
+                #inlineinspection.AddMessage("Record count for ILI Pressure Calculator {}".format(ilicount))
+                if (ilicount > 0):                      
+                    #with arcpy.EnvManager(scratchWorkspace=r"C:\G2\UnitedBrine\Anomaly Comparison\Anomaly Comparison.gdb", workspace=r"C:\G2\UnitedBrine\Anomaly Comparison\Anomaly Comparison.gdb"): 
+                    
+                    #Generate Output point,llipse, Envelop for the Anamalies
+                    self.ILIAnomaly2Geography(parameters)    
+                    
+                    #Genrate Grid lines only if the option is selected
+                    if(is_grid_line):
+                        self.iliGrid2Geography(parameters)
+                    
+                    #Genrate Weld lines only if the option is selected
+                    if(is_weld_line):
+                        self.iliWeld2Geography(parameters)
                 else:
-                    inlineinspection.AddWarning("There is no records to perform Pressure Calculation.")
+                    inlineinspection.AddWarning("There is no records to perform Anomaly Conversion.")
             else:
-                    inlineinspection.AddWarning("There is no feature class for Pressure Calculation.")
-            inlineinspection.AddMessage("Finished ILI Pressure Calculator process.")
+                    inlineinspection.AddWarning("There is no feature class for Anomaly Conversion.")
+            inlineinspection.AddMessage("Completed Anomaly growth Calculator process.")
             return
 
         except Exception as e:
             tb = sys.exc_info()[2]
-            arcpy.AddError("An error occurred on line %i" % tb.tb_lineno)
-            arcpy.AddError(str(e))
+            inlineinspection.AddError("An error occurred on line %i" % tb.tb_lineno)
+            inlineinspection.AddError(str(e))
 
     def param_changed(self, param, check_value=False):
         changed = param.altered and not param.hasBeenValidated
@@ -497,352 +329,297 @@ class AnomalyGrowthCalculator(object):
         else:
             return changed
 
-    def get_missing_fields(self, infields, required_fields):
-        '''
-        :param infields: list of layer fields
-        :param required_fields:  list of required fields
-        :return: checks the required fields in the infields and returns missing fields
-        '''
-        missing_flds = []
-        for fld in required_fields:
-            if fld.upper() not in infields:
-                missing_flds.append(fld)
-
-        return missing_flds
-
-    def populate_add_field(self,flds,parameters,idx,addfield):
-        inlineinspection.AddMessage("Processing field {} ".format(addfield))
-        if(not addfield in flds):
-                   #datatype="Field"  
-                   flds_1 = []
-                   flds_1 =flds
-                   flds_1.append(addfield)
-                   parameters[idx].filter.list = flds_1
-
-        else:
-                    parameters[idx].filter.list = flds
-
-        parameters[idx].value = addfield
-   
-    ''' Check Intermediate gdb existing or not if not create '''
-    def createtempgdb(self, output_dir, output_gdb):
+    def ILIAnomaly2Geography(self,parameters):
         try:
-            # Check for folder, if not create the folder
-            if (not os.path.exists(output_dir)):
-                os.makedirs(output_dir)
-            gdbpath = os.path.join(output_dir, output_gdb)
-            inlineinspection.AddMessage("Creating Intermediate GDB")
-            if (not os.path.exists(gdbpath)):
-                arcpy.management.CreateFileGDB(output_dir, output_gdb, "CURRENT")
-            else:
-                arcpy.management.Delete(gdbpath, None)
-                arcpy.management.CreateFileGDB(output_dir, output_gdb, "CURRENT")
+
+            Input_ILI_Pipe_Tally_Table = parameters[0].valueAsText
+            Input_ILI_Pipe_Tally_Odometer_Field = parameters[1].valueAsText
+            Input_Pipeline_Diameter_Value =parameters[2].valueAsText
+            Input_ILI_Pipe_Tally_Anomaly_Width_Field = parameters[3].valueAsText
+            Input_ILI_Pipe_Tally_Anomaly_Length_Field =parameters[4].valueAsText
+            Input_ILI_Pipe_Tally_Clock_Position_Field =parameters[5].valueAsText
+            Input_Clock_Position_Offset="\""+parameters[6].valueAsText+"\""
+            Input_Y_Axis_Clock_Orientation= "\""+parameters[7].valueAsText+"\"" 
+            Spatial_Reference_for_Output_Features= parameters[8].valueAsText 
+            Input_False_Northing_Value=parameters[9].valueAsText
+            Input_False_Easting_Value=parameters[10].valueAsText            
+            Output_Anomaly_Point_Features=parameters[11].valueAsText
+            Output_Anomaly_Ellipse_Features=parameters[12].valueAsText 
+            Output_Anomaly_Envelope_Features=parameters[13].valueAsText
+
+            # Convert ILI Anomalies to Point, Envelope and Ellipse Features
+            # To allow overwriting outputs change overwriteOutput option to True.
+            arcpy.env.overwriteOutput = True
+
+            #Select all the features which have clock position value            
+            Input_ILI_Pipe_Tally_Table_View = arcpy.management.SelectLayerByAttribute(Input_ILI_Pipe_Tally_Table, "NEW_SELECTION", Input_ILI_Pipe_Tally_Clock_Position_Field +" IS NOT NULL",None)
+
+            # Process: Copy Rows (Copy Rows) (management)
+            Pipe_Tally_Table = fr"{arcpy.env.scratchGDB}\PipeTally"
+            arcpy.management.CopyRows(in_rows=Input_ILI_Pipe_Tally_Table_View, out_table=Pipe_Tally_Table, config_keyword="")
+            inlineinspection.AddMessage("Rows copy is done")
+            # Process: Make Table View (Make Table View) (management)
+            Pipe_Tally_Table_View = "PipeTally_View"
+            arcpy.management.MakeTableView(in_table=Pipe_Tally_Table, out_view=Pipe_Tally_Table_View, where_clause="", workspace="", field_info="")
+            inlineinspection.AddMessage("Make Table View is done")
+            # Process: Add Anomaly X Coord Field (Add Field) (management)
+            Anomaly_X_Coord_Field_Added = arcpy.management.AddField(in_table=Pipe_Tally_Table_View, field_name="AnomalyXCoord", field_type="DOUBLE", field_precision=15, field_scale=7, field_length=None, field_alias="", field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED", field_domain="")[0]
+            inlineinspection.AddMessage("Anomaly X Coord Field Added")
+            # Process: Calculate Anomaly X Coord Field (Calculate Field) (management)
+            Anomaly_X_Coord_Field_Calculated = arcpy.management.CalculateField(in_table=Anomaly_X_Coord_Field_Added, field="AnomalyXCoord", expression=f"!{Input_ILI_Pipe_Tally_Odometer_Field}! - {Input_False_Easting_Value}", expression_type="PYTHON_9.3", code_block="", field_type="TEXT")[0]
+            inlineinspection.AddMessage("Anomaly X Coord Field Calculated")
+            # Process: Add Anomaly Y Coord Field (Add Field) (management)
+            Anomaly_Y_Coord_Field_Added = arcpy.management.AddField(in_table=Pipe_Tally_Table_View, field_name="AnomalyYCoord", field_type="DOUBLE", field_precision=15, field_scale=7, field_length=None, field_alias="", field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED", field_domain="")[0]
+            inlineinspection.AddMessage("Anomaly Y Coord Field Added")
+            # Process: Calculate Anomaly Y Coord Field (Calculate Field) (management)
+            #arcpy.management.CalculateField(Pipe_Tally_Table_View, "AnomalyYCoord", 'calc_anomaly_y_coord(!'+Input_ILI_Pipe_Tally_Clock_Position_Field +'!, !'+Input_Pipeline_Diameter_Value +'!, 0, '+Input_Clock_Position_Offset +','+Input_Y_Axis_Clock_Orientation +')', "PYTHON3", "def calc_anomaly_y_coord(clock_pos, pipe_od, false_northing, clock_offset, y_axis" +
+            arcpy.management.CalculateField(Pipe_Tally_Table_View, "AnomalyYCoord", 'calc_anomaly_y_coord(!'+Input_ILI_Pipe_Tally_Clock_Position_Field +'!, !'+Input_Pipeline_Diameter_Value +'!, '+str(Input_False_Northing_Value)+', '+Input_Clock_Position_Offset +','+Input_Y_Axis_Clock_Orientation +')', "PYTHON3", "def calc_anomaly_y_coord(clock_pos, pipe_od, false_northing, clock_offset, y_axis" +
+    "_clock):\n    clock_parts = clock_pos.split(\':\')\n    clock_hours = float(clock_pa" +
+    "rts[0])\n    clock_minutes = float(clock_parts[1])\n    pipe_od = float(pipe_od)\n " +
+    "   offset_parts = clock_offset.split(\':\')\n    offset_hours = float(offset_parts[" +
+    "0])\n    offset_minutes = float(offset_parts[1])\n\n    false_northing = float(false_northing)\n\n  # Correct clock minutes for" +
+    " the clock minutes offset\n    if offset_hours < 0:\n        offset_minutes = offs" +
+    "et_minutes * (-1)\n    clock_minutes = clock_minutes + offset_minutes\n    if cloc" +
+    "k_minutes > 59:\n        clock_minutes = clock_minutes - 60\n        clock_hours =" +
+    " clock_hours + 1\n    elif clock_minutes < 0:\n        clock_minutes = clock_minut" +
+    "es + 60\n        clock_hours = clock_hours - 1\n\n    # Correct clock hours for the" +
+    " clock hours offset\n    clock_hours = clock_hours + offset_hours\n    if clock_ho" +
+    "urs > 12:\n        clock_hours = clock_hours - 12\n    elif clock_hours <=0:\n     " +
+    "   clock_hours = clock_hours + 12\n\n    # Calculate y-coordinate\n    if y_axis_cl" +
+    "ock == \"6:00 Centered\":\n        if clock_hours == 12:\n            y_coord = ((cl" +
+    "ock_minutes / 60 / 12) * (pipe_od / 12 * math.pi)) + false_northing\n        else" +
+    ":\n            y_coord = (((clock_hours / 12) + (clock_minutes / 60 / 12)) * (pip" +
+    "e_od / 12 * math.pi)) + false_northing\n    else:  # y_axis_clock = \"12:00 Center" +
+    "ed\"\n        if clock_hours == 12:\n            y_coord = (-1) * (((clock_minutes " +
+    "/ 60 / 12) * (pipe_od / 12 * math.pi)) + false_northing)\n        elif 1 <= clock" +
+    "_hours < 6:\n            y_coord = (-1) * ((((clock_hours / 12) + (clock_minutes " +
+    "/ 60 / 12)) * (pipe_od / 12 * math.pi)) + false_northing)\n        else:  # 6 <= " +
+    "clock_hours <= 11\n            y_coord = ((1 - ((clock_hours / 12) + (clock_minut" +
+    "es / 60 / 12))) * (pipe_od / 12 * math.pi)) + false_northing\n    return y_coord\n" +
+    "", "TEXT")
+
+            inlineinspection.AddMessage("Anomaly Y Coord Field Calculated")
+            # Process: Add Anomaly Major Axis Field (Add Field) (management)
+            Anomaly_Major_Axis_Field_Added = arcpy.management.AddField(in_table=Pipe_Tally_Table_View, field_name="AnomalyMajorAxisFt", field_type="DOUBLE", field_precision=15, field_scale=3, field_length=None, field_alias="", field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED", field_domain="")[0]
+            inlineinspection.AddMessage("Anomaly Major Axis Field Added")
+            # Process: Calculate Anomaly Major Axis Field (Calculate Field) (management)
+            Anomaly_Major_Axis_Field_Calculated = arcpy.management.CalculateField(in_table=Pipe_Tally_Table_View, field="AnomalyMajorAxisFt", expression=f"!{Input_ILI_Pipe_Tally_Anomaly_Width_Field}! / 12", expression_type="PYTHON_9.3", code_block="", field_type="TEXT")[0]
+            inlineinspection.AddMessage("Anomaly Major Axis Field Calculated")
+            # Process: Add Anomaly Minor Axis Field (Add Field) (management)
+            Anomaly_Minor_Axis_Field_Added = arcpy.management.AddField(in_table=Pipe_Tally_Table_View, field_name="AnomalyMinorAxisFt", field_type="DOUBLE", field_precision=15, field_scale=3, field_length=None, field_alias="", field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED", field_domain="")[0]
+            inlineinspection.AddMessage("Anomaly Minor Axis Field Added")
+            # Process: Calculate Anomaly Minor Axis Field (Calculate Field) (management)
+            Anomaly_Minor_Axis_Field_Calculated = arcpy.management.CalculateField(in_table=Pipe_Tally_Table_View, field="AnomalyMinorAxisFt", expression=f"!{Input_ILI_Pipe_Tally_Anomaly_Length_Field}! / 12", expression_type="PYTHON_9.3", code_block="", field_type="TEXT")[0]
+            inlineinspection.AddMessage("Anomaly Minor Axis Field Calculated")
+            # Process: Add Azimuth Field (Add Field) (management)
+            Azimuth_Field_Added = arcpy.management.AddField(in_table=Pipe_Tally_Table_View, field_name="Azimuth", field_type="DOUBLE", field_precision=15, field_scale=2, field_length=None, field_alias="", field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED", field_domain="")[0]
+            inlineinspection.AddMessage("Azimuth Field Added")
+            # Process: Calculate Azimuth Field (Calculate Field) (management)
+            Azimuth_Field_Calculated = arcpy.management.CalculateField(in_table=Pipe_Tally_Table_View, field="Azimuth", expression="0.1", expression_type="PYTHON_9.3", code_block="", field_type="TEXT")[0]
+            inlineinspection.AddMessage("Azimuth Field Calculated")
+            # Process: Make XY Event Layer (Make XY Event Layer) (management)          
+            Anomaly_Point_Events = "AnomalyEvents_Layer"  
+            #Anomaly_Point_Events = fr"{arcpy.env.scratchGDB}\AnomalyEvents_Layer",
+            #arcpy.CopyRows_management(Pipe_Tally_Table_View, "Pipe_Tally_Table_View")
+            #inlineinspection.AddMessage("Pipe_Tally_Table_View copy done")
+            arcpy.management.MakeXYEventLayer(table=Pipe_Tally_Table_View, in_x_field="AnomalyXCoord", in_y_field="AnomalyYCoord", out_layer=Anomaly_Point_Events, spatial_reference=Spatial_Reference_for_Output_Features, in_z_field="")
+            #arcpy.MakeXYEventLayer_management(Pipe_Tally_Table_View, "AnomalyXCoord", "AnomalyYCoord", Anomaly_Point_Events, Spatial_Reference_for_Output_Features)
+            inlineinspection.AddMessage("Make XY Event Layer Created")
+            #Process: Copy Features (Copy Features) (management)
+            #Output_Anomaly_Point_Features = "AnomalyPoint"
+            arcpy.management.CopyFeatures(in_features=Anomaly_Point_Events, out_feature_class=Output_Anomaly_Point_Features, config_keyword="", spatial_grid_1=0, spatial_grid_2=0, spatial_grid_3=0)
+            inlineinspection.AddMessage("Copy Features to Anomaly Point Events")
+            # Process: Table To Ellipse (Table To Ellipse) (management)
+            Anomaly_Ellipse_Polylines = "AnomalyEllipsePolyline"
+            #arcpy.management.TableToEllipse(in_table=Output_Anomaly_Point_Features, out_featureclass=Anomaly_Ellipse_Polylines, x_field="AnomalyXCoord", y_field="AnomalyYCoord", major_field="AnomalyMajorAxisFt", minor_field="AnomalyMinorAxisFt", distance_units="9003", azimuth_field="Azimuth", azimuth_units="9102", id_field="", spatial_reference=Spatial_Reference_for_Output_Features, attributes="NO_ATTRIBUTES")
+            arcpy.management.TableToEllipse(Output_Anomaly_Point_Features, Anomaly_Ellipse_Polylines, "AnomalyXCoord", "AnomalyYCoord", "AnomalyMajorAxisFt", "AnomalyMinorAxisFt", "FEET", "Azimuth", "DEGREES", None, Spatial_Reference_for_Output_Features, "NO_ATTRIBUTES")
+            inlineinspection.AddMessage("Converted from Table To Ellipse")            
+
+            # Process: Feature To Polygon (Feature To Polygon) (management)
+            #arcpy.management.FeatureToPolygon([Anomaly_Ellipse_Polylines], Output_Anomaly_Ellipse_Features, None, "ATTRIBUTES", None)
+            
+            arcpy.management.FeatureToPolygon(in_features=[Anomaly_Ellipse_Polylines], out_feature_class=Output_Anomaly_Ellipse_Features, cluster_tolerance="", attributes="ATTRIBUTES", label_features=Output_Anomaly_Point_Features)
+            inlineinspection.AddMessage("Converted Feature To Polygon")
+            
+            # Process: Feature Envelope To Polygon (Feature Envelope To Polygon) (management)
+            arcpy.management.FeatureEnvelopeToPolygon(in_features=Output_Anomaly_Ellipse_Features, out_feature_class=Output_Anomaly_Envelope_Features, single_envelope="SINGLEPART")
+            inlineinspection.AddMessage("Converted Feature Envelope To Polygon")
+            
         except Exception as e:
             tb = sys.exc_info()[2]
             inlineinspection.AddError("An error occurred on line %i" % tb.tb_lineno)
             inlineinspection.AddError(str(e))
-            inlineinspection.AddError("Issue in intermediate output folder creation, Please check and try again.\n{}".format(arcpy.GetMessages(2)))
+            inlineinspection.AddError("Issue in ILI Anomaly 2 Geography.\n{}".format(arcpy.GetMessages(2)))
             return False
 
-    def build_spatialjoin_table(self,parameters):
-
+    def iliWeld2Geography(self,parameters):
         try:
-            ili_layer =parameters[0].valueAsText
-            pipesegment_layer=parameters[10].valueAsText       
-            maop_layer = parameters[11].valueAsText
            
-            syms_field = parameters[12].valueAsText
-            maop_field = parameters[13].valueAsText            
+            Input_ILI_Pipe_Tally_Table = parameters[0].valueAsText
+            Input_ILI_Pipe_Tally_Odometer_Field = parameters[1].valueAsText
+            Input_Pipeline_Diameter_Value =parameters[2].valueAsText
+            Input_ILI_Pipe_Tally_Anomaly_Width_Field = parameters[3].valueAsText
+            Input_ILI_Pipe_Tally_Anomaly_Length_Field =parameters[4].valueAsText
+            Input_ILI_Pipe_Tally_Clock_Position_Field =parameters[5].valueAsText
+            Input_Clock_Position_Offset="\""+parameters[6].valueAsText+"\""
+            Input_Y_Axis_Clock_Orientation= "\""+parameters[7].valueAsText+"\"" 
+            Spatial_Reference_for_Output_Features= parameters[8].valueAsText 
+            Input_False_Northing_Value=parameters[9].valueAsText
+            Input_False_Easting_Value=parameters[10].valueAsText            
+            Output_Anomaly_Point_Features=parameters[11].valueAsText
+            Output_Anomaly_Ellipse_Features=parameters[12].valueAsText 
+            Output_Anomaly_Envelope_Features=parameters[13].valueAsText
+            Input_ILI_Weld_Table = parameters[17].valueAsText
+            Input_ILI_Weld_Odometer_Field=parameters[18].valueAsText
+            Input_Weld_Pipeline_Diameter_Value =parameters[19].valueAsText
+            Output_Weld_Features=parameters[20].valueAsText
+
+                        
+            # To allow overwriting outputs change overwriteOutput option to True.
+            arcpy.env.overwriteOutput = True
             
-            #Create temp gdb to process and store intermediate data
-            self.ILI_TEMP_FOLDER = "ILI_TEMP"
-            self.ILI_TEMP_GDB = "ILI_TEMP_GDB.gdb"
-            tempoutput_workspace = arcpy.env.scratchFolder if arcpy.Exists(arcpy.env.scratchFolder) and arcpy.env.scratchFolder is not None else self.output_dir
-            tempoutput_dir = os.path.join(tempoutput_workspace, self.ILI_TEMP_FOLDER )
-            tempoutput_gdb = self.ILI_TEMP_GDB 
-            self.tempoutputgdb_path = os.path.join(tempoutput_dir, tempoutput_gdb)
-                   
-            # Create temp gbd for intermediate process
-            self.createtempgdb(tempoutput_dir, tempoutput_gdb)
-            inlineinspection.AddMessage("Temp gdb is created and the path is {}".format(self.tempoutputgdb_path))
-
-            spatial_join1 = FuncParam(self.tempoutputgdb_path  + "\\ILIData_SJ1")
-            spatialjoin1 =spatial_join1.valueAsText
-            if arcpy.Exists(spatialjoin1):
-                arcpy.Delete_management(spatialjoin1)
-
-            spatial_join2 = FuncParam(self.tempoutputgdb_path  + "\\ILIData_SJ2")
-            spatialjoin2 =spatial_join2.valueAsText
-            if arcpy.Exists(spatialjoin2):
-                arcpy.Delete_management(spatialjoin2)
-
-            inlineinspection.AddMessage("spatial join1 feature {} {} {}".format(spatialjoin1,ili_layer,pipesegment_layer))
-            arcpy.SpatialJoin_analysis(ili_layer, pipesegment_layer, spatialjoin1, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+ili_layer+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 50 Long 0 0,First,#,'+pipesegment_layer+','+syms_field+',0,50', "INTERSECT", None, '')
-            inlineinspection.AddMessage("Spatial Join is performed on Pipe Segment")
-                       
-            arcpy.SpatialJoin_analysis(spatialjoin1, maop_layer, spatialjoin2, "JOIN_ONE_TO_ONE", "KEEP_ALL", r'EventID "EventID" true true false 38 Guid 0 0,First,#,'+spatialjoin1+',EventID,-1,-1;'+config.OUTPUT_SYMS_FIELDNAME+' "'+config.OUTPUT_SYMS_FIELDNAME+'" true true false 4 Long 0 0,First,#,'+spatialjoin1+','+config.OUTPUT_SYMS_FIELDNAME+',-1,-1;'+config.OUTPUT_MAOP_FIELDNAME+' "'+config.OUTPUT_MAOP_FIELDNAME+'" true true false 4 Long 0 0,First,#,'+maop_layer+','+maop_field+',-1,-1', "INTERSECT", None, '')
-            inlineinspection.AddMessage("Spatial Join is performed on MAOP")
-
-            #Check and delete if fields existing.
-            ili_flds=[]           
-            ili_flds += [f.name.upper() for f in arcpy.ListFields (ili_layer)]
-            delete_fields=""
-            if(config.OUTPUT_SYMS_FIELDNAME in ili_flds):
-                delete_fields=""+config.OUTPUT_SYMS_FIELDNAME
-            if(config.OUTPUT_MAOP_FIELDNAME in ili_flds):
-                if(len(delete_fields)>0):
-                    delete_fields=delete_fields+";"+config.OUTPUT_MAOP_FIELDNAME
-                else:
-                    delete_fields=""+config.OUTPUT_MAOP_FIELDNAME
-
-            if(len(delete_fields)>0):
-                arcpy.management.DeleteField(ili_layer, delete_fields)
-                inlineinspection.AddMessage("Deleted existing temp fields")
-
-            arcpy.management.AddFields(ili_layer, ""+config.OUTPUT_SYMS_FIELDNAME+" LONG # # # #;"+config.OUTPUT_MAOP_FIELDNAME+" LONG # # # #")
-            inlineinspection.AddMessage("Added temp fields")
-          
-            #Add join with ILI Layer          
-            arcpy.AddJoin_management(ili_layer, "EventID", spatialjoin2, "EventID", "KEEP_ALL")            
-            inlineinspection.AddMessage("Join is performed on ILI Data")
-            ili_layer_name=os.path.basename(ili_layer)
+            # Process: Copy Rows (Copy Rows) (management)
+            Pipe_WeldTally_Table = fr"{arcpy.env.scratchGDB}\PipeWeldTally"
+            arcpy.management.CopyRows(in_rows=Input_ILI_Weld_Table, out_table=Pipe_WeldTally_Table, config_keyword="")
+            inlineinspection.AddMessage("Rows copy is done")
+           
+            arcpy.management.AddFields(Pipe_WeldTally_Table, "WeldXMinCoord DOUBLE # # # #;WeldYMinCoord DOUBLE # # # #;WeldXMaxCoord DOUBLE # # # #;WeldYMaxCoord DOUBLE # # # #")
+            inlineinspection.AddMessage("Weld Tally Fields are added")
             
-            arcpy.management.CalculateField(ili_layer, ili_layer_name+'.'+config.OUTPUT_SYMS_FIELDNAME , "!ILIData_SJ2."+config.OUTPUT_SYMS_FIELDNAME+"!", "PYTHON3", '', "TEXT")
-            arcpy.management.CalculateField(ili_layer, ili_layer_name+'.'+config.OUTPUT_MAOP_FIELDNAME, "!ILIData_SJ2."+config.OUTPUT_MAOP_FIELDNAME+"!", "PYTHON3", '', "TEXT")
-            inlineinspection.AddMessage("Calculate temp fields")
+            if ("6:00 Centered" in Input_Y_Axis_Clock_Orientation):                 
+                    #ymin_coord = (((0 / 12) + (0 / 60 / 12)) * (pipe_od / 12 * math.pi)) + false_northing                
+                    #ymax_coord = (((12 / 12) + (0 / 60 / 12)) * (pipe_od / 12 * math.pi)) + false_northing
 
-            arcpy.management.RemoveJoin(ili_layer, "ILIData_SJ2")
-            inlineinspection.AddMessage("Existing Join is removed from ILI Data")
+                    arcpy.management.CalculateFields(Pipe_WeldTally_Table, "PYTHON3", "WeldXMinCoord !"+Input_ILI_Weld_Odometer_Field+"!;WeldYMinCoord  \'(((0 / 12) + (0 / 60 / 12)) * (!"+Input_Weld_Pipeline_Diameter_Value+"!/ 12 * math.pi)) +float("+str(Input_False_Northing_Value)+")\';WeldXMaxCoord !"+Input_ILI_Pipe_Tally_Odometer_Field+"!;WeldYMaxCoord \'(((12 / 12) + (0 / 60 / 12)) * (!"+Input_Weld_Pipeline_Diameter_Value+"!/ 12) * math.pi) + float("+str(Input_False_Northing_Value)+")\'", '')
+                    #                arcpy.management.CalculateFields("PipeWeldTally", "PYTHON3", "WeldXMinCoord !AbsoluteOdometer!;WeldYMinCoord 0;WeldXMaxCoord !AbsoluteOdometer!" +
+                    #";WeldYMaxCoord \'(!PipeDiameter!/12)*math.pi+float(str(\"0.0\"))\'", '')
+                    inlineinspection.AddMessage("Weld Tally Fields are Calculated with 6:00 Centered")
+            else:
+                    ##if 1 <= clock_hours < 6:
+                    #    ymin_coord = (-1) * ((((6 / 12) + (0 / 60 / 12)) * (pipe_od / 12 * math.pi)) + false_northing)
+                    ##else:  # 6 <= clock_hours <= 11
+                    #    ymax_coord = ((1 - ((6 / 12) + (0 / 60 / 12))) * (pipe_od / 12 * math.pi)) + false_northing
+                    arcpy.management.CalculateFields(Pipe_WeldTally_Table, "PYTHON3", "WeldXMinCoord !"+Input_ILI_Weld_Odometer_Field+"!;WeldYMinCoord \'(-1)*((((6 / 12) + (0 / 60 / 12)) * (!"+Input_Weld_Pipeline_Diameter_Value+"!/ 12 * math.pi)) + float("+str(Input_False_Northing_Value)+"))\';WeldXMaxCoord !"+Input_ILI_Weld_Odometer_Field+"!;WeldYMaxCoord \'(0.5 * (!"+Input_Weld_Pipeline_Diameter_Value+"!/12 * math.pi)) + float("+str(Input_False_Northing_Value)+")\'", '')
+                    inlineinspection.AddMessage("Weld Tally Fields are Calculated with 12:00 Centered")
 
-            calulatepressure= CalculateILIPressures()
-            calulatepressure.fieldsCaliculation(parameters)
-            inlineinspection.AddMessage("Caliculation is performed")            
+            #arcpy.management.CalculateFields(Pipe_WeldTally_Table, "PYTHON3", "WeldXMinCoord !"+Input_ILI_Weld_Odometer_Field+"!;WeldYMinCoord 0.0;WeldXMaxCoord !"+Input_ILI_Pipe_Tally_Odometer_Field+"!;WeldYMaxCoord !"+Input_Pipeline_Diameter_Value+"!", '')
+            #inlineinspection.AddMessage("Weld Tally Fields are Calculated")
 
-            arcpy.management.DeleteField(ili_layer, ""+config.OUTPUT_SYMS_FIELDNAME+";"+config.OUTPUT_MAOP_FIELDNAME+"")
-            inlineinspection.AddMessage("Deleted temp fields")
+            arcpy.management.XYToLine(Pipe_WeldTally_Table, Output_Weld_Features, "WeldXMinCoord", "WeldYMinCoord", "WeldXMaxCoord", "WeldYMaxCoord", "GEODESIC", "WeldNumber",Spatial_Reference_for_Output_Features , "ATTRIBUTES")
+            inlineinspection.AddMessage("Weld Line Features are Created")
 
         except Exception as e:
             tb = sys.exc_info()[2]
             inlineinspection.AddError("An error occurred on line %i" % tb.tb_lineno)
             inlineinspection.AddError(str(e))
-            inlineinspection.AddError("Issue in build spatial join creation, Please check and try again.\n{}".format(arcpy.GetMessages(2)))
-            return False
+            inlineinspection.AddError("Error in Weld Line Features Creation")
 
-class CalculateILIPressures(object):
-
-    def __init__(self):
-        """Define the tool (tool name is the name of the class)."""
-        #self.label = "ILI Pressure Calculator Tool"        
-    
-    '''Add The output fields if not exist'''
-    def addMissingField(self,fc,outFields):
-        if(fc):
-            flds = []            
-            flds += [f.name.upper() for f in arcpy.ListFields (fc)]           
-            f1=[]
-            for f in flds:
-                x=f.split('.')
-                if len(x)>1:
-                    x1=x[1]
-                    f1.append(x1)
-                else:
-                    f1.append(f)
-           
-            for outField in outFields:
-                if not outField.upper() in flds: 
-                    # Execute AddField for new fields
-                    arcpy.AddField_management(fc, outField, "LONG", 9,
-                                              field_alias=outField, field_is_nullable="NULLABLE")
-                    inlineinspection.AddMessage("{} field added".format(outField))        
-
-    def fieldsCaliculation(self,parameters):
+    def iliGrid2Geography(self,parameters):
         try:
-            fields=[]     
-            inFeatures=parameters[0].valueAsText
-            lengthField=parameters[2].valueAsText
-            maxDepthMeasure=parameters[3].valueAsText
-            maxDiameter=parameters[4].valueAsText
-            measuredWallthickness=parameters[5].valueAsText
-            pipeSmys=parameters[6].valueAsText
-            pipeMAOPField=parameters[7].valueAsText                       
+            Input_ILI_Pipe_Tally_Table = parameters[0].valueAsText
+            Input_ILI_Pipe_Tally_Odometer_Field = parameters[1].valueAsText
+            Input_Pipeline_Diameter_Value =parameters[2].valueAsText
+            Input_ILI_Pipe_Tally_Anomaly_Width_Field = parameters[3].valueAsText
+            Input_ILI_Pipe_Tally_Anomaly_Length_Field =parameters[4].valueAsText
+            Input_ILI_Pipe_Tally_Clock_Position_Field =parameters[5].valueAsText
+            Input_Clock_Position_Offset="\""+parameters[6].valueAsText+"\""
+            Input_Y_Axis_Clock_Orientation= "\""+parameters[7].valueAsText+"\"" 
+            Spatial_Reference_for_Output_Features= parameters[8].valueAsText 
+            Input_False_Northing_Value=parameters[9].valueAsText
+            Input_False_Easting_Value=parameters[10].valueAsText            
+            Output_Anomaly_Point_Features=parameters[11].valueAsText
+            Output_Anomaly_Ellipse_Features=parameters[12].valueAsText 
+            Output_Anomaly_Envelope_Features=parameters[13].valueAsText
+            Output_Grid_Features=parameters[15].valueAsText 
+            Input_is_weld_value = parameters[16].value
+            Input_ILI_Weld_Table = parameters[17].valueAsText
+            Input_ILI_Weld_Odometer_Field=parameters[18].valueAsText
+            Output_Weld_Features=parameters[20].valueAsText
 
-            fPipeBurstPressure=parameters[14].valueAsText
-            fModPipeBurstPressure=parameters[15].valueAsText
-            fCalculatedPressure=parameters[16].valueAsText
-            fReferencePressure=parameters[17].valueAsText
-            fSafetyFactor=parameters[18].valueAsText
-            fPressureReferencedRatio=parameters[19].valueAsText
-            fEstimatedRepairFactor=parameters[20].valueAsText
-            fRupturePressureRatio=parameters[21].valueAsText
-            eventidField ="EVENTID"
+            # To allow overwriting outputs change overwriteOutput option to True.
+            arcpy.env.overwriteOutput = True
+            
+            # Process: Copy Rows (Copy Rows) (management)
+            Pipe_GridTally_Table = fr"{arcpy.env.scratchGDB}\PipeGridTally"
+            arcpy.management.CopyRows(in_rows=Input_ILI_Weld_Table, out_table=Pipe_GridTally_Table, config_keyword="")
+            inlineinspection.AddMessage("Grid Rows copy is done")
 
-            outputfields=[fPipeBurstPressure,fModPipeBurstPressure,fCalculatedPressure,fReferencePressure,fSafetyFactor,fPressureReferencedRatio,fEstimatedRepairFactor,fRupturePressureRatio]           
-                      
-            if(parameters[1].value==config.ILI_PIPE_PARAMETER_TYPE[1]):
-                pipeSmysValOrField =parameters[8].valueAsText
-                pipeMaopValOrField =parameters[9].valueAsText
-                #*** Need to modify this filed as properly
-                pipeSmys=lengthField
-                pipeMAOPField=lengthField
+            field_to_find_x_max = Input_ILI_Pipe_Tally_Odometer_Field
+            field_to_find_y_max = Input_Pipeline_Diameter_Value
+           
+            x_max_AnamalyValue = arcpy.da.SearchCursor(Input_ILI_Pipe_Tally_Table, field_to_find_x_max, "{} IS NOT NULL".format(field_to_find_x_max), sql_clause = (None, "ORDER BY {} DESC".format(field_to_find_x_max))).next()[0]
+            x_max_value =0.0
+            x_max_WeldValue = 0.0
+            if(Input_is_weld_value):
+                x_max_WeldValue = arcpy.da.SearchCursor(Pipe_GridTally_Table, Input_ILI_Weld_Odometer_Field, "{} IS NOT NULL".format(Input_ILI_Weld_Odometer_Field), sql_clause = (None, "ORDER BY {} DESC".format(Input_ILI_Weld_Odometer_Field))).next()[0]
+            x_max_value=x_max_WeldValue if x_max_AnamalyValue < x_max_WeldValue else x_max_AnamalyValue
+            
+            y_max_value = arcpy.da.SearchCursor(Pipe_GridTally_Table, field_to_find_y_max, "{} IS NOT NULL".format(field_to_find_y_max), sql_clause = (None, "ORDER BY {} DESC".format(field_to_find_y_max))).next()[0]
+            
+            if ("6:00 Centered" in Input_Y_Axis_Clock_Orientation):                 
+                ymin_coord = (((0 / 12) + (0 / 60 / 12)) * (y_max_value / 12 * math.pi)) + float(Input_False_Northing_Value)               
+                ymax_coord = (((12 / 12) + (0 / 60 / 12)) * (y_max_value / 12 * math.pi)) + float(Input_False_Northing_Value)
+               
+            else:                
+                ymin_coord = (-1) * ((((6 / 12) + (0 / 60 / 12)) * (y_max_value / 12 * math.pi)) + float(Input_False_Northing_Value))               
+                ymax_coord = ((1 - ((6 / 12) + (0 / 60 / 12))) * (y_max_value / 12 * math.pi)) + float(Input_False_Northing_Value)
+                
 
-            elif(parameters[1].value==config.ILI_PIPE_PARAMETER_TYPE[2]):                           
-                pipeSmys=config.OUTPUT_SYMS_FIELDNAME
-                pipeMAOPField=config.OUTPUT_MAOP_FIELDNAME                
-            else:
-                pipeSmys=parameters[6].valueAsText                
-                pipeMAOPField=parameters[7].valueAsText               
 
-            infields=[lengthField,maxDepthMeasure,maxDiameter,measuredWallthickness,pipeSmys,pipeMAOPField,eventidField]
-            fields=infields+outputfields
-            inlineinspection.AddMessage("Input ILI Feature class {}".format(inFeatures))
-            #*** Check output fields are existing or not if not add fields     
-            self.addMissingField(inFeatures,outputfields)
-            # Create update cursor for feature class 
-            warningCounter=0
-            with arcpy.da.UpdateCursor(inFeatures, fields) as cursor:
-                # Update the fields based on the values               
-                for row in cursor:                   
-                    reventid=row[6]
-                    rlength = row[0]
-                    rmaxDepthMeasure = row[1]
-                    rmaxDiameter =row[2]
-                    rmeasuredWallthickness =row[3]
-                    if(parameters[1].value==config.ILI_PIPE_PARAMETER_TYPE[1]):
-                        rpipeSmys = float(pipeSmysValOrField)
-                        rpipeMAOP = float(pipeMaopValOrField)
-                    else:
-                        rpipeSmys = row[4]
-                        rpipeMAOP =row[5]
+            x_min_value = 0           
+            split_interval =5           
+            grid_interval =round((ymax_coord-ymin_coord)/(split_interval-1),6)
 
-                    areaOfMetalLoss = None
-                    modAreaOfMetalLoss = None
-                    flowStress = None
-                    modFlowStress =None
-                    foliasFactor = None
-                    modFoliasFactor = None
-                    pipeBurstPressure = None
-                    modPipeBurstPressure = None
-                    calculatedPressure = None
-                    referencePressure = None
-                    safetyFactor = None
-                    pressureReferencedRatio = None
-                    estimatedRepairFactor = None
-                    rupturePressureRatio = None
+            inlineinspection.AddMessage(" ymin_coord {} ,ymax_coord {}, grid_interval {} ".format(ymin_coord,ymax_coord,grid_interval))
+            
+            grid_id=["6:00","3:00","12:00","9:00","6:00"]            
+            if ("6:00 Centered" in Input_Y_Axis_Clock_Orientation):
+                grid_id=["12:00","3:00","6:00","9:00","12:00"]
+                                            
+            fc_name = os.path.basename(Output_Grid_Features)
+            wspace = os.path.dirname(Output_Grid_Features)
+           
+            GridLable_Column="ClockPosition"
+            Output_Grid_FeatureClass = arcpy.management.CreateFeatureclass(wspace, fc_name, "POLYLINE", None, "DISABLED", "DISABLED", Spatial_Reference_for_Output_Features)
+            arcpy.management.AddFields(Output_Grid_FeatureClass, GridLable_Column+" TEXT # 255 # #;GridXMinCoord DOUBLE # # # #;GridYMinCoord DOUBLE # # # #;GridXMaxCoord DOUBLE # # # #;GridYMaxCoord DOUBLE # # # #")
 
-                    #calculate Area Of Metal Loss
-                    if(rlength and rmaxDepthMeasure):                        
-                        areaOfMetalLoss = (2/3)*(rmaxDepthMeasure)*(rlength)
-                      
-                    else:                        
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Area of Metal Loss is not caliculated as required fileds are null".format(reventid))
-                        warningCounter +=1             
-                    # calculate Mod Area Of Metal Loss              
-                    if(rlength and rmaxDepthMeasure):                        
-                        modAreaOfMetalLoss = (.85)*(rmaxDepthMeasure)*(rlength)
-                      
-                    else:
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Mod Area of Metal Loss is not caliculated as required fileds are null".format(reventid))
-                        warningCounter +=1                        
-                    # calculate Flow Stress
-                    if(rpipeSmys):                        
-                        flowStress = (1.1)*rpipeSmys
-                       
-                    else:
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Flow Stress is not caliculated as required fileds are null".format(reventid))
-                        warningCounter +=1
-                    # calculate mod Flow Stress
-                    if(rpipeSmys):                        
-                        modFlowStress = (rpipeSmys+10000)
-                        
-                    else:
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Mod Flow Stress is not caliculated as required fileds are null".format(reventid))
-                        warningCounter +=1
-                    # calculate foliasFactor
-                    if(rlength and rmaxDiameter and rmeasuredWallthickness):                        
-                        foliasFactor=0
-                        if rlength <(20*rmaxDiameter*rmeasuredWallthickness)**(.5):
-                            foliasFactor= math.sqrt((1 + 0.8 * (rlength**2/(rmaxDiameter*rmeasuredWallthickness))))                      
-                                             
-                    else:
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Folias Factor is not caliculated as required fileds are null".format(reventid))
-                        warningCounter +=1
-                    # calculate mod Folias Factor
-                    if(rlength and rmaxDiameter and rmeasuredWallthickness):                        
-                        modFoliasFactor=0
-                        if rlength**2/(rmaxDiameter*rmeasuredWallthickness)<=50:
-                            modFoliasFactor = math.sqrt((1+(0.6275*(rlength**2/(rmaxDiameter*rmeasuredWallthickness)))-(0.003375*(((rlength**2)/(rmaxDiameter*rmeasuredWallthickness))**2))))
-                        elif rlength**2/(rmaxDiameter*rmeasuredWallthickness)>50:
-                            modFoliasFactor = ((.032)*((rlength**2)/(rmaxDiameter*rmeasuredWallthickness)))+3.3                   
-                       
-                    else:
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Mod Folias Factor is not caliculated as required fileds are null".format(reventid))
-                        warningCounter +=1
-                    # calculate pipe Burst Pressure
-                    if(flowStress and areaOfMetalLoss and foliasFactor and rlength and rmaxDiameter and rmeasuredWallthickness):                        
-                        pipeBurstPressure = flowStress*((1-(areaOfMetalLoss/(rmeasuredWallthickness*rlength)))/(1-(areaOfMetalLoss/(rmeasuredWallthickness*rlength*foliasFactor))))*((2*rmeasuredWallthickness)/rmaxDiameter)
-                        
-                        row[7]=pipeBurstPressure
-                    else:
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Pipe Burst Pressure is not caliculated as required fileds are null".format(reventid))
-                        warningCounter +=1
-                    # calculate Mod Pipe Burst Pressure
-                    if(modFlowStress and modAreaOfMetalLoss and modFoliasFactor and rlength and rmaxDiameter and rmeasuredWallthickness):                        
-                        modPipeBurstPressure = (modFlowStress)*((1-(modAreaOfMetalLoss/(rmeasuredWallthickness*rlength)))/(1-(modAreaOfMetalLoss/(rmeasuredWallthickness*rlength*(modFoliasFactor)))))*((2*rmeasuredWallthickness)/rmaxDiameter)
-                        #*** Check the formula
-                        row[8]=modPipeBurstPressure
-                    else:
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Mod Pipe Burst Pressure is not caliculated as required fileds are null".format(reventid))
-                        warningCounter +=1
-                    # calculated Pressure
-                    if(pipeBurstPressure and rpipeMAOP and rpipeSmys):                        
-                        calculatedPressure = (pipeBurstPressure*(rpipeMAOP)/(rpipeSmys))
-                        row[9]=calculatedPressure
-                    else:
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} calculated Pressure is not caliculated as required fileds are null".format(reventid))
-                        warningCounter +=1
-                    # calculated Reference Pressure
-                    if(rpipeMAOP):
-                        referencePressure = rpipeMAOP
-                        row[10]=referencePressure
-                    else:
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Reference Pressure is not caliculated as required fileds are null".format(reventid))
-                        warningCounter +=1
-                    # calculated Safety Factor
-                    if(rpipeMAOP and pipeBurstPressure):
-                        safetyFactor = (pipeBurstPressure/rpipeMAOP)
-                        row[11]=safetyFactor
-                    else:
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Safety Factor is not caliculated as required fileds are null".format(reventid))
-                        warningCounter +=1
-                    # calculated Pressure Referenced Ratio
-                    if(calculatedPressure and referencePressure):
-                        pressureReferencedRatio = (calculatedPressure/referencePressure)
-                        row[12]=pressureReferencedRatio
-                    else:
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Pressure Referenced Ratio is not caliculated as required fileds are null".format(reventid))
-                        warningCounter +=1
-                    # calculated Estimated Repair Factor
-                    if(rpipeMAOP and calculatedPressure):
-                        estimatedRepairFactor = (rpipeMAOP/calculatedPressure)
-                        row[13]=estimatedRepairFactor
-                    else:
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Estimated Repair Factor is not caliculated as required fileds are null".format(reventid))
-                        warningCounter +=1
-                    # calculated Rupture Pressure Ratio
-                    if(rpipeSmys and pipeBurstPressure):
-                        rupturePressureRatio = (pipeBurstPressure/rpipeSmys)
-                        row[14]=rupturePressureRatio
-                    else:
-                        inlineinspection._inlineinspection_log._addWarning_FILE("{} Rupture Pressure Ratio is not caliculated as required fileds are null".format(reventid))
-                        warningCounter +=1
-                    
-                    cursor.updateRow(row) 
-                    
-            inlineinspection.AddWarning("Total number of warning {} due to values are null or empty, Please check the log file for details".format(warningCounter))
+            # Inserting into polyline logic           
+            point = arcpy.Point()
+            array = arcpy.Array()
+
+            featureList = []
+            cursor = arcpy.InsertCursor(Output_Grid_FeatureClass,["SHAPE@",GridLable_Column])
+            feat = cursor.newRow()
+
+            for interval in range(0,split_interval):
+                # Set X and Y for start and end points
+                point.X = x_min_value
+                point.Y = ymin_coord+(interval*grid_interval)
+                array.add(point)
+                point.X = x_max_value
+                point.Y = ymin_coord+(interval*grid_interval)
+                array.add(point)   
+                # Create a Polyline object based on the array of points
+                polyline = arcpy.Polyline(array)
+                # Clear the array for future use
+                array.removeAll()
+                # Append to the list of Polyline objects
+                featureList.append(polyline)
+                # Insert the feature
+                feat.shape = polyline
+                feat.setValue(GridLable_Column,grid_id[interval])
+                feat.setValue("GridXMinCoord",x_min_value)
+                feat.setValue("GridYMinCoord",ymin_coord+(interval*grid_interval))
+                feat.setValue("GridXMaxCoord",x_max_value)
+                feat.setValue("GridYMaxCoord",ymin_coord+(interval*grid_interval))
+                cursor.insertRow(feat)
+            del feat
+            del cursor
+
+            inlineinspection.AddMessage("Grid Line Features are created")
+
         except Exception as e:
-            # If an error occurred, print line number and error message
             tb = sys.exc_info()[2]
-            arcpy.AddError("An error occurred on line %i" % tb.tb_lineno)
-            arcpy.AddError(str(e))
-
-   
+            inlineinspection.AddError("An error occurred on line %i" % tb.tb_lineno)
+            inlineinspection.AddError(str(e))
+            inlineinspection.AddError("Error in Grid Line Features creation")

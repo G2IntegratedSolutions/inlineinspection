@@ -31,7 +31,7 @@ class PressureCalculator(object):
         self.label = config.ILI_PC_TOOL_LABEL
         self.description = config.ILI_PC_TOOL_DESC
         self.canRunInBackground = False
-        self.category = config.ILI_PC_TOOL_CATAGORY  
+        #self.category = config.ILI_PC_TOOL_CATAGORY  
                
     def getParameterInfo(self):
                
@@ -479,7 +479,7 @@ class PressureCalculator(object):
         return missing_flds
 
     def populate_add_field(self,flds,parameters,idx,addfield):
-        inlineinspection.AddMessage("Processing field {} ".format(addfield))
+        inlineinspection.AddMessage("Processing field {} ".format(addfield))        
         if(not addfield in flds):
                    #datatype="Field"  
                    flds_1 = []
