@@ -13,7 +13,7 @@ ILI_TEMP_FOLDER = "ILI_TEMP"
 ILI_TEMP_GDB = 'TempOutput_ILI.gdb'
 
 ILI_PC_PARAMETER_CATGRY = "Input ILI Data Fields"
-ILI_PC_REQ_FIELDS = ['LENGTH' ,'MAXDEPTHMEASURED' ,'PIPEDIAMETER' ,'MEASUREDWALLTHICKNESS' ,'PIPESMYS' ,'B31GMAOP']
+ILI_PC_REQ_FIELDS = ['Length' ,'MaxDepthMeasured' ,'MaxDiameter' ,'MeasuredWallThickness' ,'PipeSmys' ,'B31GMAOP']
 
 ILI_PC_PARAMETER_CATGRY_2 = "Output Calculated ILI Fields"
 ILI_PC_ADDING_FIELDS = ['PipeBurstPressure' ,'Mod_PipeBurstPressure' ,'CalculatedPressure' ,'ReferencePressure' ,'Safety_Factor' ,'PressureReferencedRatio', 'EstimatedRepairFactor', 'RupturePressureRatio'
@@ -51,4 +51,6 @@ OUTPUT_SYMS_FIELDNAME = "SMYS_SJ"
 OUTPUT_MAOP_FIELDNAME ="MAOP_SJ"
 
 
-ILI_ANOM_CON_REQ_FIELDS =['AbsoluteOdometer','Width','Length','ClockPosition','PipeDiameter']
+ILI_ANOM_CON_REQ_FIELDS =['AbsoluteOdometer','Width','Length','ClockPosition','PipeDiameter','MaxDepthMeasured','EventID']
+
+ILI_ANOM_CLOCK_POSITION = ["6:00 Centered","12:00 Centered"]
