@@ -2,6 +2,8 @@
 
 from inlineinspection.pressurecalculator.pressurecalculator import PressureCalculator
 from inlineinspection.anomalygrowthcalculator.anomalygrowthcalculator import AnomalyGrowthCalculator
+from inlineinspection.anomalygrowthcalculator.anomalyconverter import AnomalyConverter
+from inlineinspection.anomalygrowthcalculator.anomalycomparer import AnomalyComparer
 
 class Toolbox(object):
 
@@ -13,5 +15,5 @@ class Toolbox(object):
         self.alias = "inlineinspection"
 
         # List of tool classes associated with this toolbox
-        self.tools = [PressureCalculator, AnomalyGrowthCalculator      
+        self.tools = [PressureCalculator, AnomalyConverter,AnomalyComparer,AnomalyGrowthCalculator   
                       ]
