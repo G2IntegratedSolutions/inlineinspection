@@ -1,5 +1,5 @@
 
-""" Headline: Anomaly Processing Inline Inspection Anomaly Comparer tool 
+""" Headline: Anomaly Processing Inline Inspection Anomaly Matching tool 
     Calls:  inlineinspection, inlineinspection.config
     inputs: ILI Anomaly Ellipse from current and previous years.
     Description: This tool Compares Anomaly.  
@@ -17,32 +17,17 @@ import traceback
 import sys
 from arcpy import env
 
-
 class AnomalyComparer(object):
 
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
-        self.label = "Anomalies Comparer"
+        self.label = "ILI Anomaly Matching"
         self.description = "This Tool Compares ILI Anomalies"
         self.canRunInBackground = False
         #self.category = config.ILI_PC_TOOL_CATAGORY  
                
     def getParameterInfo(self):
             
-        in_dataset61_features = arcpy.Parameter(category =config.ILI_ANOM_CLOCK_POSITION[0],displayName="Input ILI Anomaly Ellipse Dataset 1 Features",
-            name="in_dataset61_features",
-            datatype="GPFeatureLayer",
-            parameterType="Required",
-            direction="Input")
-        in_dataset61_features.filter.list = ["Polygon"]
-
-        in_dataset62_features = arcpy.Parameter(category =config.ILI_ANOM_CLOCK_POSITION[0],displayName="Input ILI Anomaly Ellipse Dataset 2 Features",
-            name="in_dataset62_features",
-            datatype="GPFeatureLayer",
-            parameterType="Required",
-            direction="Input")
-        in_dataset62_features.filter.list = ["Polygon"]
-
         in_dataset121_features = arcpy.Parameter(category =config.ILI_ANOM_CLOCK_POSITION[1],displayName="Input ILI Anomaly Ellipse Dataset 1 Features",
             name="in_dataset121_features",
             datatype="GPFeatureLayer",
@@ -56,6 +41,20 @@ class AnomalyComparer(object):
             parameterType="Required",
             direction="Input")
         in_dataset122_features.filter.list = ["Polygon"]
+
+        in_dataset61_features = arcpy.Parameter(category =config.ILI_ANOM_CLOCK_POSITION[0],displayName="Input ILI Anomaly Ellipse Dataset 1 Features",
+            name="in_dataset61_features",
+            datatype="GPFeatureLayer",
+            parameterType="Required",
+            direction="Input")
+        in_dataset61_features.filter.list = ["Polygon"]
+
+        in_dataset62_features = arcpy.Parameter(category =config.ILI_ANOM_CLOCK_POSITION[0],displayName="Input ILI Anomaly Ellipse Dataset 2 Features",
+            name="in_dataset62_features",
+            datatype="GPFeatureLayer",
+            parameterType="Required",
+            direction="Input")
+        in_dataset62_features.filter.list = ["Polygon"]
 
         in_uniqueid_field = arcpy.Parameter(
             displayName="Anomaly Unique ID Field", name="in_uniqueid_field",
@@ -79,10 +78,10 @@ class AnomalyComparer(object):
             direction="Output")       
         out_comparer_features.value ="%scratchGDB%\AnomalyComparer"
                
-        parameters = [in_dataset61_features,
-                        in_dataset62_features,
-                        in_dataset121_features,
+        parameters = [in_dataset121_features,
                         in_dataset122_features,
+                        in_dataset61_features,
+                        in_dataset62_features,
                         in_uniqueid_field,
                         in_search_distance,
                         out_comparer_features                        
@@ -128,7 +127,7 @@ class AnomalyComparer(object):
         try:          
             ili_prior_anomaly_fc = parameters[0].valueAsText 
             ili_recent_anomaly_fc = parameters[1].valueAsText 
-                        
+                    
             if(arcpy.Exists(ili_prior_anomaly_fc)):                  
                 ilicount = int(arcpy.GetCount_management(ili_prior_anomaly_fc).getOutput(0))  
                 #inlineinspection.AddMessage("Record count for ILI Pressure Calculator {}".format(ilicount))

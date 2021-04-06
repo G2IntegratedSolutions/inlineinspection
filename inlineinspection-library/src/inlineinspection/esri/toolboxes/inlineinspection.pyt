@@ -11,7 +11,7 @@ class Toolbox(object):
         """Define the toolbox (the name of the toolbox is the name of the
         .pyt file)."""
 
-        self.label = "In Line Inspection Tools"
+        self.label = "PIMS ILI Tools"
         self.alias = "inlineinspection"
 
         # List of tool classes associated with this toolbox

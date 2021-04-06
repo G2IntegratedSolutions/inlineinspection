@@ -22,7 +22,7 @@ class AnomalyGrowthCalculator(object):
 
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
-        self.label = "Anomaly Growth Calculator"
+        self.label = "ILI Anomaly Growth Calculator"
         self.description = "This Tool Caliculates Anomaly Growth"
         self.canRunInBackground = False
         #self.category = config.ILI_PC_TOOL_CATAGORY  
@@ -55,7 +55,6 @@ class AnomalyGrowthCalculator(object):
         in_ili_length_field.parameterDependencies = [in_ili_features.name]       
         in_ili_length_field.filter.list = ['int', 'long', 'double']
         
-       
         out_grid_features = arcpy.Parameter(displayName="Output Grid Line Features",
             name="out_grid_features",
             datatype="GPFeatureLayer",

@@ -6,7 +6,7 @@ config file.
 #   ------ Hydro trace related config values
 
 ILI_PC_TOOL_CATAGORY =  'ILI Tools'
-ILI_PC_TOOL_LABEL ='Pressure Calculator'
+ILI_PC_TOOL_LABEL ='ILI Anomaly Pressure Calculator'
 ILI_PC_TOOL_DESC = 'Performs Pressure Calculations for ILI'
 ILI_SUPPORT_DB_TYPES=[".gdb\\", ".sde\\"]
 ILI_TEMP_FOLDER = "ILI_TEMP"
@@ -53,4 +53,4 @@ OUTPUT_MAOP_FIELDNAME ="MAOP_SJ"
 
 ILI_ANOM_CON_REQ_FIELDS =['AbsoluteOdometer','Width','Length','ClockPosition','PipeDiameter','MaxDepthMeasured','EventID']
 
-ILI_ANOM_CLOCK_POSITION = ["6:00 Centered","12:00 Centered"]
+ILI_ANOM_CLOCK_POSITION = ["ILI Anomaly Matching Layers (6:00 Centered Versions)","ILI Anomaly Matching Layers (12:00 Centered Versions)"]

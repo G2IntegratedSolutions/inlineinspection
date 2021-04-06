@@ -366,7 +366,7 @@ class AnomalyConverter(object):
             Anomaly_X_Coord_Field_Added = arcpy.management.AddField(in_table=Pipe_Tally_Table_View, field_name="AnomalyXCoord", field_type="DOUBLE", field_precision=15, field_scale=7, field_length=None, field_alias="", field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED", field_domain="")[0]
             inlineinspection.AddMessage("Anomaly X Coord Field Added")
             # Process: Calculate Anomaly X Coord Field (Calculate Field) (management)
-            Anomaly_X_Coord_Field_Calculated = arcpy.management.CalculateField(in_table=Anomaly_X_Coord_Field_Added, field="AnomalyXCoord", expression=f"!{Input_ILI_Pipe_Tally_Odometer_Field}! - {Input_False_Easting_Value}", expression_type="PYTHON_9.3", code_block="", field_type="TEXT")[0]
+            Anomaly_X_Coord_Field_Calculated = arcpy.management.CalculateField(in_table=Anomaly_X_Coord_Field_Added, field="AnomalyXCoord", expression=f"!{Input_ILI_Pipe_Tally_Odometer_Field}! - {Input_False_Easting_Value}", expression_type="PYTHON_9.3", code_block="", field_type="")[0]
             inlineinspection.AddMessage("Anomaly X Coord Field Calculated")
             # Process: Add Anomaly Y Coord Field (Add Field) (management)
             Anomaly_Y_Coord_Field_Added = arcpy.management.AddField(in_table=Pipe_Tally_Table_View, field_name="AnomalyYCoord", field_type="DOUBLE", field_precision=15, field_scale=7, field_length=None, field_alias="", field_is_nullable="NULLABLE", field_is_required="NON_REQUIRED", field_domain="")[0]
@@ -505,7 +505,7 @@ class AnomalyConverter(object):
             #arcpy.management.CalculateFields(Pipe_WeldTally_Table, "PYTHON3", "WeldXMinCoord !"+Input_ILI_Weld_Odometer_Field+"!;WeldYMinCoord 0.0;WeldXMaxCoord !"+Input_ILI_Pipe_Tally_Odometer_Field+"!;WeldYMaxCoord !"+Input_Pipeline_Diameter_Value+"!", '')
             #inlineinspection.AddMessage("Weld Tally Fields are Calculated")
 
-            arcpy.management.XYToLine(Pipe_WeldTally_Table, Output_Weld_Features, "WeldXMinCoord", "WeldYMinCoord", "WeldXMaxCoord", "WeldYMaxCoord", "GEODESIC", "WeldNumber",Spatial_Reference_for_Output_Features , "ATTRIBUTES")
+            arcpy.management.XYToLine(Pipe_WeldTally_Table, Output_Weld_Features, "WeldXMinCoord", "WeldYMinCoord", "WeldXMaxCoord", "WeldYMaxCoord", "GEODESIC", "WeldNumber",Spatial_Reference_for_Output_Features, "ATTRIBUTES")
             inlineinspection.AddMessage("Weld Line Features are Created")
 
         except Exception as e:
